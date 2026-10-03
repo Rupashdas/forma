@@ -22,6 +22,7 @@ final class Module implements ModuleContract {
 	public const WIDGETS = array(
 		Widgets\Marquee::class,
 		Widgets\BeforeAfter::class,
+		Widgets\ProjectIndex::class,
 	);
 
 	public static function id(): string {

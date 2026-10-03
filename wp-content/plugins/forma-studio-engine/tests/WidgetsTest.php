@@ -70,6 +70,55 @@ final class WidgetsTest extends TestCase {
 		$this->assert_true( ! str_contains( $html, 'type="range"' ), 'nothing interactive without the second image' );
 	}
 
+	public function test_project_index_lists_published_projects_newest_first(): void {
+		$html = $this->render( 'forma-project-index', array() );
+
+		$this->assert_same( 11, substr_count( $html, '<li class="forma-index__row"' ), 'one row per project' );
+		$this->assert_true( strpos( $html, 'Northline Residence' ) < strpos( $html, 'Forma Pavilion' ), 'newest first' );
+		$this->assert_true( str_contains( $html, 'href="' . esc_url( get_permalink( get_page_by_path( 'casa-nera', OBJECT, 'forma_project' ) ) ) . '"' ), 'rows link to projects' );
+		$this->assert_true( str_contains( $html, '<span class="forma-index__no">11</span>' ), 'project numbers' );
+		$this->assert_true( str_contains( $html, '>Tromsø, Norway<' ), 'location column' );
+		$this->assert_true( str_contains( $html, 'data-cursor="View"' ), 'cursor label' );
+		$this->assert_true( str_contains( $html, 'class="forma-index__preview" aria-hidden="true"' ), 'decorative preview is hidden from assistive tech' );
+	}
+
+	public function test_project_index_can_show_one_type_oldest_first(): void {
+		$html = $this->render(
+			'forma-project-index',
+			array(
+				'project_type' => 'interiors',
+				'order'        => 'oldest',
+			)
+		);
+
+		$this->assert_same( 2, substr_count( $html, '<li class="forma-index__row"' ), 'two interiors projects' );
+		$this->assert_true( strpos( $html, 'Atelier 27' ) < strpos( $html, 'House of Light' ), 'oldest first' );
+	}
+
+	public function test_next_project_follows_date_order_and_wraps(): void {
+		$next = $this->render_on( 'casa-nera', 'forma-next-project', array() );
+
+		$this->assert_true( str_contains( $next, 'aria-label="Next project: The Quiet Hotel"' ), 'Casa Nera → The Quiet Hotel' );
+		$this->assert_true( str_contains( $next, 'href="' . esc_url( get_permalink( get_page_by_path( 'the-quiet-hotel', OBJECT, 'forma_project' ) ) ) . '"' ), 'links to it' );
+		$this->assert_true( str_contains( $next, 'data-cursor="Next"' ), 'cursor label' );
+		$this->assert_true( str_contains( $next, 'view-transition-name: forma-project-' . get_page_by_path( 'the-quiet-hotel', OBJECT, 'forma_project' )->ID ), 'image morphs into the next hero' );
+
+		$wrap = $this->render_on( 'northline-residence', 'forma-next-project', array() );
+		$this->assert_true( str_contains( $wrap, 'aria-label="Next project: Forma Pavilion"' ), 'newest wraps to the oldest' );
+
+		$end = $this->render_on( 'northline-residence', 'forma-next-project', array( 'wrap' => '' ) );
+		$this->assert_true( ! str_contains( $end, '<a ' ), 'no link at the end when wrapping is off' );
+	}
+
+	private function render_on( string $slug, string $widget, array $settings ): string {
+		$GLOBALS['post'] = get_page_by_path( $slug, OBJECT, 'forma_project' );
+		setup_postdata( $GLOBALS['post'] );
+		$html = $this->render( $widget, $settings );
+		wp_reset_postdata();
+
+		return $html;
+	}
+
 	private function render( string $widget, array $settings ): string {
 		$element = \Elementor\Plugin::$instance->elements_manager->create_element_instance(
 			array(

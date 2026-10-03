@@ -1,1 +1,163 @@
-/* FORMA — project-index */
+/* FORMA — Project Index. An editorial list; the preview image is a desktop-only flourish. */
+
+.forma-index {
+	position: relative;
+}
+
+.forma-index__list {
+	border-top: 1px solid var(--forma-line, rgba(236, 230, 219, 0.14));
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.forma-index__row {
+	border-bottom: 1px solid var(--forma-line, rgba(236, 230, 219, 0.14));
+}
+
+.forma-index__link {
+	align-items: baseline;
+	color: var(--forma-bone, #ece6db);
+	column-gap: clamp(16px, 2vw, 32px);
+	display: grid;
+	grid-template-columns: 3.5rem minmax(0, 1fr) repeat(3, minmax(0, 11rem));
+	padding: clamp(18px, 2vw, 28px) 0;
+	text-decoration: none;
+	transition: opacity 0.4s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.forma-index__metas {
+	display: contents;
+}
+
+.forma-index__no,
+.forma-index__meta {
+	color: var(--forma-stone, #9b9488);
+	font-family: var(--forma-font-sans, sans-serif);
+	font-size: 12px;
+	font-stretch: 125%;
+	font-weight: 500;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.forma-index__title {
+	font-family: var(--forma-font-display, "Bodoni Moda", serif);
+	font-size: clamp(30px, 3.8vw, 60px);
+	font-weight: 400;
+	letter-spacing: -0.02em;
+	line-height: 1;
+	transition: transform 0.6s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.forma-index__thumb {
+	display: none;
+}
+
+.forma-index__preview {
+	aspect-ratio: 4 / 5;
+	left: 0;
+	opacity: 0;
+	overflow: hidden;
+	pointer-events: none;
+	position: fixed;
+	top: 0;
+	transition: opacity 0.35s ease;
+	width: clamp(220px, 24vw, 380px);
+	z-index: 40;
+}
+
+.forma-index__preview img {
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
+}
+
+.forma-index.is-previewing .forma-index__preview {
+	opacity: 1;
+}
+
+/* Keyboard focus parks the preview beside the focused row instead of following a pointer. */
+.forma-index.is-pinned .forma-index__preview {
+	left: auto;
+	position: absolute;
+	right: 0;
+	top: var(--forma-index-pin, 0);
+	transform: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.forma-index__list:hover .forma-index__link {
+		opacity: 0.38;
+	}
+
+	.forma-index__list:hover .forma-index__link:hover,
+	.forma-index__link:focus-visible {
+		opacity: 1;
+	}
+
+	.forma-index__link:hover .forma-index__title,
+	.forma-index__link:focus-visible .forma-index__title {
+		transform: translateX(16px);
+	}
+}
+
+/* Touch: no hover preview; each row carries its own thumbnail. */
+@media (hover: none), (pointer: coarse) {
+	.forma-index__preview {
+		display: none;
+	}
+
+	.forma-index__thumb {
+		aspect-ratio: 4 / 5;
+		display: block;
+		grid-area: thumb;
+		height: auto;
+		object-fit: cover;
+		width: 100%;
+	}
+
+	.forma-index__link {
+		align-items: center;
+		grid-template-areas: "no title thumb" "no metas thumb";
+		grid-template-columns: 2.25rem minmax(0, 1fr) 72px;
+		row-gap: 8px;
+	}
+
+	.forma-index__no {
+		align-self: start;
+		grid-area: no;
+		padding-top: 0.35em;
+	}
+
+	.forma-index__title {
+		align-self: end;
+		grid-area: title;
+	}
+
+	.forma-index__metas {
+		align-self: start;
+		column-gap: 12px;
+		display: flex;
+		flex-wrap: wrap;
+		grid-area: metas;
+	}
+}
+
+@media (max-width: 1023px) and (hover: hover) and (pointer: fine) {
+	.forma-index__link {
+		grid-template-columns: 3rem minmax(0, 1fr) repeat(2, minmax(0, 9rem));
+	}
+
+	.forma-index__meta--location {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.forma-index__title,
+	.forma-index__link,
+	.forma-index__preview {
+		transition: none;
+	}
+}

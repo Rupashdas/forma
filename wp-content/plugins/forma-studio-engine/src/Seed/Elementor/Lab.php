@@ -64,6 +64,7 @@ final class Lab {
 					)
 				)
 			),
+			$this->section( 'Project Index', Builder::widget( 'forma-project-index', array() ) ),
 		);
 	}
 
