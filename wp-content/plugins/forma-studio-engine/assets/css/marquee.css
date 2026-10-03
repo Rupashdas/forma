@@ -1,1 +1,72 @@
-/* FORMA — marquee */
+/* FORMA — Marquee. Two identical lists slide by half the track width, so the loop is seamless. */
+
+.forma-marquee {
+	overflow: hidden;
+	width: 100%;
+}
+
+.forma-marquee__track {
+	animation: forma-marquee var(--forma-marquee-duration, 30s) linear infinite;
+	display: flex;
+	width: max-content;
+}
+
+.forma-marquee--right .forma-marquee__track {
+	animation-direction: reverse;
+}
+
+.forma-marquee--pause:hover .forma-marquee__track,
+.forma-marquee--pause:focus-within .forma-marquee__track {
+	animation-play-state: paused;
+}
+
+.forma-marquee__list {
+	align-items: center;
+	display: flex;
+	flex-shrink: 0;
+	gap: 0.4em;
+	list-style: none;
+	margin: 0;
+	padding: 0 0.4em 0 0;
+}
+
+.forma-marquee__item,
+.forma-marquee__sep {
+	font-family: var(--forma-font-display, "Bodoni Moda", serif);
+	font-size: clamp(48px, 9vw, 168px);
+	font-weight: 400;
+	letter-spacing: -0.03em;
+	line-height: 1.05;
+	white-space: nowrap;
+}
+
+.forma-marquee__item {
+	color: var(--forma-bone, #ece6db);
+}
+
+.forma-marquee__sep {
+	color: var(--forma-stone, #9b9488);
+}
+
+@keyframes forma-marquee {
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+/* Reduced motion: a still, wrapping line of the items, shown once. */
+@media (prefers-reduced-motion: reduce) {
+	.forma-marquee__track {
+		animation: none;
+		width: auto;
+	}
+
+	.forma-marquee__list {
+		flex-shrink: 1;
+		flex-wrap: wrap;
+	}
+
+	.forma-marquee__list[aria-hidden="true"] {
+		display: none;
+	}
+}

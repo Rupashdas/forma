@@ -19,7 +19,10 @@ final class Module implements ModuleContract {
 	 *
 	 * @var array<class-string<\Elementor\Widget_Base>>
 	 */
-	public const WIDGETS = array();
+	public const WIDGETS = array(
+		Widgets\Marquee::class,
+		Widgets\BeforeAfter::class,
+	);
 
 	public static function id(): string {
 		return 'elementor';

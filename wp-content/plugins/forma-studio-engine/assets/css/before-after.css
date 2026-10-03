@@ -1,1 +1,92 @@
-/* FORMA — before-after */
+/* FORMA — Drawing / Built. The revealed image is clipped to the range value, read from --forma-ba. */
+
+.forma-ba {
+	margin: 0;
+}
+
+.forma-ba__frame {
+	overflow: hidden;
+	position: relative;
+}
+
+.forma-ba__frame img {
+	display: block;
+	height: auto;
+	width: 100%;
+}
+
+.forma-ba__frame .forma-ba__after {
+	clip-path: inset(0 calc(100% - var(--forma-ba, 50%)) 0 0);
+	height: 100%;
+	inset: 0;
+	object-fit: cover;
+	position: absolute;
+}
+
+/* The native range covers the frame: click, drag, swipe or arrow keys. Vertical swipes still scroll. */
+.forma-ba__range {
+	cursor: ew-resize;
+	height: 100%;
+	inset: 0;
+	margin: 0;
+	opacity: 0;
+	position: absolute;
+	touch-action: pan-y;
+	width: 100%;
+}
+
+.forma-ba__handle {
+	background-color: var(--forma-sodium, #e8a33d);
+	bottom: 0;
+	left: var(--forma-ba, 50%);
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	width: 1px;
+}
+
+.forma-ba__handle::after {
+	align-items: center;
+	background-color: var(--forma-sodium, #e8a33d);
+	border-radius: 50%;
+	color: var(--forma-basalt, #0f0e0d);
+	content: "\2039\00a0\203A";
+	display: flex;
+	font: 500 16px/1 var(--forma-font-sans, sans-serif);
+	height: 48px;
+	justify-content: center;
+	left: 50%;
+	margin: -24px 0 0 -24px;
+	position: absolute;
+	top: 50%;
+	width: 48px;
+}
+
+.forma-ba__range:focus-visible + .forma-ba__handle::after {
+	outline: 2px solid var(--forma-bone, #ece6db);
+	outline-offset: 3px;
+}
+
+.forma-ba__label {
+	background-color: rgba(15, 14, 13, 0.72);
+	color: var(--forma-bone, #ece6db);
+	font-family: var(--forma-font-sans, sans-serif);
+	font-size: 11px;
+	font-stretch: 125%;
+	font-weight: 500;
+	letter-spacing: 0.12em;
+	line-height: 1;
+	padding: 7px 10px;
+	pointer-events: none;
+	position: absolute;
+	text-transform: uppercase;
+	top: 16px;
+}
+
+.forma-ba__label--after {
+	left: 16px;
+}
+
+.forma-ba__label--before {
+	right: 16px;
+}

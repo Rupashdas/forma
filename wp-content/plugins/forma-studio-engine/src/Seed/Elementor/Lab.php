@@ -2,6 +2,7 @@
 
 namespace Forma\Engine\Seed\Elementor;
 
+use Forma\Engine\Seed\Drawings;
 use Forma\Engine\Seed\Images;
 
 defined( 'ABSPATH' ) || exit;
@@ -36,7 +37,56 @@ final class Lab {
 	 * Sections for the Forma widgets, added as each widget is built.
 	 */
 	private function widgets(): array {
-		return array();
+		return array(
+			$this->section(
+				'Marquee',
+				Builder::widget(
+					'forma-marquee',
+					array(
+						'items' => array(
+							array( 'text' => 'Architecture' ),
+							array( 'text' => 'Interiors' ),
+							array( 'text' => 'Objects' ),
+						),
+						'speed' => 32,
+					)
+				),
+				true
+			),
+			$this->section(
+				'Drawing / Built',
+				Builder::widget(
+					'forma-before-after',
+					array(
+						'before_image' => Builder::image( Drawings::attachment_id( 'casa-nera' ) ),
+						'after_image'  => Builder::image( Images::attachment_id( 'casa-nera-01.jpg' ) ),
+						'start'        => Builder::size( 45, '%' ),
+					)
+				)
+			),
+		);
+	}
+
+	/**
+	 * A lab section: a label above one widget, boxed or full width.
+	 */
+	private function section( string $name, array $widget, bool $full = false ): array {
+		return Builder::container(
+			array(
+				'content_width'  => $full ? 'full' : 'boxed',
+				'flex_direction' => 'column',
+				'flex_gap'       => array(
+					'column' => '24',
+					'row'    => '24',
+					'unit'   => 'px',
+				),
+				'padding'        => Builder::box( 96, $full ? 0 : 48, 96, $full ? 0 : 48 ),
+				'border_border'  => 'solid',
+				'border_width'   => Builder::box( 1, 0, 0, 0 ),
+				'border_color'   => 'rgba(236,230,219,.14)',
+			),
+			array( $this->label( 'Widget — ' . $name ), $widget )
+		);
 	}
 
 	private function motion(): array {
