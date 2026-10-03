@@ -62,6 +62,8 @@ final class Content {
 					'post_excerpt'   => $project['excerpt'],
 					'post_content'   => $this->fallback_body( $project ),
 					'post_date'      => $project['date'] . ' 10:00:00',
+					// The native "Order" field holds the project's place in the Home showcase (0 = not featured).
+					'menu_order'     => (int) $project['featured'],
 					'comment_status' => 'closed',
 					'ping_status'    => 'closed',
 				)

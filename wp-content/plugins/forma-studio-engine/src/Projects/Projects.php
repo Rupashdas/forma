@@ -117,7 +117,8 @@ final class Projects implements Module {
 				),
 				'menu_position' => 5,
 				'menu_icon'     => 'dashicons-building',
-				'supports'      => array( 'title', 'editor', 'excerpt', 'thumbnail', 'revisions', 'elementor' ),
+				// "page-attributes" adds the native Order field, which sorts the Home showcase.
+				'supports'      => array( 'title', 'editor', 'excerpt', 'thumbnail', 'revisions', 'page-attributes', 'elementor' ),
 			)
 		);
 	}

@@ -89,6 +89,39 @@ final class Style {
 		);
 	}
 
+	/**
+	 * Typography settings for the display serif at a size the Kit has no global for (card titles, service names).
+	 * The display face only has a regular weight, so the weight is always 400. Merge them into a widget that does not
+	 * also carry a typography global, because a global replaces every local typography value.
+	 *
+	 * @param string $size CSS font size, e.g. `clamp(26px, 2.4vw, 36px)`.
+	 */
+	public static function serif_type( string $size, float $line_height = 1.05, float $tracking = -0.01 ): array {
+		return array(
+			'typography_typography'     => 'custom',
+			'typography_font_family'    => self::DISPLAY,
+			'typography_font_weight'    => '400',
+			'typography_font_size'      => Builder::size( $size, 'custom' ),
+			'typography_line_height'    => Builder::size( $line_height, 'em' ),
+			'typography_letter_spacing' => Builder::size( $tracking, 'em' ),
+		);
+	}
+
+	/** A heading in the display serif at a custom size. */
+	public static function serif( string $title, string $size, string $tag = 'h3', string $color = 'ink', array $extra = array() ): array {
+		return Builder::widget(
+			'heading',
+			self::merge(
+				self::serif_type( $size ) + array(
+					'title'       => $title,
+					'header_size' => $tag,
+					'__globals__' => array( 'title_color' => self::color( $color ) ),
+				),
+				$extra
+			)
+		);
+	}
+
 	/** A small uppercase label: a paragraph set in the Label font. */
 	public static function label( string $text, string $color = 'muted', array $extra = array() ): array {
 		return self::heading( $text, 'label', 'p', $color, $extra );
@@ -148,6 +181,40 @@ final class Style {
 		return self::inner( 'column', $children, $extra );
 	}
 
+	/**
+	 * A column of a row: an inner column container with its width on every device. Elementor makes child containers
+	 * full width on tablet and mobile, so all three widths are always written.
+	 *
+	 * @param int|float|string      $width  Percent on desktop and laptop, or `auto`.
+	 * @param int|float|string|null $tablet Percent on tablet, or `auto`; the desktop width when null.
+	 * @param int|float|string      $mobile Percent on mobile, or `auto`.
+	 */
+	public static function cell( array $children, int|float|string $width, int|float|string|null $tablet = null, int|float|string $mobile = 100, array $extra = array() ): array {
+		$size = static fn( int|float|string $value ): array => 'auto' === $value ? Builder::size( 'auto', 'custom' ) : Builder::size( $value, '%' );
+
+		return self::stack(
+			$children,
+			self::merge(
+				array(
+					'width'        => $size( $width ),
+					'width_tablet' => $size( $tablet ?? $width ),
+					'width_mobile' => $size( $mobile ),
+				),
+				$extra
+			)
+		);
+	}
+
+	/** A URL control value. */
+	public static function link( string $url = '' ): array {
+		return array(
+			'url'               => $url,
+			'is_external'       => '',
+			'nofollow'          => '',
+			'custom_attributes' => '',
+		);
+	}
+
 	/** A button in the Kit's button style (Label font, outlined in Ink, filled on hover). */
 	public static function button( string $text, string $url, array $extra = array() ): array {
 		return Builder::widget(
@@ -155,12 +222,7 @@ final class Style {
 			self::merge(
 				array(
 					'text' => $text,
-					'link' => array(
-						'url'               => $url,
-						'is_external'       => '',
-						'nofollow'          => '',
-						'custom_attributes' => '',
-					),
+					'link' => self::link( $url ),
 				),
 				$extra
 			)

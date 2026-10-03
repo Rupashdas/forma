@@ -1,6 +1,6 @@
 <?php
 /**
- * Site-wide content: name, project types, pages and menus. Read by the seeders only.
+ * Site-wide content: name, services, project types, pages and menus. Read by the seeders only.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -25,6 +25,36 @@ return array(
 			'Instagram' => 'https://www.instagram.com/',
 			'LinkedIn'  => 'https://www.linkedin.com/',
 			'Pinterest' => 'https://www.pinterest.com/',
+		),
+	),
+
+	/*
+	 * What the studio does, in the order Home and Services list it. The slug is the anchor on the Services page.
+	 */
+	'services'   => array(
+		'architecture'      => array(
+			'name' => 'Architecture',
+			'line' => 'New houses, hotels and public buildings, from the first site visit to the last coat of lime.',
+		),
+		'interior-design'   => array(
+			'name' => 'Interior Design',
+			'line' => 'Rooms reworked inside existing buildings, down to the joinery and the light switches.',
+		),
+		'hospitality'       => array(
+			'name' => 'Hospitality',
+			'line' => 'Hotels and restaurants where the quiet is designed as carefully as the rooms.',
+		),
+		'workplace'         => array(
+			'name' => 'Workplace',
+			'line' => 'Offices and studios that make it easier for people to make things together.',
+		),
+		'art-direction'     => array(
+			'name' => 'Art Direction',
+			'line' => 'Photography, signage and material palettes that keep a project whole once it opens.',
+		),
+		'furniture-objects' => array(
+			'name' => 'Furniture & Objects',
+			'line' => 'Pieces made at the scale of the hand, many from offcuts of our own buildings.',
 		),
 	),
 

@@ -5,14 +5,14 @@ namespace Forma\Engine\Seed\Elementor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The ordered steps of `wp forma design`: the Kit first (everything else references its globals), then the
- * Theme Builder documents. Each step saves through {@see Builder::save()}, so it skips a document that was edited in
- * Elementor unless the run is forced.
+ * The ordered steps of `wp forma design`: the Kit first (everything else references its globals), then the saved
+ * components Home uses, the Theme Builder documents, and the pages built from them. Each step saves through
+ * {@see Builder::save()}, so it skips a document that was edited in Elementor unless the run is forced.
  */
 final class Design {
 
 	/** Step names in build order. */
-	public const STEPS = array( 'kit', 'menu', 'header', 'footer' );
+	public const STEPS = array( 'kit', 'components', 'menu', 'header', 'footer' );
 
 	public function __construct( private \Closure $log ) {}
 
@@ -39,14 +39,19 @@ final class Design {
 		\Elementor\Plugin::$instance->files_manager->clear_cache();
 	}
 
-	/** Build one step and return the id of the post it saved. */
-	private function build( string $step ): int {
+	/**
+	 * Build one step and return the id of the post it saved (the ids by template key for the components step).
+	 *
+	 * @return int|array<string,int>
+	 */
+	private function build( string $step ): int|array {
 		return match ( $step ) {
-			'kit'    => ( new Kit( $this->log ) )->build(),
-			'menu'   => ( new MenuPopup( $this->log ) )->build(),
-			'header' => ( new Header( $this->log ) )->build(),
-			'footer' => ( new Footer( $this->log ) )->build(),
-			default  => throw new \InvalidArgumentException( esc_html( "Unknown design step: {$step}." ) ),
+			'kit'        => ( new Kit( $this->log ) )->build(),
+			'components' => ( new Components( $this->log ) )->build(),
+			'menu'       => ( new MenuPopup( $this->log ) )->build(),
+			'header'     => ( new Header( $this->log ) )->build(),
+			'footer'     => ( new Footer( $this->log ) )->build(),
+			default      => throw new \InvalidArgumentException( esc_html( "Unknown design step: {$step}." ) ),
 		};
 	}
 }
