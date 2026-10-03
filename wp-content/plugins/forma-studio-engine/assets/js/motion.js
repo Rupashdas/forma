@@ -117,12 +117,16 @@
 		);
 	} );
 
-	document.querySelectorAll( '[data-fm-scroll="expand"]' ).forEach( ( el ) => {
-		gsap.fromTo(
-			el,
-			{ clipPath: 'inset(6% 9% 6% 9%)' },
-			{ clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: el, start: 'top 85%', end: 'center 45%', scrub: 0.6 } }
-		);
+	// Expand is a wide-screen effect: below 1024px the image simply stays put. The start is clamped so an image that is
+	// already on screen at load begins its scrub from scroll 0 instead of being half open.
+	gsap.matchMedia().add( '(min-width: 1024px)', () => {
+		document.querySelectorAll( '[data-fm-scroll="expand"]' ).forEach( ( el ) => {
+			gsap.fromTo(
+				el,
+				{ clipPath: 'inset(6% 9% 6% 9%)' },
+				{ clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: el, start: 'clamp(top 85%)', end: 'center 45%', scrub: 0.6 } }
+			);
+		} );
 	} );
 
 	const refresh = () => ScrollTrigger.refresh();
