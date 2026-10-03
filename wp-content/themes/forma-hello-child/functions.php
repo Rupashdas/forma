@@ -49,15 +49,16 @@ function forma_theme_font_group( array $groups ): array {
 }
 
 /**
- * Listing both families in the Forma group keeps Elementor from ever requesting them from Google;
- * the @font-face rules in site.css serve them instead.
+ * Listing the families in the Forma group keeps Elementor from ever requesting them from Google; the @font-face
+ * rules in site.css serve them instead. "Archivo Expanded" is Archivo at its widest width, used by the Label style.
  */
 function forma_theme_fonts( array $fonts ): array {
 	return array_merge(
 		$fonts,
 		array(
-			'Bodoni Moda' => 'forma',
-			'Archivo'     => 'forma',
+			'Bodoni Moda'      => 'forma',
+			'Archivo'          => 'forma',
+			'Archivo Expanded' => 'forma',
 		)
 	);
 }

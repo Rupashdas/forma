@@ -34,6 +34,21 @@
 }
 
 /*
+ * Archivo at its widest, for the Label style. Elementor's typography control can't set the width axis, so the same
+ * file is declared again as its own family. A single font-stretch value clamps the variable font's width axis
+ * to 125 for this family, whatever stretch is requested.
+ */
+@font-face {
+	font-family: "Archivo Expanded";
+	font-style: normal;
+	font-weight: 100 900;
+	font-stretch: 125%;
+	font-display: swap;
+	src: url("../fonts/archivo-latin.woff2") format("woff2");
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
  * Chalk and bottle green. Tokens are named by role, so a palette change only touches values.
  * Ink is 15.4:1 on Chalk, Muted (Slate) 5.9:1 on Chalk and 5.3:1 on Raised, Accent (Brass) 5.3:1 on Chalk;
  * on Deep (Bottle green): Chalk 10.8:1, Muted on deep (Sage) 6.0:1, Accent on deep (Brass light) 5.9:1.
@@ -89,12 +104,23 @@ body {
  * Deep sections (bottle green bands: Statement, Recognition, Contact panel, footer, menu sheet).
  * The role tokens switch to their on-deep values, so text, hairlines, accents, the focus ring and any widget placed
  * inside keep their contrast without per-element overrides.
+ *
+ * Elements built in Elementor reference the Kit's Global Colors, which compile to var(--e-global-color-{id}); those
+ * are re-pointed here too. Ink (secondary) is the text colour, so inside a deep band it reads as Chalk; Slate (text)
+ * becomes Sage, Brass (accent) becomes Brass light and Line becomes the on-deep hairline. Chalk (primary) is the
+ * surface colour, so it becomes the bottle green: a button that fills with Ink on hover keeps readable text.
+ * An editor who picks "Ink" inside a deep band therefore gets Chalk, which is the intent: Ink means "text colour".
  */
 .forma-deep {
 	--forma-ink: var(--forma-page);
 	--forma-accent: var(--forma-accent-on-deep);
 	--forma-muted: var(--forma-muted-on-deep);
 	--forma-line: var(--forma-line-on-deep);
+	--e-global-color-secondary: var(--forma-page);
+	--e-global-color-text: var(--forma-muted-on-deep);
+	--e-global-color-accent: var(--forma-accent-on-deep);
+	--e-global-color-line: var(--forma-line-on-deep);
+	--e-global-color-primary: var(--forma-deep);
 	color: var(--forma-page);
 }
 
