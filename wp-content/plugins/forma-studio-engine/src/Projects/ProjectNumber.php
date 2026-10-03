@@ -24,6 +24,15 @@ final class ProjectNumber {
 	}
 
 	/**
+	 * Published project IDs, oldest completion date first (the numbering order).
+	 *
+	 * @return int[]
+	 */
+	public static function ordered_ids(): array {
+		return array_keys( self::positions() );
+	}
+
+	/**
 	 * @return array<int, int>
 	 */
 	private static function positions(): array {

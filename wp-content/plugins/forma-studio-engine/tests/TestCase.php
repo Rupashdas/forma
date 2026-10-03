@@ -36,6 +36,9 @@ abstract class TestCase {
 		$wpdb->query( 'ROLLBACK' );
 		wp_cache_flush();
 
+		// A rollback fires no hooks, so in-memory memos built during the test must be cleared by hand.
+		\Forma\Engine\Projects\ProjectNumber::flush();
+
 		return $error;
 	}
 

@@ -23,6 +23,7 @@ final class Module implements ModuleContract {
 		Widgets\Marquee::class,
 		Widgets\BeforeAfter::class,
 		Widgets\ProjectIndex::class,
+		Widgets\NextProject::class,
 	);
 
 	public static function id(): string {
