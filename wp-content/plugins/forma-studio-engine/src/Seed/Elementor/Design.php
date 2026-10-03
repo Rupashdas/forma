@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 final class Design {
 
 	/** Step names in build order. */
-	public const STEPS = array( 'kit', 'menu', 'header' );
+	public const STEPS = array( 'kit', 'menu', 'header', 'footer' );
 
 	public function __construct( private \Closure $log ) {}
 
@@ -45,6 +45,7 @@ final class Design {
 			'kit'    => ( new Kit( $this->log ) )->build(),
 			'menu'   => ( new MenuPopup( $this->log ) )->build(),
 			'header' => ( new Header( $this->log ) )->build(),
+			'footer' => ( new Footer( $this->log ) )->build(),
 			default  => throw new \InvalidArgumentException( esc_html( "Unknown design step: {$step}." ) ),
 		};
 	}
