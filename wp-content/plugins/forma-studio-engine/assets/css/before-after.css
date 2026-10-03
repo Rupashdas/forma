@@ -36,7 +36,7 @@
 }
 
 .forma-ba__handle {
-	background-color: var(--forma-sodium, #e8a33d);
+	background-color: var(--forma-accent, #7d5c1d);
 	bottom: 0;
 	left: var(--forma-ba, 50%);
 	pointer-events: none;
@@ -47,9 +47,9 @@
 
 .forma-ba__handle::after {
 	align-items: center;
-	background-color: var(--forma-sodium, #e8a33d);
+	background-color: var(--forma-accent, #7d5c1d);
 	border-radius: 50%;
-	color: var(--forma-basalt, #0f0e0d);
+	color: var(--forma-page, #f2efe8);
 	content: "\2039\00a0\203A";
 	display: flex;
 	font: 500 16px/1 var(--forma-font-sans, sans-serif);
@@ -63,13 +63,13 @@
 }
 
 .forma-ba__range:focus-visible + .forma-ba__handle::after {
-	outline: 2px solid var(--forma-bone, #ece6db);
+	outline: 2px solid var(--forma-page, #f2efe8);
 	outline-offset: 3px;
 }
 
 .forma-ba__label {
-	background-color: rgba(15, 14, 13, 0.72);
-	color: var(--forma-bone, #ece6db);
+	background-color: rgba(22, 25, 23, 0.72);
+	color: var(--forma-page, #f2efe8);
 	font-family: var(--forma-font-sans, sans-serif);
 	font-size: 11px;
 	font-stretch: 125%;

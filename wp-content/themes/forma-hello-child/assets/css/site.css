@@ -33,16 +33,22 @@
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* Basalt: dark first. Bone text is 15.5:1 on Basalt, Stone 6.4:1, Sodium 8.9:1; Umber is 4.6:1 on Bone. */
+/*
+ * Chalk and bottle green. Tokens are named by role, so a palette change only touches values.
+ * Ink is 15.4:1 on Chalk, Muted (Slate) 5.9:1 on Chalk and 5.3:1 on Raised, Accent (Brass) 5.3:1 on Chalk;
+ * on Deep (Bottle green): Chalk 10.8:1, Muted on deep (Sage) 6.0:1, Accent on deep (Brass light) 5.9:1.
+ */
 :root {
-	--forma-basalt: #0f0e0d;
-	--forma-raised: #1a1917;
-	--forma-bone: #ece6db;
-	--forma-stone: #9b9488;
-	--forma-umber: #6b655c;
-	--forma-line: rgba(236, 230, 219, 0.14);
-	--forma-line-on-bone: rgba(15, 14, 13, 0.16);
-	--forma-sodium: #e8a33d;
+	--forma-page: #f2efe8;
+	--forma-raised: #e7e3d9;
+	--forma-ink: #161917;
+	--forma-muted: #575c57;
+	--forma-accent: #7d5c1d;
+	--forma-deep: #1e3a2f;
+	--forma-muted-on-deep: #a9b8ae;
+	--forma-accent-on-deep: #d2ae63;
+	--forma-line: rgba(22, 25, 23, 0.14);
+	--forma-line-on-deep: rgba(242, 239, 232, 0.16);
 
 	--forma-gutter: clamp(16px, 3.2vw, 48px);
 	--forma-section: clamp(80px, 12vw, 200px);
@@ -54,12 +60,12 @@
 
 html {
 	-webkit-text-size-adjust: 100%;
-	color-scheme: dark; /* native scrollbars and form controls match the dark page */
+	color-scheme: light; /* native scrollbars and form controls match the light page */
 }
 
 body {
-	background-color: var(--forma-basalt);
-	color: var(--forma-bone);
+	background-color: var(--forma-page);
+	color: var(--forma-ink);
 	font-family: var(--forma-font-sans);
 	font-size: 17px;
 	line-height: 1.6;
@@ -75,8 +81,26 @@ body {
 }
 
 ::selection {
-	background-color: var(--forma-bone);
-	color: var(--forma-basalt);
+	background-color: var(--forma-ink);
+	color: var(--forma-page);
+}
+
+/*
+ * Deep sections (bottle green bands: Statement, Recognition, Contact panel, footer, menu sheet).
+ * The role tokens switch to their on-deep values, so text, hairlines, accents, the focus ring and any widget placed
+ * inside keep their contrast without per-element overrides.
+ */
+.forma-deep {
+	--forma-ink: var(--forma-page);
+	--forma-accent: var(--forma-accent-on-deep);
+	--forma-muted: var(--forma-muted-on-deep);
+	--forma-line: var(--forma-line-on-deep);
+	color: var(--forma-page);
+}
+
+.forma-deep ::selection {
+	background-color: var(--forma-page);
+	color: var(--forma-deep);
 }
 
 a {
@@ -88,15 +112,15 @@ img {
 	max-width: 100%;
 }
 
-/* One focus treatment everywhere: the Sodium ring, only for keyboard focus. */
+/* One focus treatment everywhere: the accent ring, only for keyboard focus (Brass light inside deep sections). */
 :focus-visible {
-	outline: 2px solid var(--forma-sodium);
+	outline: 2px solid var(--forma-accent);
 	outline-offset: 3px;
 }
 
 .skip-link.screen-reader-text:focus {
-	background-color: var(--forma-bone);
-	color: var(--forma-basalt);
+	background-color: var(--forma-ink);
+	color: var(--forma-page);
 	font-family: var(--forma-font-sans);
 	font-size: 14px;
 	padding: 12px 20px;

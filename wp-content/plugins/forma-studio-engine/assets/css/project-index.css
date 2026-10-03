@@ -5,19 +5,19 @@
 }
 
 .forma-index__list {
-	border-top: 1px solid var(--forma-line, rgba(236, 230, 219, 0.14));
+	border-top: 1px solid var(--forma-line, rgba(22, 25, 23, 0.14));
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
 .forma-index__row {
-	border-bottom: 1px solid var(--forma-line, rgba(236, 230, 219, 0.14));
+	border-bottom: 1px solid var(--forma-line, rgba(22, 25, 23, 0.14));
 }
 
 .forma-index__link {
 	align-items: baseline;
-	color: var(--forma-bone, #ece6db);
+	color: var(--forma-ink, #161917);
 	column-gap: clamp(16px, 2vw, 32px);
 	display: grid;
 	grid-template-columns: 3.5rem minmax(0, 1fr) repeat(3, minmax(0, 11rem));
@@ -32,7 +32,7 @@
 
 .forma-index__no,
 .forma-index__meta {
-	color: var(--forma-stone, #9b9488);
+	color: var(--forma-muted, #575c57);
 	font-family: var(--forma-font-sans, sans-serif);
 	font-size: 12px;
 	font-stretch: 125%;

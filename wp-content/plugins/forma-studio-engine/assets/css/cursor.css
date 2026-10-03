@@ -1,4 +1,4 @@
-/* FORMA — cursor. An 8px Sodium dot that grows to an 88px labelled disc; never intercepts the pointer. */
+/* FORMA — cursor. An 8px Brass dot that grows to an 88px labelled disc; never intercepts the pointer. */
 
 .forma-cursor {
 	display: grid;
@@ -16,7 +16,7 @@
 }
 
 .forma-cursor::before {
-	background-color: var(--forma-sodium, #e8a33d);
+	background-color: var(--forma-accent, #7d5c1d);
 	border-radius: 50%;
 	content: "";
 	inset: 0;
@@ -34,7 +34,7 @@
 }
 
 .forma-cursor span {
-	color: var(--forma-basalt, #0f0e0d);
+	color: var(--forma-page, #f2efe8);
 	font-family: var(--forma-font-sans, "Archivo", sans-serif);
 	font-size: 11px;
 	font-stretch: 125%;

@@ -22,24 +22,39 @@ final class ThemeTest extends TestCase {
 		$this->assert_true( str_contains( $css, 'font-stretch: 62% 125%' ), 'Archivo exposes its width axis' );
 	}
 
-	public function test_palette_is_basalt(): void {
+	public function test_palette_is_chalk_and_bottle_green(): void {
 		$css = (string) file_get_contents( get_stylesheet_directory() . '/assets/css/site.css' );
 
 		$tokens = array(
-			'--forma-basalt' => '#0f0e0d',
-			'--forma-raised' => '#1a1917',
-			'--forma-bone'   => '#ece6db',
-			'--forma-stone'  => '#9b9488',
-			'--forma-umber'  => '#6b655c',
-			'--forma-sodium' => '#e8a33d',
+			'--forma-page'           => '#f2efe8',
+			'--forma-raised'         => '#e7e3d9',
+			'--forma-ink'            => '#161917',
+			'--forma-muted'          => '#575c57',
+			'--forma-accent'         => '#7d5c1d',
+			'--forma-deep'           => '#1e3a2f',
+			'--forma-muted-on-deep'  => '#a9b8ae',
+			'--forma-accent-on-deep' => '#d2ae63',
 		);
 
 		foreach ( $tokens as $token => $hex ) {
 			$this->assert_true( str_contains( $css, "{$token}: {$hex};" ), "{$token} is {$hex}" );
 		}
 
-		foreach ( array( 'plaster', 'graphite', 'redline', '--forma-ink', '--forma-paper' ) as $old ) {
+		$this->assert_true( str_contains( $css, 'color-scheme: light' ), 'native controls follow the light page' );
+		$this->assert_true( str_contains( $css, '.forma-deep' ), 'deep sections switch focus and link colours' );
+
+		foreach ( array( 'basalt', 'bone', 'sodium', 'umber', '--forma-stone', 'plaster', 'redline' ) as $old ) {
 			$this->assert_true( ! str_contains( $css, $old ), "old token '{$old}' is gone" );
+		}
+	}
+
+	public function test_plugin_styles_use_role_tokens_only(): void {
+		foreach ( glob( FORMA_ENGINE_PATH . 'assets/css/*.css' ) as $file ) {
+			$css = (string) file_get_contents( $file );
+
+			foreach ( array( 'basalt', 'bone', 'sodium', 'umber', '--forma-stone', '15, 14, 13', '236, 230, 219' ) as $old ) {
+				$this->assert_true( ! str_contains( $css, $old ), basename( $file ) . " no longer uses '{$old}'" );
+			}
 		}
 	}
 

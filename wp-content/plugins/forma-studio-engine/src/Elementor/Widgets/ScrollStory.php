@@ -14,6 +14,9 @@ defined( 'ABSPATH' ) || exit;
  */
 final class ScrollStory extends Base {
 
+	/** Background surfaces, matching the theme's page, raised and deep tokens. */
+	public const SURFACES = array( 'page', 'raised', 'deep' );
+
 	protected function asset(): string {
 		return 'scroll-story';
 	}
@@ -57,8 +60,9 @@ final class ScrollStory extends Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'raised',
 				'options' => array(
-					'basalt' => esc_html__( 'Basalt (page)', 'forma-studio-engine' ),
+					'page'   => esc_html__( 'Page (Chalk)', 'forma-studio-engine' ),
 					'raised' => esc_html__( 'Raised', 'forma-studio-engine' ),
+					'deep'   => esc_html__( 'Deep (Bottle green)', 'forma-studio-engine' ),
 				),
 			)
 		);
@@ -119,7 +123,7 @@ final class ScrollStory extends Base {
 		}
 
 		$layout  = 'steps' === ( $settings['layout'] ?? '' ) ? 'steps' : 'horizontal';
-		$surface = 'basalt' === ( $settings['surface'] ?? '' ) ? 'basalt' : 'raised';
+		$surface = in_array( $settings['surface'] ?? '', self::SURFACES, true ) ? $settings['surface'] : 'raised';
 		$tag     = in_array( $settings['title_tag'] ?? '', array( 'h2', 'h3', 'h4' ), true ) ? $settings['title_tag'] : 'h3';
 
 		printf( '<div class="forma-story forma-story--%1$s forma-story--%2$s">', esc_attr( $layout ), esc_attr( $surface ) );

@@ -41,11 +41,11 @@
 }
 
 .forma-marquee__item {
-	color: var(--forma-bone, #ece6db);
+	color: var(--forma-ink, #161917);
 }
 
 .forma-marquee__sep {
-	color: var(--forma-stone, #9b9488);
+	color: var(--forma-muted, #575c57);
 }
 
 @keyframes forma-marquee {

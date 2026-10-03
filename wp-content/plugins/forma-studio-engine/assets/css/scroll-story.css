@@ -1,17 +1,26 @@
 /* FORMA — Scroll Story. Base styles are a readable vertical story; JS adds the horizontal and steps behaviour. */
 
 .forma-story {
-	color: var(--forma-bone, #ece6db);
+	color: var(--forma-ink, #161917);
 	padding: clamp(64px, 9vw, 140px) var(--forma-gutter, clamp(16px, 3.2vw, 48px));
 	position: relative;
 }
 
-.forma-story--raised {
-	background-color: var(--forma-raised, #1a1917);
+.forma-story--page {
+	background-color: var(--forma-page, #f2efe8);
 }
 
-.forma-story--basalt {
-	background-color: var(--forma-basalt, #0f0e0d);
+.forma-story--raised {
+	background-color: var(--forma-raised, #e7e3d9);
+}
+
+/* Bottle green: the role tokens switch to their on-deep values, so every rule below reads correctly. */
+.forma-story--deep {
+	--forma-ink: var(--forma-page, #f2efe8);
+	--forma-muted: var(--forma-muted-on-deep, #a9b8ae);
+	--forma-accent: var(--forma-accent-on-deep, #d2ae63);
+	--forma-line: var(--forma-line-on-deep, rgba(242, 239, 232, 0.16));
+	background-color: var(--forma-deep, #1e3a2f);
 }
 
 .forma-story__panels {
@@ -48,7 +57,7 @@
 }
 
 .forma-story__no {
-	color: var(--forma-sodium, #e8a33d);
+	color: var(--forma-accent, #7d5c1d);
 	font-family: var(--forma-font-display, "Bodoni Moda", serif);
 	font-size: clamp(40px, 5vw, 80px);
 	line-height: 1;
@@ -56,7 +65,7 @@
 
 .forma-story__label,
 .forma-story__meta {
-	color: var(--forma-stone, #9b9488);
+	color: var(--forma-muted, #575c57);
 	font-family: var(--forma-font-sans, sans-serif);
 	font-size: 12px;
 	font-stretch: 125%;
@@ -66,7 +75,7 @@
 }
 
 .forma-story__title {
-	color: var(--forma-bone, #ece6db);
+	color: var(--forma-ink, #161917);
 	font-family: var(--forma-font-display, "Bodoni Moda", serif);
 	font-size: clamp(30px, 3vw, 46px);
 	font-weight: 400;
@@ -86,7 +95,7 @@
 }
 
 .forma-story__rail span {
-	background-color: var(--forma-sodium, #e8a33d);
+	background-color: var(--forma-accent, #7d5c1d);
 	display: block;
 	height: 100%;
 	transform: scaleX(0);
@@ -119,7 +128,7 @@
 }
 
 .forma-story.is-horizontal .forma-story__rail {
-	background-color: var(--forma-line, rgba(236, 230, 219, 0.14));
+	background-color: var(--forma-line, rgba(22, 25, 23, 0.14));
 	bottom: clamp(24px, 5vh, 56px);
 	display: block;
 	height: 1px;

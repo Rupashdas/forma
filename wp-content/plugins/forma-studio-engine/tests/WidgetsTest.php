@@ -159,6 +159,30 @@ final class WidgetsTest extends TestCase {
 		$this->assert_true( str_contains( $html, '>Discovery<' ), 'step title' );
 	}
 
+	public function test_scroll_story_surfaces_are_page_raised_and_deep(): void {
+		$this->assert_same( array( 'page', 'raised', 'deep' ), \Forma\Engine\Elementor\Widgets\ScrollStory::SURFACES );
+
+		foreach ( array( 'page', 'deep' ) as $surface ) {
+			$html = $this->render(
+				'forma-scroll-story',
+				array(
+					'surface' => $surface,
+					'panels'  => array( array( 'title' => 'Survey' ) ),
+				)
+			);
+			$this->assert_true( str_contains( $html, "forma-story--{$surface}" ), "{$surface} surface class" );
+		}
+
+		$html = $this->render(
+			'forma-scroll-story',
+			array(
+				'surface' => 'basalt',
+				'panels'  => array( array( 'title' => 'Survey' ) ),
+			)
+		);
+		$this->assert_true( str_contains( $html, 'forma-story--raised' ), 'unknown surface falls back to raised' );
+	}
+
 	private function render_on( string $slug, string $widget, array $settings ): string {
 		$GLOBALS['post'] = get_page_by_path( $slug, OBJECT, 'forma_project' );
 		setup_postdata( $GLOBALS['post'] );

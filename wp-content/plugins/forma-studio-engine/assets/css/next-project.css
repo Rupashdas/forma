@@ -1,7 +1,7 @@
 /* FORMA — Next Project. One large link: the next project's image under its name. */
 
 .forma-next {
-	color: var(--forma-bone, #ece6db);
+	color: var(--forma-page, #f2efe8);
 	display: grid;
 	isolation: isolate;
 	min-height: clamp(420px, 78vh, 900px);
@@ -23,9 +23,9 @@
 	transition: transform 1.2s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
-/* A flat Basalt veil keeps Bone type readable on any photograph. */
+/* A flat Ink veil keeps Chalk type readable on any photograph. */
 .forma-next__media::after {
-	background-color: rgba(15, 14, 13, 0.45);
+	background-color: rgba(22, 25, 23, 0.45);
 	content: "";
 	inset: 0;
 	position: absolute;
@@ -51,7 +51,7 @@
 }
 
 .forma-next__no {
-	color: var(--forma-sodium, #e8a33d);
+	color: var(--forma-accent-on-deep, #d2ae63);
 }
 
 .forma-next__title {
@@ -69,7 +69,7 @@
 
 .forma-next:hover .forma-next__media::after,
 .forma-next:focus-visible .forma-next__media::after {
-	background-color: rgba(15, 14, 13, 0.3);
+	background-color: rgba(22, 25, 23, 0.3);
 }
 
 .forma-next:focus-visible {

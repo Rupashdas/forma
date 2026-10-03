@@ -16,8 +16,8 @@ final class Lab {
 	/** Its own marker, so the lab never counts as seeded site content. */
 	public const META_KEY = '_forma_lab';
 
-	private const BONE  = '#ECE6DB';
-	private const STONE = '#9B9488';
+	private const INK   = '#161917';
+	private const MUTED = '#575C57';
 
 	public function __construct( private \Closure $log ) {}
 
@@ -92,7 +92,7 @@ final class Lab {
 					'forma-scroll-story',
 					array(
 						'layout'  => 'steps',
-						'surface' => 'basalt',
+						'surface' => 'deep',
 						'panels'  => $this->story(
 							array(
 								'casa-nera-01.jpg'       => array( 'Discovery', 'Two site visits, a brief written together, and a measured survey.' ),
@@ -142,7 +142,7 @@ final class Lab {
 				'padding'        => Builder::box( 96, $full ? 0 : 48, 96, $full ? 0 : 48 ),
 				'border_border'  => 'solid',
 				'border_width'   => Builder::box( 1, 0, 0, 0 ),
-				'border_color'   => 'rgba(236,230,219,.14)',
+				'border_color'   => 'rgba(22,25,23,.14)',
 			),
 			array( $this->label( 'Widget — ' . $name ), $widget )
 		);
@@ -204,7 +204,7 @@ final class Lab {
 								'text-editor',
 								array(
 									'editor'                 => '<p>We design houses, hotels, workplaces and the objects inside them, for the slow parts of life. Every project starts on site, with a level and a notebook, long before the first drawing.</p>',
-									'text_color'             => self::BONE,
+									'text_color'             => self::INK,
 									'typography_typography'  => 'custom',
 									'typography_font_family' => 'Bodoni Moda',
 									'typography_font_size'   => Builder::size( 30 ),
@@ -284,7 +284,7 @@ final class Lab {
 			array(
 				'title'                     => $text,
 				'header_size'               => 'h2',
-				'title_color'               => self::BONE,
+				'title_color'               => self::INK,
 				'typography_typography'     => 'custom',
 				'typography_font_family'    => 'Bodoni Moda',
 				'typography_font_weight'    => '400',
@@ -303,7 +303,7 @@ final class Lab {
 			array(
 				'title'                      => $text,
 				'header_size'                => 'p',
-				'title_color'                => self::STONE,
+				'title_color'                => self::MUTED,
 				'typography_typography'      => 'custom',
 				'typography_font_family'     => 'Archivo',
 				'typography_font_size'       => Builder::size( 12 ),
