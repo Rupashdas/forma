@@ -42,6 +42,7 @@ final class Plugin {
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'forma', Cli\Command::class );
+			add_action( 'elementor/init', array( self::class, 'keep_all_controls' ) );
 		}
 
 		/**
@@ -50,6 +51,19 @@ final class Plugin {
 		 * @param array<string, Module> $modules Active modules keyed by id.
 		 */
 		do_action( 'forma_engine_loaded', self::$modules );
+	}
+
+	/**
+	 * Elementor keeps style-only controls (padding, min height, flex direction, …) out of an element's control list
+	 * on front-end requests, which includes WP-CLI. The seeders and their checks need the complete list to tell a real
+	 * setting key from a typo, so under WP-CLI Elementor is told this is not a front-end request.
+	 */
+	public static function keep_all_controls(): void {
+		if ( ! class_exists( \Elementor\Core\Frontend\Performance::class ) ) {
+			return;
+		}
+
+		( new \ReflectionProperty( \Elementor\Core\Frontend\Performance::class, 'is_frontend' ) )->setValue( null, false );
 	}
 
 	public static function module( string $id ): ?Module {

@@ -25,10 +25,13 @@ final class Lab {
 		$id = $this->page();
 
 		Builder::reset( 'lab' );
-		Builder::save( $id, array_merge( $this->motion(), $this->widgets() ) );
-		update_post_meta( $id, '_wp_page_template', 'elementor_header_footer' );
 
-		( $this->log )( 'Widget lab: ' . get_permalink( $id ) );
+		if ( Builder::save( $id, array_merge( $this->motion(), $this->widgets() ) ) ) {
+			update_post_meta( $id, '_wp_page_template', 'elementor_header_footer' );
+			( $this->log )( 'Widget lab: ' . get_permalink( $id ) );
+		} else {
+			( $this->log )( 'Widget lab: ' . Builder::SKIPPED );
+		}
 
 		return $id;
 	}

@@ -4,6 +4,8 @@ namespace Forma\Engine\Cli;
 
 use Forma\Engine\Seed\Content;
 use Forma\Engine\Seed\Drawings;
+use Forma\Engine\Seed\Elementor\Builder;
+use Forma\Engine\Seed\Elementor\Design;
 use Forma\Engine\Seed\Elementor\Lab;
 use Forma\Engine\Seed\Images;
 use Forma\Engine\Seed\Setup;
@@ -70,6 +72,38 @@ final class Command {
 	}
 
 	/**
+	 * Build the Elementor design from code: the Kit (colours, fonts, theme style), then the Theme Builder
+	 * documents. A document that was edited in Elementor since it was seeded is skipped unless --force is given.
+	 *
+	 * [--only=<steps>]
+	 * : Comma-separated steps to run, in build order, e.g. kit,menu,header,footer.
+	 *
+	 * [--force]
+	 * : Overwrite documents that were edited in Elementor.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp forma design
+	 *     wp forma design --only=header,footer
+	 *     wp forma design --force
+	 */
+	public function design( array $args, array $assoc ): void {
+		$only = array_filter( array_map( 'trim', explode( ',', (string) ( $assoc['only'] ?? '' ) ) ) );
+
+		Builder::force( isset( $assoc['force'] ) );
+
+		try {
+			( new Design( $this->logger() ) )->run( $only );
+		} catch ( \InvalidArgumentException $e ) {
+			WP_CLI::error( $e->getMessage() );
+		} finally {
+			Builder::force( false );
+		}
+
+		WP_CLI::success( 'Design built.' );
+	}
+
+	/**
 	 * Run every build step in order.
 	 */
 	public function all(): void {
@@ -77,6 +111,7 @@ final class Command {
 		$this->content();
 		$this->images( array(), array() );
 		$this->drawings( array(), array() );
+		$this->design( array(), array() );
 	}
 
 	private function logger(): \Closure {
