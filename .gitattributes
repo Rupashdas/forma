@@ -1,0 +1,4 @@
+# Keep LF in the working tree on Windows too (PHP, CSS, JS and docs are edited from WSL/Git Bash and the IDE).
+* text=auto eol=lf
+*.webp binary
+*.woff2 binary

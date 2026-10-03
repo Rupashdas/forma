@@ -1,0 +1,18 @@
+# Track only FORMA's own code and docs. WordPress core, third-party plugins, uploads,
+# wp-config.php and logs never enter the repository.
+/*
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/docs/
+
+!/wp-content/
+/wp-content/*
+
+!/wp-content/plugins/
+/wp-content/plugins/*
+!/wp-content/plugins/forma-studio-engine/
+
+!/wp-content/themes/
+/wp-content/themes/*
+!/wp-content/themes/forma-hello-child/
