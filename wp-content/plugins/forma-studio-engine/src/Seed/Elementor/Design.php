@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 final class Design {
 
 	/** Step names in build order. */
-	public const STEPS = array();
+	public const STEPS = array( 'kit' );
 
 	public function __construct( private \Closure $log ) {}
 
@@ -42,6 +42,7 @@ final class Design {
 	/** Build one step and return the id of the post it saved. */
 	private function build( string $step ): int {
 		return match ( $step ) {
+			'kit'   => ( new Kit( $this->log ) )->build(),
 			default => throw new \InvalidArgumentException( esc_html( "Unknown design step: {$step}." ) ),
 		};
 	}

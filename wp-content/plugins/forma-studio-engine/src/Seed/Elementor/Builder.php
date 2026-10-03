@@ -239,6 +239,28 @@ final class Builder {
 	}
 
 	/**
+	 * A responsive control is stored once and its per-device values are keys with a device suffix
+	 * (`padding_mobile`), so `{control}_{device}` is valid when `{control}` is responsive.
+	 */
+	private static function is_device_key( string $key, array $controls ): bool {
+		$devices = array_keys( \Elementor\Plugin::$instance->breakpoints->get_active_breakpoints() );
+
+		foreach ( $devices as $device ) {
+			$suffix = "_{$device}";
+
+			if ( str_ends_with( $key, $suffix ) ) {
+				$base = substr( $key, 0, -strlen( $suffix ) );
+
+				if ( ! empty( $controls[ $base ]['is_responsive'] ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @return string[] Unknown key paths, relative to the settings map.
 	 */
 	private static function scan( array $settings, array $controls ): array {
@@ -250,7 +272,10 @@ final class Builder {
 			}
 
 			if ( ! isset( $controls[ $key ] ) ) {
-				$unknown[] = (string) $key;
+				if ( ! self::is_device_key( (string) $key, $controls ) ) {
+					$unknown[] = (string) $key;
+				}
+
 				continue;
 			}
 
