@@ -167,8 +167,13 @@ img {
 	transition:
 		transform 0.5s var(--forma-ease),
 		background-color 0.4s var(--forma-ease),
-		border-color 0.4s var(--forma-ease),
-		padding 0.4s var(--forma-ease);
+		border-color 0.4s var(--forma-ease);
+}
+
+/* The header is boxed: the bar spans the viewport, the brand and nav sit in the inner column, and that column carries
+   the vertical padding (the --padding-top/--padding-bottom the condensed state changes), so it carries the transition. */
+.elementor .forma-header.e-con > .e-con-inner {
+	transition: padding 0.4s var(--forma-ease);
 }
 
 .elementor .forma-header.e-con.is-condensed {

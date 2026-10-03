@@ -34,9 +34,11 @@ final class Header {
 		Builder::reset( self::KEY );
 
 		return array(
+			// Boxed: the bar (its background and hairline, set by the theme) spans the viewport while the brand and
+			// nav sit in the 1320px content column, with the gutter at the sides on smaller screens.
 			Builder::container(
 				array(
-					'content_width'        => 'full',
+					'content_width'        => 'boxed',
 					'flex_direction'       => 'row',
 					'flex_justify_content' => 'space-between',
 					'flex_align_items'     => 'center',

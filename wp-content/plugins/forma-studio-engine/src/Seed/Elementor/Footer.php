@@ -7,9 +7,10 @@ use Forma\Engine\Seed\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The site-wide Theme Builder footer: a bottle green band with four columns (studio, contact, index, elsewhere),
- * the FORMA wordmark at display size and a credit row. Role colours (Ink, Slate, Brass) render as Chalk, Sage and
- * Brass light, because the band carries the `forma-deep` class.
+ * The site-wide Theme Builder footer: a bottle green band that spans the viewport, with its content boxed to the Kit's
+ * container width: four columns (studio, contact, index, elsewhere), the FORMA wordmark at the left in the Display XL
+ * type and a credit row. Role colours (Ink, Slate, Brass) render as Chalk, Sage and Brass light, because the band
+ * carries the `forma-deep` class.
  */
 final class Footer {
 

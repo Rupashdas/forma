@@ -145,18 +145,30 @@ final class Style {
 	}
 
 	/**
-	 * A full-width top-level band: column, section padding above and below, gutter at the sides. A `deep` surface is
-	 * the bottle green band and gets the `forma-deep` class.
+	 * A top-level band whose content is boxed: the container itself (and so its background) spans the viewport, while
+	 * its content sits in a centred column as wide as the Kit's container width (1320px), with the gutter at the sides
+	 * on smaller screens. Elementor wraps the children of a boxed container in an inner element (`.e-con-inner`) that
+	 * takes that width, so the section padding above and below applies inside the box and the gutter outside it. With
+	 * no `boxed_width` of its own the box follows the Kit. A `deep` surface is the bottle green band and gets the
+	 * `forma-deep` class.
+	 *
+	 * A section whose content should run the full width of the viewport (inside the gutter) passes `full`.
 	 *
 	 * @param string $surface One of page, raised, deep.
+	 * @param string $width   `boxed` (the default: content in the Kit's container width) or `full` (content edge to edge,
+	 *                        inside the gutter).
 	 */
-	public static function section( array $children, string $surface = 'page', array $extra = array() ): array {
+	public static function section( array $children, string $surface = 'page', array $extra = array(), string $width = 'boxed' ): array {
 		if ( ! in_array( $surface, self::SURFACES, true ) ) {
 			throw new \InvalidArgumentException( esc_html( "Unknown surface '{$surface}'." ) );
 		}
 
+		if ( ! in_array( $width, array( 'boxed', 'full' ), true ) ) {
+			throw new \InvalidArgumentException( esc_html( "Unknown section width '{$width}'." ) );
+		}
+
 		$settings = array(
-			'content_width'         => 'full',
+			'content_width'         => $width,
 			'flex_direction'        => 'column',
 			'flex_gap'              => Builder::gap( 0 ),
 			'padding'               => Builder::box( 'var(--forma-section)', 'var(--forma-gutter)', 'var(--forma-section)', 'var(--forma-gutter)', 'custom' ),

@@ -68,7 +68,8 @@ final class MenuPopup {
 				),
 				'deep',
 				array(
-					// The popup already pads the sheet by the gutter; the container fills what is left.
+					// The popup already pads the sheet by the gutter; the container fills what is left, and its content
+					// is boxed to the Kit's container width (the sheet itself stays full screen).
 					'padding'              => Builder::box( 0 ),
 					'min_height'           => Builder::size( 'calc(100vh - 2 * var(--forma-gutter))', 'custom' ),
 					'flex_justify_content' => 'space-between',

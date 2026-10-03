@@ -108,9 +108,9 @@ final class Kit {
 					Style::DISPLAY,
 					'400',
 					array(
-						'font_size'      => $clamp( 'clamp(96px, 36vw, 640px)' ),
+						'font_size'      => $clamp( 'clamp(80px, 16vw, 240px)' ),
 						'line_height'    => $em( 0.85 ),
-						'letter_spacing' => $em( -0.025 ),
+						'letter_spacing' => $em( -0.02 ),
 					)
 				),
 				$font(
@@ -250,7 +250,8 @@ final class Kit {
 
 	private function layout(): array {
 		return array(
-			'container_width'           => Builder::size( 1600 ),
+			// The boxed content width: every section's content sits in a column this wide, centred (see Style::section()).
+			'container_width'           => Builder::size( 1320 ),
 			'container_padding'         => Builder::box( 0 ),
 			'space_between_widgets'     => Builder::gap( 0 ),
 			'default_page_template'     => 'elementor_header_footer',

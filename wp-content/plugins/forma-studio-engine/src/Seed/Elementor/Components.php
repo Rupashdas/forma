@@ -323,30 +323,37 @@ final class Components {
 		$url     = $contact ? (string) get_permalink( $contact ) : home_url( '/contact/' );
 		$email   = $this->site['studio']['email'];
 
+		// The hairline above belongs to a stack inside the box, so it runs the width of the content, not of the viewport.
 		return Style::section(
 			array(
-				Style::label( 'Start a project' ),
-				Style::heading( 'Let’s build something <em>quiet</em>.', 'display-l', 'h2', 'ink', array( 'fm_entrance' => 'lines' ) ),
-				Style::row(
+				Style::stack(
 					array(
-						Style::heading( $email, 'statement', 'p', 'ink', array( 'link' => Style::link( 'mailto:' . $email ) ) ),
-						Style::button( 'Start a conversation', $url ),
+						Style::label( 'Start a project' ),
+						Style::heading( 'Let’s build something <em>quiet</em>.', 'display-l', 'h2', 'ink', array( 'fm_entrance' => 'lines' ) ),
+						Style::row(
+							array(
+								Style::heading( $email, 'statement', 'p', 'ink', array( 'link' => Style::link( 'mailto:' . $email ) ) ),
+								Style::button( 'Start a conversation', $url ),
+							),
+							array(
+								'flex_justify_content' => 'space-between',
+								'flex_align_items'     => 'center',
+								'flex_wrap'            => 'wrap',
+								'flex_gap'             => Builder::gap( 24, 32 ),
+							)
+						),
 					),
 					array(
-						'flex_justify_content' => 'space-between',
-						'flex_align_items'     => 'center',
-						'flex_wrap'            => 'wrap',
-						'flex_gap'             => Builder::gap( 24, 32 ),
+						'flex_gap'      => Builder::gap( 'clamp(24px, 3vw, 48px)', null, 'custom' ),
+						'padding'       => Builder::box( 'var(--forma-section)', 0, 0, 0, 'custom' ),
+						'border_border' => 'solid',
+						'border_width'  => Builder::box( 1, 0, 0, 0 ),
+						'__globals__'   => array( 'border_color' => Style::color( 'line' ) ),
 					)
 				),
 			),
 			'page',
-			array(
-				'flex_gap'      => Builder::gap( 'clamp(24px, 3vw, 48px)', null, 'custom' ),
-				'border_border' => 'solid',
-				'border_width'  => Builder::box( 1, 0, 0, 0 ),
-				'__globals__'   => array( 'border_color' => Style::color( 'line' ) ),
-			)
+			array( 'padding' => Builder::box( 0, 'var(--forma-gutter)', 'var(--forma-section)', 'var(--forma-gutter)', 'custom' ) )
 		);
 	}
 
