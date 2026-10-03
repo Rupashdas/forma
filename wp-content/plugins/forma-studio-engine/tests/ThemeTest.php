@@ -22,6 +22,27 @@ final class ThemeTest extends TestCase {
 		$this->assert_true( str_contains( $css, 'font-stretch: 62% 125%' ), 'Archivo exposes its width axis' );
 	}
 
+	public function test_palette_is_basalt(): void {
+		$css = (string) file_get_contents( get_stylesheet_directory() . '/assets/css/site.css' );
+
+		$tokens = array(
+			'--forma-basalt' => '#0f0e0d',
+			'--forma-raised' => '#1a1917',
+			'--forma-bone'   => '#ece6db',
+			'--forma-stone'  => '#9b9488',
+			'--forma-umber'  => '#6b655c',
+			'--forma-sodium' => '#e8a33d',
+		);
+
+		foreach ( $tokens as $token => $hex ) {
+			$this->assert_true( str_contains( $css, "{$token}: {$hex};" ), "{$token} is {$hex}" );
+		}
+
+		foreach ( array( 'plaster', 'graphite', 'redline', '--forma-ink', '--forma-paper' ) as $old ) {
+			$this->assert_true( ! str_contains( $css, $old ), "old token '{$old}' is gone" );
+		}
+	}
+
 	public function test_roman_faces_are_preloaded(): void {
 		$this->assert_true( function_exists( 'forma_theme_preload_fonts' ), 'forma_theme_preload_fonts() exists' );
 
