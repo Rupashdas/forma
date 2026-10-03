@@ -26,6 +26,8 @@ final class Projects implements Module {
 
 	public function register(): void {
 		add_action( 'init', array( self::class, 'register_types' ) );
+		add_action( 'save_post_' . self::POST_TYPE, array( ProjectNumber::class, 'flush' ) );
+		add_action( 'deleted_post', array( ProjectNumber::class, 'flush' ) );
 	}
 
 	/**
