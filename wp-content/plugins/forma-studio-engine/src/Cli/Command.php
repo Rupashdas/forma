@@ -2,6 +2,7 @@
 
 namespace Forma\Engine\Cli;
 
+use Forma\Engine\Seed\Content;
 use Forma\Engine\Seed\Setup;
 use WP_CLI;
 
@@ -14,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
  *
  *     wp forma all
  *     wp forma setup
+ *     wp forma content
  */
 final class Command {
 
@@ -23,6 +25,22 @@ final class Command {
 	public function setup(): void {
 		( new Setup( $this->logger() ) )->run();
 		WP_CLI::success( 'Site configured.' );
+	}
+
+	/**
+	 * Create project types, the eleven projects, pages, the front page and menus.
+	 */
+	public function content(): void {
+		( new Content( $this->logger() ) )->run();
+		WP_CLI::success( 'Content seeded.' );
+	}
+
+	/**
+	 * Run every build step in order.
+	 */
+	public function all(): void {
+		$this->setup();
+		$this->content();
 	}
 
 	private function logger(): \Closure {

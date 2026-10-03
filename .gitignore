@@ -1,10 +1,9 @@
-# Track only FORMA's own code and docs. WordPress core, third-party plugins, uploads,
-# wp-config.php and logs never enter the repository.
+# Track only FORMA's own plugin and child theme. WordPress core, third-party plugins, uploads,
+# wp-config.php, logs and the local docs/ folder never enter the repository.
 /*
 !/.gitignore
 !/.gitattributes
 !/README.md
-!/docs/
 
 !/wp-content/
 /wp-content/*
