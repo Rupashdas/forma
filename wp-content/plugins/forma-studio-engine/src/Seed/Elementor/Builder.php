@@ -135,14 +135,7 @@ final class Builder {
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			$admins = get_users(
-				array(
-					'role'   => 'administrator',
-					'number' => 1,
-					'fields' => 'ID',
-				)
-			);
-			wp_set_current_user( (int) ( $admins[0] ?? 0 ) );
+			self::as_admin();
 		}
 
 		$document = \Elementor\Plugin::$instance->documents->get( $post_id, false );
@@ -166,6 +159,19 @@ final class Builder {
 		update_post_meta( $post_id, self::HASH_KEY, self::hash( $post_id ) );
 
 		return true;
+	}
+
+	/** Act as the first administrator, so Elementor's capability checks pass under WP-CLI. */
+	public static function as_admin(): void {
+		$admins = get_users(
+			array(
+				'role'   => 'administrator',
+				'number' => 1,
+				'fields' => 'ID',
+			)
+		);
+
+		wp_set_current_user( (int) ( $admins[0] ?? 0 ) );
 	}
 
 	/**

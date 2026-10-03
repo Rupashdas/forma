@@ -11,6 +11,23 @@ return array(
 		'description' => 'Architecture, interiors and objects. A studio in Lisbon.',
 	),
 
+	/*
+	 * Contact details are placeholders until the owner confirms them. Social links point to platform home pages only.
+	 */
+	'studio'     => array(
+		'email'       => 'studio@forma.freedev.app',
+		'phone'       => '+351 210 000 000',
+		'address'     => array( 'Rua da Boavista 72, 2.º', '1200-066 Lisboa' ),
+		'hours'       => 'Mon–Fri, 9:00–18:00',
+		'coordinates' => '38°43′N 9°08′W',
+		'founded'     => 2011,
+		'social'      => array(
+			'Instagram' => 'https://www.instagram.com/',
+			'LinkedIn'  => 'https://www.linkedin.com/',
+			'Pinterest' => 'https://www.pinterest.com/',
+		),
+	),
+
 	'types'      => array(
 		'residential' => array(
 			'name'        => 'Residential',
