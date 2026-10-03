@@ -20,6 +20,7 @@ final class Plugin {
 		Motion\Motion::class,
 		Cursor\Cursor::class,
 		Transitions\Transitions::class,
+		Seo\Seo::class,
 	);
 
 	/** @var array<string, Module> */

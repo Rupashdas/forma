@@ -106,7 +106,8 @@ final class Projects implements Module {
 					'item_published'        => __( 'Project published.', 'forma-studio-engine' ),
 					'item_updated'          => __( 'Project updated.', 'forma-studio-engine' ),
 				),
-				'description'   => __( 'Buildings, interiors and objects by the studio. The publish date is the completion date.', 'forma-studio-engine' ),
+				// Public-facing: it is the projects archive's meta description. (A project's publish date is its completion date.)
+				'description'   => __( 'Houses, hotels, workplaces, interiors and objects by FORMA, an architecture and interiors studio in Lisbon.', 'forma-studio-engine' ),
 				'public'        => true,
 				'show_in_rest'  => true,
 				'has_archive'   => 'projects',
