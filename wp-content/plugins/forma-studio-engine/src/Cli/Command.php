@@ -3,6 +3,7 @@
 namespace Forma\Engine\Cli;
 
 use Forma\Engine\Seed\Content;
+use Forma\Engine\Seed\Images;
 use Forma\Engine\Seed\Setup;
 use WP_CLI;
 
@@ -36,11 +37,24 @@ final class Command {
 	}
 
 	/**
+	 * Import the approved photographs listed in data/images.php.
+	 *
+	 * [--dir=<path>]
+	 * : Folder holding the downloaded originals. Defaults to images-src/ next to the site's app/ folder.
+	 */
+	public function images( array $args, array $assoc ): void {
+		$dir   = $assoc['dir'] ?? dirname( ABSPATH, 2 ) . '/images-src';
+		$count = ( new Images( $dir, $this->logger() ) )->run();
+		WP_CLI::success( sprintf( '%d images imported or refreshed.', $count ) );
+	}
+
+	/**
 	 * Run every build step in order.
 	 */
 	public function all(): void {
 		$this->setup();
 		$this->content();
+		$this->images( array(), array() );
 	}
 
 	private function logger(): \Closure {

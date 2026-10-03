@@ -17,19 +17,26 @@ abstract class TestCase {
 		global $wpdb;
 
 		$wpdb->query( 'START TRANSACTION' );
-		$test = new $class();
+		$test  = new $class();
+		$error = null;
 
 		try {
 			$test->set_up();
 			$test->$method();
-			return null;
 		} catch ( \Throwable $e ) {
-			return $e->getMessage() . ' @ ' . self::origin( $e );
-		} finally {
-			$test->tear_down();
-			$wpdb->query( 'ROLLBACK' );
-			wp_cache_flush();
+			$error = $e->getMessage() . ' @ ' . self::origin( $e );
 		}
+
+		try {
+			$test->tear_down();
+		} catch ( \Throwable $e ) {
+			$error ??= 'tear_down: ' . $e->getMessage() . ' @ ' . self::origin( $e );
+		}
+
+		$wpdb->query( 'ROLLBACK' );
+		wp_cache_flush();
+
+		return $error;
 	}
 
 	/**
