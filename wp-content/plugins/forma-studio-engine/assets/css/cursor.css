@@ -1,1 +1,61 @@
-/* FORMA — cursor */
+/* FORMA — cursor. An 8px Sodium dot that grows to an 88px labelled disc; never intercepts the pointer. */
+
+.forma-cursor {
+	display: grid;
+	height: 88px;
+	left: 0;
+	margin: -44px 0 0 -44px;
+	opacity: 0;
+	place-items: center;
+	pointer-events: none;
+	position: fixed;
+	top: 0;
+	transition: opacity 0.2s;
+	width: 88px;
+	z-index: 9999;
+}
+
+.forma-cursor::before {
+	background-color: var(--forma-sodium, #e8a33d);
+	border-radius: 50%;
+	content: "";
+	inset: 0;
+	position: absolute;
+	transform: scale(0.09);
+	transition: transform 0.45s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.forma-cursor.is-visible {
+	opacity: 1;
+}
+
+.forma-cursor.is-active::before {
+	transform: scale(1);
+}
+
+.forma-cursor span {
+	color: var(--forma-basalt, #0f0e0d);
+	font-family: var(--forma-font-sans, "Archivo", sans-serif);
+	font-size: 11px;
+	font-stretch: 125%;
+	font-weight: 500;
+	letter-spacing: 0.1em;
+	line-height: 1;
+	opacity: 0;
+	position: relative;
+	text-transform: uppercase;
+	transform: scale(0.6);
+	transition: opacity 0.25s, transform 0.45s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.forma-cursor.is-active span {
+	opacity: 1;
+	transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.forma-cursor::before,
+	.forma-cursor span {
+		transition: none;
+	}
+}

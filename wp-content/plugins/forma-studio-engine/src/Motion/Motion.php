@@ -6,6 +6,7 @@ use Elementor\Controls_Manager;
 use Elementor\Element_Base;
 use Forma\Engine\Contracts\Module;
 use Forma\Engine\Support\Assets;
+use Forma\Engine\Support\Editor;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -195,7 +196,7 @@ final class Motion implements Module {
 	 * after three seconds if the runtime never arrives. The runtime adds .fm-armed once it has taken over.
 	 */
 	public function head(): void {
-		if ( is_admin() || is_feed() || $this->in_editor() ) {
+		if ( is_admin() || is_feed() || Editor::active() ) {
 			return;
 		}
 
@@ -203,11 +204,6 @@ final class Motion implements Module {
 		echo '<style id="forma-motion-guard">@media (prefers-reduced-motion: no-preference){html.fm-js:not(.fm-armed) [data-fm-entrance]{opacity:0;animation:fm-failsafe 0s 3s forwards}}@keyframes fm-failsafe{to{opacity:1}}</style>' . "\n";
 	}
 
-	private function in_editor(): bool {
-		$elementor = \Elementor\Plugin::$instance;
-
-		return $elementor->preview->is_preview_mode() || $elementor->editor->is_edit_mode();
-	}
 
 	private function number( mixed $value, float $min, float $max ): string {
 		if ( '' === $value || null === $value || ! is_numeric( $value ) ) {

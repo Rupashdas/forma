@@ -18,6 +18,8 @@ final class Plugin {
 		Media\Media::class,
 		Elementor\Module::class,
 		Motion\Motion::class,
+		Cursor\Cursor::class,
+		Transitions\Transitions::class,
 	);
 
 	/** @var array<string, Module> */
