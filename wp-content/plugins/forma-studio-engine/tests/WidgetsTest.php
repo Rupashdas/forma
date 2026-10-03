@@ -110,6 +110,55 @@ final class WidgetsTest extends TestCase {
 		$this->assert_true( ! str_contains( $end, '<a ' ), 'no link at the end when wrapping is off' );
 	}
 
+	public function test_scroll_story_renders_an_ordered_list_of_panels(): void {
+		$panels = array();
+
+		foreach ( array( 'home-02.jpg' => 'Survey', 'home-03.jpg' => 'Sketch', 'home-04.jpg' => 'Model' ) as $file => $title ) {
+			$panels[] = array(
+				'image' => array( 'id' => Images::attachment_id( $file ) ),
+				'label' => 'Stage',
+				'title' => $title,
+				'text'  => "{$title} text",
+				'meta'  => '2–4 weeks',
+			);
+		}
+
+		$html = $this->render(
+			'forma-scroll-story',
+			array(
+				'layout'  => 'horizontal',
+				'surface' => 'raised',
+				'panels'  => $panels,
+			)
+		);
+
+		$this->assert_true( str_contains( $html, 'forma-story--horizontal' ), 'layout class' );
+		$this->assert_true( str_contains( $html, 'forma-story--raised' ), 'surface class' );
+		$this->assert_same( 1, substr_count( $html, '<ol class="forma-story__panels"' ), 'one ordered list' );
+		$this->assert_same( 3, substr_count( $html, '<li class="forma-story__panel"' ), 'three panels' );
+		$this->assert_true( str_contains( $html, '<span class="forma-story__no">01</span>' ) && str_contains( $html, '<span class="forma-story__no">03</span>' ), 'panels numbered automatically' );
+		$this->assert_true( str_contains( $html, 'alt="' . esc_attr( get_post_meta( Images::attachment_id( 'home-02.jpg' ), '_wp_attachment_image_alt', true ) ) . '"' ), 'images keep their alt text' );
+		$this->assert_true( str_contains( $html, 'class="forma-story__rail" aria-hidden="true"' ), 'decorative progress rail' );
+	}
+
+	public function test_scroll_story_steps_layout(): void {
+		$html = $this->render(
+			'forma-scroll-story',
+			array(
+				'layout' => 'steps',
+				'panels' => array(
+					array(
+						'title' => 'Discovery',
+						'text'  => 'We start on site.',
+					),
+				),
+			)
+		);
+
+		$this->assert_true( str_contains( $html, 'forma-story--steps' ), 'steps layout class' );
+		$this->assert_true( str_contains( $html, '>Discovery<' ), 'step title' );
+	}
+
 	private function render_on( string $slug, string $widget, array $settings ): string {
 		$GLOBALS['post'] = get_page_by_path( $slug, OBJECT, 'forma_project' );
 		setup_postdata( $GLOBALS['post'] );

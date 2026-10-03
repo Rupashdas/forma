@@ -65,7 +65,65 @@ final class Lab {
 				)
 			),
 			$this->section( 'Project Index', Builder::widget( 'forma-project-index', array() ) ),
+			$this->section(
+				'Scroll Story — horizontal',
+				Builder::widget(
+					'forma-scroll-story',
+					array(
+						'layout'  => 'horizontal',
+						'surface' => 'raised',
+						'panels'  => $this->story(
+							array(
+								'home-02.jpg' => array( 'Survey', 'We walk the site with a level and a notebook before anyone draws a line.' ),
+								'home-03.jpg' => array( 'Sketch', 'Ideas start by hand, fast and loose, at the scale of a fingertip.' ),
+								'home-04.jpg' => array( 'Model', 'Card and foam models test light, mass and the way in.' ),
+								'home-05.jpg' => array( 'Drawing', 'Plans, sections and details: every decision written down.' ),
+								'home-06.jpg' => array( 'Site', 'We are on site every week, from foundations to the last coat of lime.' ),
+								'home-07.jpg' => array( 'Light', 'The moment we work towards: the first morning the sun comes in.' ),
+							)
+						),
+					)
+				),
+				true
+			),
+			$this->section(
+				'Scroll Story — steps',
+				Builder::widget(
+					'forma-scroll-story',
+					array(
+						'layout'  => 'steps',
+						'surface' => 'basalt',
+						'panels'  => $this->story(
+							array(
+								'casa-nera-01.jpg'       => array( 'Discovery', 'Two site visits, a brief written together, and a measured survey.' ),
+								'monolith-house-01.jpg'  => array( 'Concept', 'Three directions as models and sketches; we choose one together.' ),
+								'the-quiet-hotel-01.jpg' => array( 'Development', 'Plans, materials and costs refined until the design holds.' ),
+							)
+						),
+					)
+				)
+			),
 		);
+	}
+
+	/**
+	 * @param array<string, array{0: string, 1: string}> $panels Image file => [title, text].
+	 */
+	private function story( array $panels ): array {
+		$out = array();
+
+		foreach ( $panels as $file => [ $title, $text ] ) {
+			$out[] = array(
+				'_id'   => Builder::id(),
+				'image' => Builder::image( Images::attachment_id( $file ) ),
+				'label' => 'Stage',
+				'title' => $title,
+				'text'  => $text,
+				'meta'  => '2–4 weeks',
+			);
+		}
+
+		return $out;
 	}
 
 	/**
