@@ -7,8 +7,13 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The "drawing" half of the Drawing / Built comparison, rendered from the project's own photograph:
  * greyscale, colour-dodged with its blurred negative (a pencil-sketch technique), then mid-tones pushed to paper.
+ * The greys are printed in the site palette, Ink lines on Chalk paper, so the drawing sits on the page like a sheet.
  */
 final class Drawings {
+
+	/** Chalk (paper) and Ink (line), as RGB; the theme's --forma-page and --forma-ink. */
+	private const PAPER = array( 0xF2, 0xEF, 0xE8 );
+	private const INK   = array( 0x16, 0x19, 0x17 );
 
 	public function __construct( private \Closure $log ) {}
 
@@ -92,6 +97,13 @@ final class Drawings {
 	}
 
 	public static function render( string $source, string $target ): void {
+		imagewebp( self::sketch( $source ), $target, 82 );
+	}
+
+	/**
+	 * The drawing as an image, before encoding.
+	 */
+	public static function sketch( string $source ): \GdImage {
 		$photo = imagecreatefromstring( (string) file_get_contents( $source ) );
 
 		if ( false === $photo ) {
@@ -109,6 +121,14 @@ final class Drawings {
 
 		$out = imagecreatetruecolor( $width, $height );
 
+		// Grey 0 (line) → Ink, 255 (paper) → Chalk, precomputed for every grey level.
+		$mix     = static fn( int $i, int $value ): int => (int) round( self::INK[ $i ] + ( self::PAPER[ $i ] - self::INK[ $i ] ) * $value / 255 );
+		$palette = array();
+
+		for ( $value = 0; $value < 256; $value++ ) {
+			$palette[ $value ] = ( $mix( 0, $value ) << 16 ) | ( $mix( 1, $value ) << 8 ) | $mix( 2, $value );
+		}
+
 		for ( $y = 0; $y < $height; $y++ ) {
 			for ( $x = 0; $x < $width; $x++ ) {
 				$base  = imagecolorat( $photo, $x, $y ) & 0xFF;
@@ -116,10 +136,10 @@ final class Drawings {
 				$dodge = $top >= 255 ? 255 : min( 255, intdiv( $base * 255, 255 - $top ) );
 				$value = $dodge >= 235 ? 255 : (int) max( 0, ( $dodge - 90 ) * 255 / 145 );
 
-				imagesetpixel( $out, $x, $y, ( $value << 16 ) | ( $value << 8 ) | $value );
+				imagesetpixel( $out, $x, $y, $palette[ $value ] );
 			}
 		}
 
-		imagewebp( $out, $target, 82 );
+		return $out;
 	}
 }

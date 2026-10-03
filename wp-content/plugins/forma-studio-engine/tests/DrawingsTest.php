@@ -26,7 +26,7 @@ final class DrawingsTest extends TestCase {
 		wp_delete_file( $this->target );
 	}
 
-	public function test_render_produces_dark_lines_on_white_at_the_same_size(): void {
+	public function test_render_produces_dark_lines_on_paper_at_the_same_size(): void {
 		Drawings::render( $this->source, $this->target );
 
 		$this->assert_true( is_readable( $this->target ), 'drawing written' );
@@ -40,14 +40,43 @@ final class DrawingsTest extends TestCase {
 
 		for ( $y = 0; $y < 300; $y += 2 ) {
 			for ( $x = 0; $x < 400; $x += 2 ) {
-				$value = imagecolorat( $drawing, $x, $y ) & 0xFF;
+				$value = ( imagecolorat( $drawing, $x, $y ) >> 8 ) & 0xFF;
 				$sum  += $value;
 				$dark += $value < 128 ? 1 : 0;
 			}
 		}
 
-		$this->assert_true( $sum / 30000 > 200, 'mostly paper-white' );
+		$this->assert_true( $sum / 30000 > 200, 'mostly paper' );
 		$this->assert_true( $dark > 50, 'has dark line pixels' );
 		$this->assert_true( $dark < 6000, 'lines, not filled shapes' );
+	}
+
+	public function test_drawing_is_ink_on_chalk(): void {
+		$ink    = array( 0x16, 0x19, 0x17 );
+		$chalk  = array( 0xF2, 0xEF, 0xE8 );
+		$rgb    = static fn( int $c ): array => array( ( $c >> 16 ) & 0xFF, ( $c >> 8 ) & 0xFF, $c & 0xFF );
+		$sketch = Drawings::sketch( $this->source );
+
+		$this->assert_same( $chalk, $rgb( imagecolorat( $sketch, 20, 20 ) ), 'paper is Chalk' );
+
+		$darkest = $chalk;
+		for ( $y = 0; $y < 300; $y++ ) {
+			for ( $x = 0; $x < 400; $x++ ) {
+				$pixel = $rgb( imagecolorat( $sketch, $x, $y ) );
+				if ( array_sum( $pixel ) < array_sum( $darkest ) ) {
+					$darkest = $pixel;
+				}
+			}
+		}
+
+		$this->assert_true( array_sum( $darkest ) < 200, 'has dark lines' );
+		foreach ( $ink as $i => $floor ) {
+			$this->assert_true( $darkest[ $i ] >= $floor, 'lines never go darker than Ink: ' . implode( ',', $darkest ) );
+		}
+
+		// The encoded file keeps the paper colour (lossy WebP may shift it a few levels).
+		Drawings::render( $this->source, $this->target );
+		$paper = $rgb( imagecolorat( imagecreatefromwebp( $this->target ), 20, 20 ) );
+		$this->assert_true( max( array_map( static fn( $a, $b ) => abs( $a - $b ), $chalk, $paper ) ) <= 6, 'WebP paper stays Chalk: ' . implode( ',', $paper ) );
 	}
 }
