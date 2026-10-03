@@ -3,6 +3,7 @@
 namespace Forma\Engine\Cli;
 
 use Forma\Engine\Seed\Content;
+use Forma\Engine\Seed\Drawings;
 use Forma\Engine\Seed\Images;
 use Forma\Engine\Seed\Setup;
 use WP_CLI;
@@ -49,12 +50,24 @@ final class Command {
 	}
 
 	/**
+	 * Generate the line drawings for projects with a Drawing / Built comparison.
+	 *
+	 * [--force]
+	 * : Regenerate drawings that already exist.
+	 */
+	public function drawings( array $args, array $assoc ): void {
+		$made = ( new Drawings( $this->logger() ) )->run( isset( $assoc['force'] ) );
+		WP_CLI::success( sprintf( '%d drawings generated.', $made ) );
+	}
+
+	/**
 	 * Run every build step in order.
 	 */
 	public function all(): void {
 		$this->setup();
 		$this->content();
 		$this->images( array(), array() );
+		$this->drawings( array(), array() );
 	}
 
 	private function logger(): \Closure {
