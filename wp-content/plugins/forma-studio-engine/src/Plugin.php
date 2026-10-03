@@ -33,6 +33,10 @@ final class Plugin {
 			self::$modules[ $class::id() ] = $module;
 		}
 
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'forma', Cli\Command::class );
+		}
+
 		/**
 		 * Fires after Forma Studio Engine has registered its modules.
 		 *
