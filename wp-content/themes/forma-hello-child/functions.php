@@ -14,19 +14,50 @@ add_action( 'wp_enqueue_scripts', 'forma_theme_assets', 20 );
 add_action( 'wp_head', 'forma_theme_preload_fonts', 1 );
 add_filter( 'elementor/fonts/groups', 'forma_theme_font_group' );
 add_filter( 'elementor/fonts/additional_fonts', 'forma_theme_fonts' );
+add_action( 'elementor/page_templates/header-footer/before_content', 'forma_theme_main_open' );
+add_action( 'elementor/page_templates/header-footer/after_content', 'forma_theme_main_close' );
 
 /**
- * Site stylesheet, versioned by file time so edits bust browser caches.
+ * Site stylesheet and script, versioned by file time so edits bust browser caches. The script drives the header
+ * (condense, hide on scroll down, show on scroll up) and is not needed inside Elementor's editor.
  */
 function forma_theme_assets(): void {
-	$path = '/assets/css/site.css';
+	$dir = get_stylesheet_directory();
+	$uri = get_stylesheet_directory_uri();
 
 	wp_enqueue_style(
 		'forma-site',
-		get_stylesheet_directory_uri() . $path,
+		$uri . '/assets/css/site.css',
 		array(),
-		FORMA_THEME_VERSION . '.' . filemtime( get_stylesheet_directory() . $path )
+		FORMA_THEME_VERSION . '.' . filemtime( $dir . '/assets/css/site.css' )
 	);
+
+	if ( class_exists( '\Elementor\Plugin' ) && \Elementor\Plugin::$instance->preview->is_preview_mode() ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'forma-site',
+		$uri . '/assets/js/site.js',
+		array(),
+		FORMA_THEME_VERSION . '.' . filemtime( $dir . '/assets/js/site.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+}
+
+/**
+ * Elementor's "Header and footer" page template prints its content bare. Wrapping it in <main id="content"> gives
+ * Hello's "Skip to content" link a target and the page a main landmark.
+ */
+function forma_theme_main_open(): void {
+	echo '<main id="content" class="site-main">';
+}
+
+function forma_theme_main_close(): void {
+	echo '</main>';
 }
 
 /**

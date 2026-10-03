@@ -153,6 +153,53 @@ img {
 	z-index: 100000;
 }
 
+/*
+ * Header (Theme Builder container with the class .forma-header). Fixed to the top, above page content but below
+ * popups. site.js toggles the states: condensed after a little scrolling (Chalk at 92% over a soft blur, a hairline
+ * underneath, tighter padding), hidden while scrolling down. Elementor sets the container's position and padding
+ * itself (padding as custom properties), so these selectors carry enough specificity to win over its CSS.
+ */
+.elementor .forma-header.e-con {
+	position: fixed;
+	inset: 0 0 auto;
+	z-index: 90;
+	border-bottom: 1px solid transparent;
+	transition:
+		transform 0.5s var(--forma-ease),
+		background-color 0.4s var(--forma-ease),
+		border-color 0.4s var(--forma-ease),
+		padding 0.4s var(--forma-ease);
+}
+
+.elementor .forma-header.e-con.is-condensed {
+	--padding-top: 14px;
+	--padding-bottom: 14px;
+	background-color: var(--forma-page);
+	background-color: color-mix(in srgb, var(--forma-page) 92%, transparent);
+	border-bottom-color: var(--forma-line);
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+}
+
+.elementor .forma-header.e-con.is-hidden {
+	transform: translateY(-100%);
+}
+
+.admin-bar .elementor .forma-header.e-con {
+	top: 32px;
+}
+
+@media (max-width: 782px) {
+	.admin-bar .elementor .forma-header.e-con {
+		top: 46px;
+	}
+}
+
+/* Inside Elementor's editor the header stays in the flow so it can be selected and edited. */
+.elementor-editor-active .elementor .forma-header.e-con {
+	position: relative;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
