@@ -22,6 +22,8 @@ final class Plugin {
 	private static array $modules = array();
 
 	public static function boot(): void {
+		Support\Assets::register();
+
 		foreach ( self::MODULES as $class ) {
 			$module = new $class();
 
