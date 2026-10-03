@@ -4,6 +4,7 @@ namespace Forma\Engine\Cli;
 
 use Forma\Engine\Seed\Content;
 use Forma\Engine\Seed\Drawings;
+use Forma\Engine\Seed\Elementor\Lab;
 use Forma\Engine\Seed\Images;
 use Forma\Engine\Seed\Setup;
 use WP_CLI;
@@ -58,6 +59,14 @@ final class Command {
 	public function drawings( array $args, array $assoc ): void {
 		$made = ( new Drawings( $this->logger() ) )->run( isset( $assoc['force'] ) );
 		WP_CLI::success( sprintf( '%d drawings generated.', $made ) );
+	}
+
+	/**
+	 * Build the private "Widget lab" page that shows every Forma widget and Motion effect, for browser QA.
+	 */
+	public function lab(): void {
+		( new Lab( $this->logger() ) )->build();
+		WP_CLI::success( 'Widget lab built.' );
 	}
 
 	/**

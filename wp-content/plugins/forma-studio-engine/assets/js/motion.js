@@ -62,6 +62,12 @@
 			const pieces = { lines: 'lines', words: 'words,lines', chars: 'chars,words,lines' }[ type ];
 			const mask = type === 'chars' ? 'words' : 'lines';
 
+			// Lines step one after another; words and characters share a fixed total, so long text never drags.
+			const spread =
+				stagger !== undefined && stagger !== ''
+					? parseFloat( stagger )
+					: { lines: 0.1, words: { amount: 0.6 }, chars: { amount: 0.45 } }[ type ];
+
 			textTargets( el ).forEach( ( target ) => {
 				SplitText.create( target, {
 					type: pieces,
@@ -73,7 +79,7 @@
 							duration: type === 'chars' ? 0.9 : 1.2,
 							ease,
 							delay,
-							stagger: num( stagger, type === 'chars' ? 0.02 : 0.08 ),
+							stagger: spread,
 							scrollTrigger: { ...trigger },
 						} ),
 				} );
