@@ -13,7 +13,9 @@ final class Plugin {
 	 *
 	 * @var array<class-string<Module>>
 	 */
-	private const MODULES = array();
+	private const MODULES = array(
+		Projects\Projects::class,
+	);
 
 	/** @var array<string, Module> */
 	private static array $modules = array();
@@ -43,6 +45,7 @@ final class Plugin {
 	}
 
 	public static function activate(): void {
+		Projects\Projects::register_types();
 		flush_rewrite_rules();
 	}
 }
