@@ -11,6 +11,9 @@ defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/TestCase.php';
 
+// WP-CLI has no web server; some wp_head callbacks read SERVER_NAME.
+$_SERVER['SERVER_NAME'] = $_SERVER['SERVER_NAME'] ?? (string) wp_parse_url( home_url(), PHP_URL_HOST );
+
 foreach ( glob( __DIR__ . '/*Test.php' ) as $forma_test_file ) {
 	require_once $forma_test_file;
 }

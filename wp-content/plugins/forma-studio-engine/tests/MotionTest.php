@@ -16,6 +16,26 @@ final class MotionTest extends TestCase {
 		}
 	}
 
+	public function test_controls_are_declared_once_per_stack(): void {
+		$errors = array();
+		$spy    = static function ( string $function_name, string $message ) use ( &$errors ): void {
+			$errors[] = $message;
+		};
+		add_action( 'doing_it_wrong_run', $spy, 10, 2 );
+
+		$manager = \Elementor\Plugin::$instance->controls_manager;
+
+		foreach ( array( 'heading', 'forma-marquee' ) as $name ) {
+			$widget = \Elementor\Plugin::$instance->widgets_manager->get_widget_types( $name );
+			$manager->delete_stack( $widget );
+			$widget->get_controls();
+		}
+
+		remove_action( 'doing_it_wrong_run', $spy, 10 );
+
+		$this->assert_same( array(), array_values( array_filter( $errors, static fn( $m ) => str_contains( $m, 'fm_' ) || str_contains( $m, 'forma_motion' ) ) ), 'no duplicate Forma Motion controls' );
+	}
+
 	public function test_render_adds_only_set_attributes_and_enqueues_motion(): void {
 		$html = $this->render_heading(
 			array(

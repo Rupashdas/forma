@@ -30,7 +30,9 @@ final class Motion implements Module {
 	}
 
 	public function register(): void {
-		foreach ( array( 'common/_section_style', 'common-optimized/_section_style', 'container/section_layout' ) as $section ) {
+		// "common" covers every widget: the optimised-markup stack (common-optimized) fires the common hooks too,
+		// so hooking both would declare the panel twice.
+		foreach ( array( 'common/_section_style', 'container/section_layout' ) as $section ) {
 			add_action( "elementor/element/{$section}/after_section_end", array( $this, 'controls' ) );
 		}
 
