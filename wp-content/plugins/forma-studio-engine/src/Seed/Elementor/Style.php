@@ -13,6 +13,13 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Style {
 
+	/**
+	 * The font families the seeders write, in one place so a family can be swapped without touching the documents'
+	 * code. Each name must match an @font-face in the child theme's site.css and be listed in its font group.
+	 */
+	public const DISPLAY = 'Bodoni Moda';
+	public const SANS    = 'Archivo';
+
 	/** Theme colour token => Kit Global Color id. */
 	public const COLORS = array(
 		'page'           => 'primary',

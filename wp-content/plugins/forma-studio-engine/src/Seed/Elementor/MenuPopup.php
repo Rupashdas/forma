@@ -90,7 +90,7 @@ final class MenuPopup {
 				'dropdown'                       => 'none',
 				'pointer'                        => 'none',
 				'menu_typography_typography'     => 'custom',
-				'menu_typography_font_family'    => 'Bodoni Moda',
+				'menu_typography_font_family'    => Style::DISPLAY,
 				'menu_typography_font_weight'    => '400',
 				'menu_typography_font_size'      => Builder::size( 'clamp(44px, 9vw, 112px)', 'custom' ),
 				'menu_typography_line_height'    => Builder::size( 0.95, 'em' ),

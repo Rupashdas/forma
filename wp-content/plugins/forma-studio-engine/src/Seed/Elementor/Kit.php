@@ -11,11 +11,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Kit {
 
-	private const SERIF = 'Bodoni Moda';
-	private const SANS  = 'Archivo';
-
-	/** Width-expanded face of Archivo, declared in the child theme's site.css (Elementor can't set the width axis). */
-	private const SANS_EXPANDED = 'Archivo Expanded';
+	/** Width-expanded face of the sans, declared in the child theme's site.css (Elementor can't set the width axis). */
+	private const SANS_EXPANDED = Style::SANS . ' Expanded';
 
 	public function __construct( private \Closure $log ) {}
 
@@ -108,7 +105,7 @@ final class Kit {
 				$font(
 					'primary',
 					'Display XL',
-					self::SERIF,
+					Style::DISPLAY,
 					'400',
 					array(
 						'font_size'      => $clamp( 'clamp(72px, 18vw, 320px)' ),
@@ -119,7 +116,7 @@ final class Kit {
 				$font(
 					'secondary',
 					'Display L',
-					self::SERIF,
+					Style::DISPLAY,
 					'400',
 					array(
 						'font_size'      => $clamp( 'clamp(48px, 8vw, 144px)' ),
@@ -130,7 +127,7 @@ final class Kit {
 				$font(
 					'text',
 					'Body',
-					self::SANS,
+					Style::SANS,
 					'400',
 					array(
 						'font_size'        => Builder::size( 17 ),
@@ -155,7 +152,7 @@ final class Kit {
 				$font(
 					'heading',
 					'Heading',
-					self::SERIF,
+					Style::DISPLAY,
 					'400',
 					array(
 						'font_size'      => $clamp( 'clamp(36px, 4.5vw, 72px)' ),
@@ -166,7 +163,7 @@ final class Kit {
 				$font(
 					'statement',
 					'Statement',
-					self::SERIF,
+					Style::DISPLAY,
 					'400',
 					array(
 						'font_size'   => $clamp( 'clamp(26px, 3vw, 44px)' ),
@@ -176,7 +173,7 @@ final class Kit {
 				$font(
 					'subheading',
 					'Subheading',
-					self::SANS,
+					Style::SANS,
 					'500',
 					array(
 						'font_size'   => $clamp( 'clamp(20px, 1.8vw, 26px)' ),
@@ -186,7 +183,7 @@ final class Kit {
 				$font(
 					'meta',
 					'Meta',
-					self::SANS,
+					Style::SANS,
 					'400',
 					array(
 						'font_size'   => Builder::size( 13 ),
