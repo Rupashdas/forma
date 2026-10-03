@@ -16,6 +16,7 @@ final class Plugin {
 	private const MODULES = array(
 		Projects\Projects::class,
 		Media\Media::class,
+		Elementor\Module::class,
 	);
 
 	/** @var array<string, Module> */
