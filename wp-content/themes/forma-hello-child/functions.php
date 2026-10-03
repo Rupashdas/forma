@@ -64,7 +64,7 @@ function forma_theme_main_close(): void {
  * Preload the two roman faces every page sets above the fold; the italic loads on demand.
  */
 function forma_theme_preload_fonts(): void {
-	foreach ( array( 'bodoni-moda-latin', 'archivo-latin' ) as $font ) {
+	foreach ( array( 'instrument-serif-latin', 'archivo-latin' ) as $font ) {
 		printf(
 			'<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
 			esc_url( get_stylesheet_directory_uri() . "/assets/fonts/{$font}.woff2" )
@@ -87,7 +87,7 @@ function forma_theme_fonts( array $fonts ): array {
 	return array_merge(
 		$fonts,
 		array(
-			'Bodoni Moda'      => 'forma',
+			'Instrument Serif' => 'forma',
 			'Archivo'          => 'forma',
 			'Archivo Expanded' => 'forma',
 		)

@@ -97,6 +97,8 @@ final class Footer {
 							'nofollow'          => '',
 							'custom_attributes' => '',
 						),
+						// The Statement face, sized down to fit a quarter-width column.
+						'custom_css' => 'selector .elementor-heading-title { font-size: clamp(22px, 1.9vw, 30px); overflow-wrap: anywhere; }',
 					)
 				),
 				Style::text( $phone, 'meta', 'muted' ),

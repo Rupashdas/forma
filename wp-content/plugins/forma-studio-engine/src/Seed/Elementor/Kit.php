@@ -108,9 +108,9 @@ final class Kit {
 					Style::DISPLAY,
 					'400',
 					array(
-						'font_size'      => $clamp( 'clamp(72px, 18vw, 320px)' ),
+						'font_size'      => $clamp( 'clamp(88px, 24vw, 420px)' ),
 						'line_height'    => $em( 0.85 ),
-						'letter_spacing' => $em( -0.04 ),
+						'letter_spacing' => $em( -0.025 ),
 					)
 				),
 				$font(
@@ -119,9 +119,9 @@ final class Kit {
 					Style::DISPLAY,
 					'400',
 					array(
-						'font_size'      => $clamp( 'clamp(48px, 8vw, 144px)' ),
+						'font_size'      => $clamp( 'clamp(56px, 9vw, 160px)' ),
 						'line_height'    => $em( 0.92 ),
-						'letter_spacing' => $em( -0.03 ),
+						'letter_spacing' => $em( -0.02 ),
 					)
 				),
 				$font(
@@ -155,9 +155,9 @@ final class Kit {
 					Style::DISPLAY,
 					'400',
 					array(
-						'font_size'      => $clamp( 'clamp(36px, 4.5vw, 72px)' ),
+						'font_size'      => $clamp( 'clamp(40px, 5vw, 80px)' ),
 						'line_height'    => $em( 1 ),
-						'letter_spacing' => $em( -0.02 ),
+						'letter_spacing' => $em( -0.01 ),
 					)
 				),
 				$font(
@@ -166,8 +166,8 @@ final class Kit {
 					Style::DISPLAY,
 					'400',
 					array(
-						'font_size'   => $clamp( 'clamp(26px, 3vw, 44px)' ),
-						'line_height' => $em( 1.2 ),
+						'font_size'   => $clamp( 'clamp(28px, 3.4vw, 50px)' ),
+						'line_height' => $em( 1.15 ),
 					)
 				),
 				$font(

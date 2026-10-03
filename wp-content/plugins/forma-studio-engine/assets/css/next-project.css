@@ -55,7 +55,7 @@
 }
 
 .forma-next__title {
-	font-family: var(--forma-font-display, "Bodoni Moda", serif);
+	font-family: var(--forma-font-display, "Instrument Serif", serif);
 	font-size: clamp(56px, 11vw, 200px);
 	font-weight: 400;
 	letter-spacing: -0.04em;

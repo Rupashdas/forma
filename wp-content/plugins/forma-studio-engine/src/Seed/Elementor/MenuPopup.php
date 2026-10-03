@@ -78,7 +78,7 @@ final class MenuPopup {
 		);
 	}
 
-	/** The numbered primary nav: large Bodoni, no pointer, numbers added by the nav's own Custom CSS. */
+	/** The numbered primary nav: large display serif, no pointer, numbers added by the nav's own Custom CSS. */
 	private function nav(): array {
 		return Builder::widget(
 			'nav-menu',
@@ -92,7 +92,7 @@ final class MenuPopup {
 				'menu_typography_typography'     => 'custom',
 				'menu_typography_font_family'    => Style::DISPLAY,
 				'menu_typography_font_weight'    => '400',
-				'menu_typography_font_size'      => Builder::size( 'clamp(44px, 9vw, 112px)', 'custom' ),
+				'menu_typography_font_size'      => Builder::size( 'clamp(44px, 10vw, 128px)', 'custom' ),
 				'menu_typography_line_height'    => Builder::size( 0.95, 'em' ),
 				'menu_typography_letter_spacing' => Builder::size( -0.02, 'em' ),
 				'padding_horizontal_menu_item'   => Builder::size( 0 ),
@@ -132,6 +132,12 @@ final class MenuPopup {
 			align-items: baseline;
 		}
 		selector .elementor-nav-menu--main .menu-item > a::before {
+			/* Pro's pointer styles also use ::before (absolute, transparent); take it back for the number. */
+			position: static;
+			opacity: 1;
+			width: auto;
+			height: auto;
+			background: none;
 			content: counter(forma-nav, decimal-leading-zero);
 			margin-right: 1.2em;
 			color: var(--forma-accent);

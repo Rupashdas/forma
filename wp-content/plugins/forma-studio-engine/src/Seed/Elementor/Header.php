@@ -40,6 +40,7 @@ final class Header {
 					'flex_direction'       => 'row',
 					'flex_justify_content' => 'space-between',
 					'flex_align_items'     => 'center',
+					'flex_wrap'            => 'nowrap',
 					'flex_gap'             => Builder::gap( 24 ),
 					'padding'              => Builder::box( '24px', 'var(--forma-gutter)', '24px', 'var(--forma-gutter)', 'custom' ),
 					'css_classes'          => 'forma-header',
@@ -69,8 +70,8 @@ final class Header {
 						'typography_typography'     => 'custom',
 						'typography_font_family'    => Style::DISPLAY,
 						'typography_font_weight'    => '400',
-						'typography_font_size'      => Builder::size( 26 ),
-						'typography_letter_spacing' => Builder::size( 0.06, 'em' ),
+						'typography_font_size'      => Builder::size( 30 ),
+						'typography_letter_spacing' => Builder::size( 0.04, 'em' ),
 						'__dynamic__'               => array( 'title' => Builder::tag( 'site-title' ) ),
 						'__globals__'               => array( 'title_color' => Style::color( 'ink' ) ),
 					)
@@ -79,6 +80,8 @@ final class Header {
 			),
 			array(
 				'width'            => Builder::size( 'auto', 'custom' ),
+				'width_tablet'     => Builder::size( 'auto', 'custom' ),
+				'width_mobile'     => Builder::size( 'auto', 'custom' ),
 				'flex_align_items' => 'center',
 				'flex_gap'         => Builder::gap( 32 ),
 			)
@@ -117,6 +120,8 @@ final class Header {
 			),
 			array(
 				'width'            => Builder::size( 'auto', 'custom' ),
+				'width_tablet'     => Builder::size( 'auto', 'custom' ),
+				'width_mobile'     => Builder::size( 'auto', 'custom' ),
 				'flex_align_items' => 'center',
 				'flex_gap'         => Builder::gap( 32 ),
 			)

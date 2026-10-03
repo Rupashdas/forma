@@ -16,7 +16,7 @@
 	will-change: clip-path;
 }
 
-/* SplitText line masks must never clip descenders of Bodoni's long tails. */
+/* SplitText line masks must never clip the display face's descenders. */
 [data-fm-entrance] [class*="-mask"] {
 	padding-bottom: 0.08em;
 	margin-bottom: -0.08em;
