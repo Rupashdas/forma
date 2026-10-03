@@ -17,6 +17,7 @@ final class Plugin {
 		Projects\Projects::class,
 		Media\Media::class,
 		Elementor\Module::class,
+		Motion\Motion::class,
 	);
 
 	/** @var array<string, Module> */

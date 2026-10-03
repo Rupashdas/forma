@@ -1,1 +1,23 @@
-/* FORMA — motion */
+/* FORMA — Forma Motion. The pre-hide guard is inlined in <head>; this file only shapes animated elements. */
+
+/* Images that settle or drift move inside their own frame. */
+[data-fm-entrance="scale-in"],
+[data-fm-scroll="parallax"] {
+	overflow: hidden;
+}
+
+[data-fm-scroll="parallax"] img,
+[data-fm-entrance="scale-in"] img {
+	transform-origin: 50% 50%;
+	will-change: transform;
+}
+
+[data-fm-scroll="expand"] {
+	will-change: clip-path;
+}
+
+/* SplitText line masks must never clip descenders of Bodoni's long tails. */
+[data-fm-entrance] [class*="-mask"] {
+	padding-bottom: 0.08em;
+	margin-bottom: -0.08em;
+}
