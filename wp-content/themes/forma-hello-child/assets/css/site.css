@@ -1,0 +1,83 @@
+/* ==========================================================================
+   FORMA — theme-level presentation
+   Tokens mirror the Elementor Kit's Global Colors and Fonts so theme and plugin
+   CSS share one vocabulary. Layouts themselves are built in Elementor.
+   ========================================================================== */
+
+:root {
+	--forma-plaster: #e6e4df;
+	--forma-paper: #f3f2ef;
+	--forma-ink: #121212;
+	--forma-graphite: #5c5b57;
+	--forma-line: rgba(18, 18, 18, 0.16);
+	--forma-line-on-ink: rgba(230, 228, 223, 0.18);
+	--forma-redline: #b8321e;
+
+	--forma-gutter: clamp(16px, 3.2vw, 48px);
+	--forma-section: clamp(80px, 12vw, 200px);
+	--forma-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+	--forma-font-display: "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
+	--forma-font-sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	background-color: var(--forma-plaster);
+	color: var(--forma-ink);
+	font-family: var(--forma-font-sans);
+	font-size: 17px;
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+@media (max-width: 767px) {
+	body {
+		font-size: 16px;
+	}
+}
+
+::selection {
+	background-color: var(--forma-ink);
+	color: var(--forma-plaster);
+}
+
+a {
+	color: inherit;
+}
+
+img {
+	height: auto;
+	max-width: 100%;
+}
+
+/* One focus treatment everywhere: the Redline ring, only for keyboard focus. */
+:focus-visible {
+	outline: 2px solid var(--forma-redline);
+	outline-offset: 3px;
+}
+
+.skip-link.screen-reader-text:focus {
+	background-color: var(--forma-ink);
+	color: var(--forma-plaster);
+	font-family: var(--forma-font-sans);
+	font-size: 14px;
+	padding: 12px 20px;
+	z-index: 100000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+		transition-duration: 0.01ms !important;
+	}
+}

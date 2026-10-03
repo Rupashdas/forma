@@ -1,0 +1,15 @@
+/*
+Theme Name:        Forma Hello Child
+Theme URI:         https://forma.freedev.app
+Description:       Child theme of Hello Elementor for FORMA, a fictional architecture and interiors studio. Presentation only: design tokens, typefaces, base styles and small front-end behaviour. Functionality lives in the Forma Studio Engine plugin.
+Author:            Rupash Das
+Author URI:        https://devrupash.com
+Template:          hello-elementor
+Version:           1.0.0
+Requires at least: 6.5
+Requires PHP:      8.1
+License:           GPL-2.0-or-later
+Text Domain:       forma-hello-child
+*/
+
+/* Styles live in assets/css/site.css. */
