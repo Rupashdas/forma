@@ -364,7 +364,7 @@ final class Components {
 
 		return Style::section(
 			array(
-				Style::label( 'Recognition' ),
+				Style::label( 'Awards, 2019–2025' ),
 				Style::heading( 'Recognition', 'heading', 'h2', 'ink' ),
 				Style::stack(
 					$rows,

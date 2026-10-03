@@ -323,8 +323,8 @@ final class Home {
 	private function showcase(): array {
 		$alternate = array(
 			$this->alternate( 'project-card-wide', 1, 12 ),
-			$this->alternate( 'project-card', 2, 7, 1 ),
-			$this->alternate( 'project-card', 3, 5, 1 ),
+			$this->alternate( 'project-card', 2, 5, 1 ),
+			$this->alternate( 'project-card', 3, 4, 1 ),
 			$this->alternate( 'project-card-wide', 4, 12 ),
 			$this->alternate( 'project-card', 5, 5, 2 ),
 		);
@@ -347,12 +347,17 @@ final class Home {
 				'row_gap'              => Builder::size( 'clamp(48px, 8vw, 120px)', 'custom' ),
 				'custom_css'           => <<<'CSS'
 				/*
-				 * From 1024px the pair is staggered and the last project is pushed to the right. Loop items are the
-				 * grid's divs; Pro prints a style element before each template's first use, so count by type.
+				 * From 1024px the pair is staggered with open space between (5 + 4 of 12 columns, the second dropped),
+				 * and the last project is pushed to the right. Loop items are the grid's divs; Pro prints a style
+				 * element before each template's first use, so count by type.
 				 */
 				@media (min-width: 1024px) {
+					selector .elementor-loop-container > div:nth-of-type(2) {
+						grid-column: 1 / span 5;
+					}
 					selector .elementor-loop-container > div:nth-of-type(3) {
-						margin-top: 18vh;
+						grid-column: 8 / span 4;
+						margin-top: 22vh;
 					}
 					selector .elementor-loop-container > div:nth-of-type(5) {
 						grid-column: 7 / span 5;

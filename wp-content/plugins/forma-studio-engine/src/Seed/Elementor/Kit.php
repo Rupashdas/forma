@@ -108,7 +108,7 @@ final class Kit {
 					Style::DISPLAY,
 					'400',
 					array(
-						'font_size'      => $clamp( 'clamp(88px, 24vw, 420px)' ),
+						'font_size'      => $clamp( 'clamp(96px, 36vw, 640px)' ),
 						'line_height'    => $em( 0.85 ),
 						'letter_spacing' => $em( -0.025 ),
 					)
