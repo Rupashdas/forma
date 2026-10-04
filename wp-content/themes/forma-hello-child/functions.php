@@ -88,15 +88,14 @@ function forma_theme_main_depth( int $change ): int {
 }
 
 /**
- * Preload the two roman faces every page sets above the fold; the italic loads on demand.
+ * Preload the one variable font every page sets above the fold. Both families ("Archivo" and "Archivo Expanded", the
+ * wordmark) are declared on this single file, so one preload serves them both.
  */
 function forma_theme_preload_fonts(): void {
-	foreach ( array( 'instrument-serif-latin', 'archivo-latin' ) as $font ) {
-		printf(
-			'<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
-			esc_url( get_stylesheet_directory_uri() . "/assets/fonts/{$font}.woff2" )
-		);
-	}
+	printf(
+		'<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
+		esc_url( get_stylesheet_directory_uri() . '/assets/fonts/archivo-latin.woff2' )
+	);
 }
 
 /**
@@ -108,13 +107,13 @@ function forma_theme_font_group( array $groups ): array {
 
 /**
  * Listing the families in the Forma group keeps Elementor from ever requesting them from Google; the @font-face
- * rules in site.css serve them instead. "Archivo Expanded" is Archivo at its widest width, used by the Label style.
+ * rules in site.css serve them instead. "Archivo Expanded" is Archivo at its widest width (125), which Elementor's
+ * typography control can't select on its own; only the wordmark uses it.
  */
 function forma_theme_fonts( array $fonts ): array {
 	return array_merge(
 		$fonts,
 		array(
-			'Instrument Serif' => 'forma',
 			'Archivo'          => 'forma',
 			'Archivo Expanded' => 'forma',
 		)

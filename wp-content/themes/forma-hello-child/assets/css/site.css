@@ -4,25 +4,12 @@
    CSS share one vocabulary. Layouts themselves are built in Elementor.
    ========================================================================== */
 
-/* Self-hosted fonts (Google Fonts, OFL 1.1), latin subset: Instrument Serif (static 400, roman + italic) and Archivo (variable). */
-@font-face {
-	font-family: "Instrument Serif";
-	font-style: normal;
-	font-weight: 400;
-	font-display: swap;
-	src: url("../fonts/instrument-serif-latin.woff2") format("woff2");
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-	font-family: "Instrument Serif";
-	font-style: italic;
-	font-weight: 400;
-	font-display: swap;
-	src: url("../fonts/instrument-serif-italic-latin.woff2") format("woff2");
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
+/*
+ * Self-hosted font (Google Fonts, OFL 1.1), latin subset: Archivo, one variable file (weight 100 to 900, width 62 to
+ * 125). Elementor's typography control can't set the width axis, so the same file is declared twice: "Archivo" runs
+ * the whole axis (the default, width 100) and serves all the type, and "Archivo Expanded" clamps the width axis to 125
+ * with a single font-stretch value, whatever stretch is requested. That one is only for the wordmark.
+ */
 @font-face {
 	font-family: "Archivo";
 	font-style: normal;
@@ -33,11 +20,6 @@
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/*
- * Archivo at its widest, for the Label style. Elementor's typography control can't set the width axis, so the same
- * file is declared again as its own family. A single font-stretch value clamps the variable font's width axis
- * to 125 for this family, whatever stretch is requested.
- */
 @font-face {
 	font-family: "Archivo Expanded";
 	font-style: normal;
@@ -49,28 +31,48 @@
 }
 
 /*
- * Chalk and bottle green. Tokens are named by role, so a palette change only touches values.
- * Ink is 15.4:1 on Chalk, Muted (Slate) 5.9:1 on Chalk and 5.3:1 on Raised, Accent (Brass) 5.3:1 on Chalk;
- * on Deep (Bottle green): Chalk 10.8:1, Muted on deep (Sage) 6.0:1, Accent on deep (Brass light) 5.9:1.
+ * Paper, Panel, Ink and Signal blue. Tokens are named by role, so a palette change only touches values.
+ * On Paper: Ink 16.9:1, Graphite (muted) 6.9:1, Signal blue (accent) 6.1:1; on Panel (raised): Ink 15.0:1, Graphite
+ * 6.1:1, Signal blue 5.4:1; Chip ink on Chip 9.0:1; Paper on Signal blue 6.1:1. On the Ink band (deep): Paper 16.9:1,
+ * Ash (muted on deep) 7.3:1, Light blue (accent on deep) 7.1:1; on an Ink tile Paper is 14.6:1, Ash 6.3:1 and Light
+ * blue 6.1:1.
  */
 :root {
-	--forma-page: #f2efe8;
-	--forma-raised: #e7e3d9;
-	--forma-ink: #161917;
-	--forma-muted: #575c57;
-	--forma-accent: #7d5c1d;
-	--forma-deep: #1e3a2f;
-	--forma-muted-on-deep: #a9b8ae;
-	--forma-accent-on-deep: #d2ae63;
-	--forma-line: rgba(22, 25, 23, 0.14);
-	--forma-line-on-deep: rgba(242, 239, 232, 0.16);
+	--forma-page: #f6f5f1;
+	--forma-raised: #e9e8e3;
+	--forma-ink: #141414;
+	--forma-muted: #55554f;
+	--forma-accent: #2b3bff;
+	--forma-chip: #dce0ff;
+	--forma-chip-ink: #1b2799;
+	--forma-deep: #141414;
+	--forma-deep-raised: #222220;
+	--forma-muted-on-deep: #a3a39c;
+	--forma-accent-on-deep: #8e98ff;
+	--forma-line: rgba(20, 20, 20, 0.12);
+	--forma-line-on-deep: rgba(246, 245, 241, 0.16);
 
 	--forma-gutter: clamp(16px, 3.2vw, 48px);
 	--forma-section: clamp(80px, 12vw, 200px);
 	--forma-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-	--forma-font-display: "Instrument Serif", "Times New Roman", Georgia, serif;
+	/* Shape: panels and bands are inset from the viewport and rounded; tiles, images and pills step down from there. */
+	--forma-r-panel: 26px;
+	--forma-r-tile: 18px;
+	--forma-r-img: 12px;
+	--forma-r-pill: 999px;
+	--forma-inset: 10px;
+
+	--forma-font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
 	--forma-font-sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
+	--forma-font-wordmark: "Archivo Expanded", "Archivo", Arial, sans-serif;
+}
+
+@media (max-width: 767px) {
+	:root {
+		--forma-r-panel: 18px;
+		--forma-inset: 6px;
+	}
 }
 
 html {
@@ -82,8 +84,8 @@ body {
 	background-color: var(--forma-page);
 	color: var(--forma-ink);
 	font-family: var(--forma-font-sans);
-	font-size: 17px;
-	line-height: 1.6;
+	font-size: 16px;
+	line-height: 1.55;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	text-rendering: optimizeLegibility;
@@ -91,7 +93,7 @@ body {
 
 @media (max-width: 767px) {
 	body {
-		font-size: 16px;
+		font-size: 15px;
 	}
 }
 
@@ -101,25 +103,28 @@ body {
 }
 
 /*
- * Deep sections (bottle green bands: Statement, Recognition, Contact panel, footer, menu sheet).
+ * Deep sections (the Ink band: Selected work, the footer).
  * The role tokens switch to their on-deep values, so text, hairlines, accents, the focus ring and any widget placed
  * inside keep their contrast without per-element overrides.
  *
  * Elements built in Elementor reference the Kit's Global Colors, which compile to var(--e-global-color-{id}); those
- * are re-pointed here too. Ink (secondary) is the text colour, so inside a deep band it reads as Chalk; Slate (text)
- * becomes Sage, Brass (accent) becomes Brass light and Line becomes the on-deep hairline. Chalk (primary) is the
- * surface colour, so it becomes the bottle green: a button that fills with Ink on hover keeps readable text.
- * An editor who picks "Ink" inside a deep band therefore gets Chalk, which is the intent: Ink means "text colour".
+ * are re-pointed here too. Ink (secondary) is the text colour, so inside a deep band it reads as Paper; Graphite (text)
+ * becomes Ash, Signal blue (accent) becomes Light blue and Line becomes the on-deep hairline. Paper (primary) is the
+ * surface colour, so it becomes the Ink band: a pill that fills with Ink keeps readable text (Paper fill, Ink text).
+ * Panel (raised) becomes the Ink tile, so a project card inside the band is an Ink tile. An editor who picks "Ink"
+ * inside a deep band therefore gets Paper, which is the intent: Ink means "text colour".
  */
 .forma-deep {
 	--forma-ink: var(--forma-page);
 	--forma-accent: var(--forma-accent-on-deep);
 	--forma-muted: var(--forma-muted-on-deep);
 	--forma-line: var(--forma-line-on-deep);
+	--forma-raised: var(--forma-deep-raised);
 	--e-global-color-secondary: var(--forma-page);
 	--e-global-color-text: var(--forma-muted-on-deep);
 	--e-global-color-accent: var(--forma-accent-on-deep);
 	--e-global-color-line: var(--forma-line-on-deep);
+	--e-global-color-raised: var(--forma-deep-raised);
 	--e-global-color-primary: var(--forma-deep);
 	color: var(--forma-page);
 }
@@ -127,6 +132,30 @@ body {
 .forma-deep ::selection {
 	background-color: var(--forma-page);
 	color: var(--forma-deep);
+}
+
+/*
+ * A panel: a section that floats on Paper, inset from the viewport with rounded corners (Style::section() adds the
+ * class to every Panel and Ink band). overflow: clip rounds the corners without turning the panel into a scroll
+ * container, so a sticky stage inside still sticks; hidden is the fallback for browsers without clip. The vertical
+ * margin is the gap between stacked panels (margins between siblings collapse to one inset).
+ */
+.elementor .forma-panel.e-con {
+	margin-inline: var(--forma-inset);
+	margin-block: var(--forma-inset);
+	border-radius: var(--forma-r-panel);
+	overflow: hidden;
+	overflow: clip;
+}
+
+/*
+ * A chip: a small pill for project numbers and badges (Style::chip()). The widget shrinks to its text instead of
+ * stretching across its column.
+ */
+.elementor .elementor-widget.forma-chip {
+	align-self: flex-start;
+	width: fit-content;
+	max-width: 100%;
 }
 
 a {
@@ -138,7 +167,7 @@ img {
 	max-width: 100%;
 }
 
-/* One focus treatment everywhere: the accent ring, only for keyboard focus (Brass light inside deep sections). */
+/* One focus treatment everywhere: the accent ring, only for keyboard focus (Light blue inside deep sections). */
 :focus-visible {
 	outline: 2px solid var(--forma-accent);
 	outline-offset: 3px;
@@ -154,55 +183,83 @@ img {
 }
 
 /*
- * Header (Theme Builder container with the class .forma-header). Fixed to the top, above page content but below
- * popups. site.js toggles the states: condensed after a little scrolling (Chalk at 92% over a soft blur, a hairline
- * underneath, tighter padding), hidden while scrolling down. Elementor sets the container's position and padding
- * itself (padding as custom properties), so these selectors carry enough specificity to win over its CSS.
+ * Header (Theme Builder container with the class .forma-header): two floating glass pills, the nav on the left and the
+ * "Start a project" button on the right, fixed 12px from the top and sides, above page content but below popups. The
+ * bar itself is a transparent, click-through row; only the pills take pointer events. A glass pill is Paper at 72% over
+ * a blur. site.js toggles the states: condensed after a little scrolling (the glass turns more opaque so it stays
+ * legible over content), hidden while scrolling down. Elementor sets the container's width and position-related
+ * variables itself, so these selectors carry enough specificity to win over its CSS.
  */
 .elementor .forma-header.e-con {
 	position: fixed;
-	inset: 0 0 auto;
+	inset: 12px auto auto 12px;
+	width: calc(100% - 24px);
+	max-width: none;
 	z-index: 90;
-	border-bottom: 1px solid transparent;
-	transition:
-		transform 0.5s var(--forma-ease),
-		background-color 0.4s var(--forma-ease),
-		border-color 0.4s var(--forma-ease);
+	pointer-events: none;
+	transition: transform 0.5s var(--forma-ease);
 }
 
-/* The header is boxed: the bar spans the viewport, the brand and nav sit in the inner column, and that column carries
-   the vertical padding (the --padding-top/--padding-bottom the condensed state changes), so it carries the transition. */
-.elementor .forma-header.e-con > .e-con-inner {
-	transition: padding 0.4s var(--forma-ease);
+.elementor .forma-header.e-con > * {
+	pointer-events: auto;
 }
 
-.elementor .forma-header.e-con.is-condensed {
-	--padding-top: 14px;
-	--padding-bottom: 14px;
-	background-color: var(--forma-page);
-	background-color: color-mix(in srgb, var(--forma-page) 92%, transparent);
-	border-bottom-color: var(--forma-line);
-	-webkit-backdrop-filter: blur(8px);
-	backdrop-filter: blur(8px);
+.elementor .forma-pill.e-con {
+	background-color: rgba(246, 245, 241, 0.72);
+	background-color: color-mix(in srgb, var(--forma-page) 72%, transparent);
+	-webkit-backdrop-filter: blur(12px);
+	backdrop-filter: blur(12px);
+	border-radius: var(--forma-r-pill);
+	/* A Line hairline keeps the pill's edge visible over Paper, where Paper glass would otherwise vanish. */
+	box-shadow: inset 0 0 0 1px var(--forma-line);
+	transition: background-color 0.4s var(--forma-ease);
+}
+
+.elementor .forma-header.e-con.is-condensed .forma-pill.e-con {
+	background-color: rgba(246, 245, 241, 0.86);
+	background-color: color-mix(in srgb, var(--forma-page) 86%, transparent);
 }
 
 .elementor .forma-header.e-con.is-hidden {
-	transform: translateY(-100%);
+	transform: translateY(calc(-100% - 24px));
+}
+
+/* The nav's links are pills too: a soft fill on hover, the Chip colours for the page you are on (site.js sets aria-current). */
+.elementor .forma-nav .elementor-heading-title a {
+	display: block;
+	padding: 9px 14px;
+	border-radius: var(--forma-r-pill);
+	transition:
+		background-color 0.3s var(--forma-ease),
+		color 0.3s var(--forma-ease);
+}
+
+.elementor .forma-nav .elementor-heading-title a:hover {
+	background-color: rgba(20, 20, 20, 0.07);
+	background-color: color-mix(in srgb, var(--forma-ink) 7%, transparent);
+}
+
+.elementor .forma-nav .elementor-heading-title a[aria-current="page"] {
+	background-color: var(--forma-chip);
+	color: var(--forma-chip-ink);
 }
 
 .admin-bar .elementor .forma-header.e-con {
-	top: 32px;
+	top: 44px;
 }
 
 @media (max-width: 782px) {
 	.admin-bar .elementor .forma-header.e-con {
-		top: 46px;
+		top: 58px;
 	}
 }
 
 /* Inside Elementor's editor the header stays in the flow so it can be selected and edited. */
 .elementor-editor-active .elementor .forma-header.e-con {
 	position: relative;
+	inset: auto;
+	width: 100%;
+	pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,9 +1,9 @@
 /**
  * FORMA site behaviour: the header.
  *
- * The header (Theme Builder, class .forma-header) is fixed to the top. It condenses once the page has scrolled a
- * little, slides away while scrolling down and returns on scroll up or when anything inside it takes focus.
- * The classes are styled in site.css.
+ * The header (Theme Builder, class .forma-header) holds two floating glass pills, fixed to the top. It condenses once
+ * the page has scrolled a little, slides away while scrolling down and returns on scroll up or when anything inside it
+ * takes focus. It also marks the current page's nav link. The classes are styled in site.css.
  */
 ( function () {
 	'use strict';
@@ -17,6 +17,18 @@
 	if ( ! header || document.body.classList.contains( 'elementor-editor-active' ) ) {
 		return;
 	}
+
+	// The nav links are plain link widgets, which cannot know the current page: mark the one whose path matches this
+	// page (a project page counts for Projects), so assistive tech and the pill styling in site.css both know.
+	var path = window.location.pathname.replace( /\/+$/, '' );
+
+	header.querySelectorAll( '.forma-nav a[href]' ).forEach( function ( link ) {
+		var target = new URL( link.href, window.location.href ).pathname.replace( /\/+$/, '' );
+
+		if ( target && ( path === target || path.indexOf( target + '/' ) === 0 ) ) {
+			link.setAttribute( 'aria-current', 'page' );
+		}
+	} );
 
 	var lastY = Math.max( window.scrollY, 0 );
 	var frame = 0;
