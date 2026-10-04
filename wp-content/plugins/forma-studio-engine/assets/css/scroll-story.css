@@ -58,7 +58,7 @@
 
 .forma-story__no {
 	color: var(--forma-accent, #7d5c1d);
-	font-family: var(--forma-font-display, "Instrument Serif", serif);
+	font-family: var(--forma-font-display, "Archivo", sans-serif);
 	font-size: clamp(40px, 5vw, 80px);
 	line-height: 1;
 }
@@ -75,7 +75,7 @@
 
 .forma-story__title {
 	color: var(--forma-ink, #161917);
-	font-family: var(--forma-font-display, "Instrument Serif", serif);
+	font-family: var(--forma-font-display, "Archivo", sans-serif);
 	font-size: clamp(30px, 3vw, 46px);
 	font-weight: 400;
 	letter-spacing: -0.02em;

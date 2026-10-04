@@ -32,7 +32,7 @@
 
 .forma-marquee__item,
 .forma-marquee__sep {
-	font-family: var(--forma-font-display, "Instrument Serif", serif);
+	font-family: var(--forma-font-display, "Archivo", sans-serif);
 	font-size: clamp(48px, 9vw, 168px);
 	font-weight: 400;
 	letter-spacing: -0.03em;
