@@ -76,15 +76,13 @@ final class Components {
 	// Project cards.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** Portrait card: 4:5 image, number, title, meta, and an excerpt that appears on hover. */
+	/** Portrait card: 4:5 image, number, title with the year, location, and an excerpt that appears on hover. */
 	private function card(): array {
 		return $this->card_shell(
 			'forma-card',
 			array(
-				$this->card_image( 'forma-960', array( 'fm_entrance' => 'clip-up' ) ),
-				$this->card_number(),
-				$this->card_title( 'clamp(26px, 2.4vw, 36px)' ),
-				$this->card_meta(),
+				$this->card_image( 'forma-960' ),
+				$this->card_text( 'clamp(26px, 2.4vw, 36px)' ),
 				$this->card_excerpt(),
 			),
 			$this->card_css( '4 / 5', '4 / 5' ),
@@ -93,43 +91,16 @@ final class Components {
 	}
 
 	/**
-	 * Landscape card for a wide feature: 16:9 image (3:2 on mobile) that drifts as it scrolls, with the number and
-	 * title on the left of the text row and the meta and excerpt on the right (stacked on mobile).
+	 * Landscape card for a wide feature: a 16:9 image (3:2 on mobile) over the same text as the portrait card, at a
+	 * larger title size.
 	 */
 	private function card_wide(): array {
-		$text = Style::row(
-			array(
-				Style::cell(
-					array( $this->card_number(), $this->card_title( 'clamp(32px, 4vw, 64px)' ) ),
-					58,
-					55,
-					100,
-					array( 'flex_gap' => Builder::gap( 10 ) )
-				),
-				Style::cell(
-					array( $this->card_meta(), $this->card_excerpt() ),
-					34,
-					40,
-					100,
-					array( 'flex_gap' => Builder::gap( 10 ) )
-				),
-			),
-			array(
-				'flex_wrap'               => 'nowrap',
-				'flex_justify_content'    => 'space-between',
-				'flex_align_items'        => 'flex-start',
-				'flex_gap'                => Builder::gap( 24 ),
-				'flex_direction_mobile'   => 'column',
-				'flex_align_items_mobile' => 'stretch',
-			)
-		);
-
 		return $this->card_shell(
 			'forma-card forma-card--wide',
 			array(
-				// The parallax effect drifts the photo inside its frame, so the frame crops at a fixed ratio.
-				$this->card_image( 'large', array( 'fm_scroll' => 'parallax', 'fm_speed' => 10 ) ),
-				$text,
+				$this->card_image( 'large' ),
+				$this->card_text( 'clamp(32px, 4vw, 64px)' ),
+				$this->card_excerpt(),
 			),
 			$this->card_css( '16 / 9', '3 / 2' ),
 			Builder::gap( 20 )
@@ -163,10 +134,10 @@ final class Components {
 	 * The Theme Builder widgets only fall back to their dynamic tag in the editor's panel; a saved document has to
 	 * bind it explicitly, as the editor writes it when the widget is dropped in.
 	 */
-	private function card_image( string $size, array $extra ): array {
+	private function card_image( string $size ): array {
 		return Builder::widget(
 			'theme-post-featured-image',
-			$extra + array(
+			array(
 				'image_size'   => $size,
 				'fm_shared'    => 'yes',
 				'_css_classes' => 'forma-card__image',
@@ -195,54 +166,76 @@ final class Components {
 		);
 	}
 
-	/** Type · Location · Year, as plain text (the card is already a link). */
-	private function card_meta(): array {
-		$item = static fn( array $settings ): array => $settings + array(
-			'_id'       => Builder::id(),
-			'link'      => '',
-			'show_icon' => 'none',
-		);
-
-		return Builder::widget(
-			'post-info',
+	/** Number, the title with the year on its right, and the location under it. */
+	private function card_text( string $size ): array {
+		return Style::stack(
 			array(
-				'view'          => 'inline',
-				'icon_list'     => array(
-					$item(
+				$this->card_number(),
+				$this->title_row( $size ),
+				$this->card_location(),
+			),
+			array( 'flex_gap' => Builder::gap( 6 ) )
+		);
+	}
+
+	/**
+	 * The title on the left and the year on the right. They sit on one baseline (the control only offers start,
+	 * center, end and stretch, so the alignment is set in the row's Custom CSS), and the title may wrap under a year
+	 * that never does.
+	 */
+	private function title_row( string $size ): array {
+		return Style::row(
+			array(
+				Style::cell( array( $this->card_title( $size ) ), 'auto', 'auto', 'auto' ),
+				Style::cell( array( $this->card_year() ), 'auto', 'auto', 'auto' ),
+			),
+			array(
+				'flex_wrap'            => 'nowrap',
+				'flex_justify_content' => 'space-between',
+				'flex_gap'             => Builder::gap( 16 ),
+				'custom_css'           => 'selector { align-items: baseline; }',
+			)
+		);
+	}
+
+	/** The project's location, as plain text: the card is already a link, so the term must not be one. */
+	private function card_location(): array {
+		return Style::heading(
+			'Location',
+			'meta',
+			'p',
+			'muted',
+			array(
+				'__dynamic__' => array(
+					'title' => Builder::tag(
+						'post-terms',
 						array(
-							'type'     => 'terms',
-							'taxonomy' => 'project_type',
-						)
-					),
-					$item(
-						array(
-							'type'     => 'terms',
-							'taxonomy' => 'project_location',
-						)
-					),
-					$item(
-						array(
-							'type'               => 'date',
-							'date_format'        => 'custom',
-							'custom_date_format' => 'Y',
+							'taxonomy'  => 'project_location',
+							'separator' => ', ',
+							'link'      => '',
 						)
 					),
 				),
-				'space_between' => Builder::size( 0 ),
-				'custom_css'    => <<<'CSS'
-				/* The separator is a middle dot rather than Elementor's hairline; the widget's own divider is off. */
-				selector .elementor-icon-list-item:not(:last-child)::after {
-					content: "·";
-					position: static;
-					width: auto;
-					height: auto;
-					border: 0;
-					margin-inline: 0.6em;
-				}
-				CSS,
-				'__globals__'   => array(
-					'icon_typography_typography' => Style::font( 'meta' ),
-					'text_color'                 => Style::color( 'muted' ),
+			)
+		);
+	}
+
+	/** The year the project was published, from the post date. */
+	private function card_year(): array {
+		return Style::heading(
+			'2024',
+			'meta',
+			'p',
+			'muted',
+			array(
+				'__dynamic__' => array(
+					'title' => Builder::tag(
+						'post-date',
+						array(
+							'format'        => 'custom',
+							'custom_format' => 'Y',
+						)
+					),
 				),
 			)
 		);
@@ -265,8 +258,7 @@ final class Components {
 	/**
 	 * The card's behaviour, kept on the card so it stays editable in Elementor: the image crops to a fixed ratio and
 	 * grows 3% on hover, and on devices that can hover the excerpt slides up and fades in on hover or keyboard focus.
-	 * Touch devices never show it. The image grows with the individual `scale` property so it composes with the
-	 * transform the parallax effect writes on the wide card.
+	 * Touch devices never show it.
 	 *
 	 * @param string $ratio        Image aspect ratio, e.g. `4 / 5`.
 	 * @param string $mobile_ratio Image aspect ratio on mobile.
@@ -316,7 +308,7 @@ final class Components {
 	// Closing CTA.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** The invitation that closes Home and the inner pages: label, large headline, email and a button to Contact. */
+	/** The invitation that closes Home and the inner pages: a large headline, the email and a button to Contact. */
 	private function closing_cta(): array {
 		$content = new Content( $this->log );
 		$contact = $content->page_id( 'contact' );
@@ -328,8 +320,7 @@ final class Components {
 			array(
 				Style::stack(
 					array(
-						Style::label( 'Start a project' ),
-						Style::heading( 'Let’s build something <em>quiet</em>.', 'display-l', 'h2', 'ink', array( 'fm_entrance' => 'lines' ) ),
+						Style::heading( 'Let’s build something quiet.', 'display-l', 'h2' ),
 						Style::row(
 							array(
 								Style::heading( $email, 'statement', 'p', 'ink', array( 'link' => Style::link( 'mailto:' . $email ) ) ),
@@ -361,17 +352,16 @@ final class Components {
 	// Recognition ledger.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** Awards, newest first: a bottle green band with one hairline row per recognised project. */
+	/** Awards, newest first: a bottle green band with a heading and one hairline row per recognised project. */
 	private function recognition(): array {
 		$rows = array();
 
-		foreach ( $this->awards() as $index => $award ) {
-			$rows[] = $this->ledger_row( $award, $index );
+		foreach ( $this->awards() as $award ) {
+			$rows[] = $this->ledger_row( $award );
 		}
 
 		return Style::section(
 			array(
-				Style::label( 'Awards, 2019–2025' ),
 				Style::heading( 'Recognition', 'heading', 'h2', 'ink' ),
 				Style::stack(
 					$rows,
@@ -435,7 +425,7 @@ final class Components {
 	 * One ledger row: year, award and project in three columns. On mobile the year and project share the first line
 	 * and the award drops below them.
 	 */
-	private function ledger_row( array $award, int $index ): array {
+	private function ledger_row( array $award ): array {
 		return Style::row(
 			array(
 				Style::cell( array( Style::label( $award['year'], 'muted' ) ), 12, 14, 'auto' ),
@@ -465,8 +455,6 @@ final class Components {
 				'padding'              => Builder::box( 22, 0, 22, 0 ),
 				'border_border'        => 'solid',
 				'border_width'         => Builder::box( 1, 0, 0, 0 ),
-				'fm_entrance'          => 'fade-up',
-				'fm_delay'             => round( 0.05 * $index, 2 ),
 				'__globals__'          => array( 'border_color' => Style::color( 'line' ) ),
 			)
 		);

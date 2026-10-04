@@ -63,7 +63,7 @@ return array(
 		'recognition' => 'Winner, Iberian Public Space Award 2021',
 		'layout'      => 'b',
 		'drawing'     => true,
-		'featured'    => 5,
+		'featured'    => 4,
 	),
 	array(
 		'slug'        => 'terra-residence',
@@ -89,7 +89,7 @@ return array(
 		'recognition' => 'Commended, Mediterranean Houses Award 2022',
 		'layout'      => 'c',
 		'drawing'     => false,
-		'featured'    => 0,
+		'featured'    => 2,
 	),
 	array(
 		'slug'        => 'atelier-27',
@@ -115,7 +115,7 @@ return array(
 		'recognition' => '',
 		'layout'      => 'a',
 		'drawing'     => true,
-		'featured'    => 4,
+		'featured'    => 3,
 	),
 	array(
 		'slug'        => 'house-of-light',
@@ -167,7 +167,7 @@ return array(
 		'recognition' => 'Winner, Northern Landscape House Prize 2023',
 		'layout'      => 'c',
 		'drawing'     => false,
-		'featured'    => 3,
+		'featured'    => 0,
 	),
 	array(
 		'slug'        => 'axis-workspace',
@@ -219,7 +219,7 @@ return array(
 		'recognition' => 'Featured, Houses of the Year 2024',
 		'layout'      => 'b',
 		'drawing'     => true,
-		'featured'    => 1,
+		'featured'    => 0,
 	),
 	array(
 		'slug'        => 'the-quiet-hotel',
@@ -245,7 +245,7 @@ return array(
 		'recognition' => 'Winner, Hospitality Design Award 2025',
 		'layout'      => 'c',
 		'drawing'     => false,
-		'featured'    => 2,
+		'featured'    => 1,
 	),
 	array(
 		'slug'        => 'plinth-series',
@@ -271,7 +271,7 @@ return array(
 		'recognition' => '',
 		'layout'      => 'a',
 		'drawing'     => false,
-		'featured'    => 0,
+		'featured'    => 5,
 	),
 	array(
 		'slug'        => 'northline-residence',

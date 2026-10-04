@@ -5,7 +5,7 @@ namespace Forma\Engine\Seed\Elementor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The full-screen menu sheet the header's Menu button opens: a bottle green ProElements popup with a numbered
+ * The full-screen menu sheet the header's Menu button opens: a bottle green ProElements popup with the
  * primary nav and the studio's contact details. ProElements' accessible navigation traps focus inside it, closes it
  * on Esc and returns focus to the button.
  */
@@ -79,7 +79,7 @@ final class MenuPopup {
 		);
 	}
 
-	/** The numbered primary nav: large display serif, no pointer, numbers added by the nav's own Custom CSS. */
+	/** The primary nav: large display serif, no pointer, no numbers. */
 	private function nav(): array {
 		return Builder::widget(
 			'nav-menu',
@@ -98,8 +98,6 @@ final class MenuPopup {
 				'menu_typography_letter_spacing' => Builder::size( -0.02, 'em' ),
 				'padding_horizontal_menu_item'   => Builder::size( 0 ),
 				'padding_vertical_menu_item'     => Builder::size( 'clamp(2px, 0.8vw, 12px)', 'custom' ),
-				'_css_classes'                   => 'forma-numbered-nav',
-				'custom_css'                     => $this->numbering_css(),
 				'__globals__'                    => array(
 					'color_menu_item'        => Style::color( 'ink' ),
 					'color_menu_item_hover'  => Style::color( 'accent' ),
@@ -107,49 +105,6 @@ final class MenuPopup {
 				),
 			)
 		);
-	}
-
-	/**
-	 * Numbers the items 01, 02, … with a CSS counter, in the Label type and the accent colour. The number sits on the
-	 * item's baseline, raised so its cap top meets the cap top of the large item text (browsers without the `cap`
-	 * unit keep the plain baseline). It lives in the nav's own Custom CSS, so it stays with the element in Elementor.
-	 */
-	private function numbering_css(): string {
-		return <<<'CSS'
-		@property --forma-nav-cap {
-			syntax: "<length>";
-			inherits: true;
-			initial-value: 0px;
-		}
-		selector .elementor-nav-menu {
-			counter-reset: forma-nav;
-		}
-		selector .elementor-nav-menu--main .menu-item {
-			counter-increment: forma-nav;
-		}
-		selector .elementor-nav-menu--main .menu-item > a {
-			--forma-nav-cap: 1cap;
-			display: flex;
-			align-items: baseline;
-		}
-		selector .elementor-nav-menu--main .menu-item > a::before {
-			/* Pro's pointer styles also use ::before (absolute, transparent); take it back for the number. */
-			position: static;
-			opacity: 1;
-			width: auto;
-			height: auto;
-			background: none;
-			content: counter(forma-nav, decimal-leading-zero);
-			margin-right: 1.2em;
-			color: var(--forma-accent);
-			font-family: var(--e-global-typography-accent-font-family), var(--forma-font-sans);
-			font-size: var(--e-global-typography-accent-font-size, 12px);
-			font-weight: var(--e-global-typography-accent-font-weight, 500);
-			letter-spacing: var(--e-global-typography-accent-letter-spacing, 0.08em);
-			line-height: 1;
-			transform: translateY(calc(1cap - var(--forma-nav-cap)));
-		}
-		CSS;
 	}
 
 	/** Address, email and coordinates under a hairline: a row on tablet and up, a column on mobile. */

@@ -31,6 +31,59 @@ final class Media implements Module {
 		add_filter( 'big_image_size_threshold', static fn() => self::MAX_EDGE );
 		add_filter( 'image_editor_output_format', array( $this, 'webp_output' ) );
 		add_filter( 'image_size_names_choose', array( $this, 'size_names' ) );
+		add_filter( 'elementor/widget/render_content', array( $this, 'mark_hero_images' ), 10, 2 );
+		add_filter( 'wp_content_img_tag', array( $this, 'load_hero_images' ), 99 );
+	}
+
+	/**
+	 * Home's hero stacks a line drawing under the photograph that wipes across it, and both are above the fold. The
+	 * Image widgets carry a `forma-hero__drawing` or `forma-hero__photo` class; this marks the `<img>` itself, which
+	 * is all the content filter below can see.
+	 */
+	public function mark_hero_images( string $content, \Elementor\Widget_Base $widget ): string {
+		$classes = (string) $widget->get_settings( '_css_classes' );
+
+		if ( 'image' !== $widget->get_name() || ! str_contains( $classes, 'forma-hero__' ) ) {
+			return $content;
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $content );
+
+		if ( ! $tags->next_tag( 'img' ) ) {
+			return $content;
+		}
+
+		$tags->add_class( str_contains( $classes, 'forma-hero__photo' ) ? 'is-hero-photo' : 'is-hero-drawing' );
+
+		return $this->load_hero_images( $tags->get_updated_html() );
+	}
+
+	/**
+	 * Eager loading for both hero layers, and high fetch priority for the photograph alone. WordPress gives
+	 * `fetchpriority` to the first large image of a page, which here would be the drawing, and adds a second one to a
+	 * tag that already has it, so this runs after WordPress's own pass and settles it: one attribute, on the photograph.
+	 */
+	public function load_hero_images( string $image ): string {
+		$photo = str_contains( $image, 'is-hero-photo' );
+
+		if ( ! $photo && ! str_contains( $image, 'is-hero-drawing' ) ) {
+			return $image;
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $image );
+
+		if ( ! $tags->next_tag( 'img' ) ) {
+			return $image;
+		}
+
+		$tags->remove_attribute( 'fetchpriority' );
+		$tags->set_attribute( 'loading', 'eager' );
+
+		if ( $photo ) {
+			$tags->set_attribute( 'fetchpriority', 'high' );
+		}
+
+		return $tags->get_updated_html();
 	}
 
 	public function drop_unused_sizes( array $sizes ): array {

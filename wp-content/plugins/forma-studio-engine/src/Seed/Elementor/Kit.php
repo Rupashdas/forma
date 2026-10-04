@@ -141,10 +141,9 @@ final class Kit {
 					self::SANS_EXPANDED,
 					'500',
 					array(
-						'font_size'      => Builder::size( 12 ),
+						'font_size'      => Builder::size( 13 ),
 						'line_height'    => $em( 1.3 ),
-						'letter_spacing' => $em( 0.08 ),
-						'text_transform' => 'uppercase',
+						'letter_spacing' => $em( 0.01 ),
 					)
 				),
 			),
