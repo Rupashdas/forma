@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 final class Design {
 
 	/** Step names in build order. */
-	public const STEPS = array( 'kit', 'components', 'menu', 'header', 'footer', 'home' );
+	public const STEPS = array( 'kit', 'components', 'menu', 'header', 'footer', 'home', 'projects' );
 
 	public function __construct( private \Closure $log ) {}
 
@@ -52,7 +52,25 @@ final class Design {
 			'header'     => ( new Header( $this->log ) )->build(),
 			'footer'     => ( new Footer( $this->log ) )->build(),
 			'home'       => ( new Home( $this->log ) )->build(),
+			'projects'   => $this->projects(),
 			default      => throw new \InvalidArgumentException( esc_html( "Unknown design step: {$step}." ) ),
 		};
+	}
+
+	/**
+	 * The projects step builds three things that belong together: the archive template, the single project template
+	 * and each project's own body.
+	 *
+	 * @return array<string,int> The archive and single template ids, keyed `archive` and `single`.
+	 */
+	private function projects(): array {
+		$ids = array(
+			'archive' => ( new Archive( $this->log ) )->build(),
+			'single'  => ( new Single( $this->log ) )->build(),
+		);
+
+		( new ProjectBodies( $this->log ) )->build();
+
+		return $ids;
 	}
 }
