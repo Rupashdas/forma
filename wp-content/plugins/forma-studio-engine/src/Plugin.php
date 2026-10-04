@@ -18,6 +18,7 @@ final class Plugin {
 		Media\Media::class,
 		Elementor\Module::class,
 		Motion\Motion::class,
+		Model\Model::class,
 		Cursor\Cursor::class,
 		Transitions\Transitions::class,
 		Seo\Seo::class,

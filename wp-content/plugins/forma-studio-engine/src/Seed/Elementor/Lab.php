@@ -2,6 +2,7 @@
 
 namespace Forma\Engine\Seed\Elementor;
 
+use Forma\Engine\Projects\Projects;
 use Forma\Engine\Seed\Drawings;
 use Forma\Engine\Seed\Images;
 
@@ -102,6 +103,155 @@ final class Lab {
 								'monolith-house-01.jpg'  => array( 'Concept', 'Three directions as models and sketches; we choose one together.' ),
 								'the-quiet-hotel-01.jpg' => array( 'Development', 'Plans, materials and costs refined until the design holds.' ),
 							)
+						),
+					)
+				)
+			),
+			...$this->study_models(),
+		);
+	}
+
+	/**
+	 * The Study model widget on four pieces of QA: a project model with assemble, drag and the exploded view; the
+	 * process growing in stages through a 300vh section; the empty plot with its dashed volume; and a model that
+	 * swaps between projects as three headings are hovered.
+	 */
+	private function study_models(): array {
+		$ids = array();
+
+		foreach ( array( 'casa-nera', 'terra-residence', 'monolith-house', 'the-quiet-hotel' ) as $slug ) {
+			$post         = get_page_by_path( $slug, OBJECT, Projects::POST_TYPE );
+			$ids[ $slug ] = $post ? (int) $post->ID : 0;
+		}
+
+		$swaps = array();
+
+		foreach ( array( 'terra-residence', 'monolith-house', 'the-quiet-hotel' ) as $slug ) {
+			$swaps[] = Builder::widget(
+				'heading',
+				array(
+					'title'                     => (string) get_the_title( $ids[ $slug ] ),
+					'header_size'               => 'h3',
+					'link'                      => array(
+						'url'         => (string) get_permalink( $ids[ $slug ] ),
+						'is_external' => '',
+						'nofollow'    => '',
+					),
+					'title_color'               => self::INK,
+					'typography_typography'     => 'custom',
+					'typography_font_family'    => Style::DISPLAY,
+					'typography_font_size'      => Builder::size( 40 ),
+					'typography_line_height'    => Builder::size( 1.1, 'em' ),
+					'fm_model_swap'             => 'yes',
+					'fm_model_swap_to'          => (string) $ids[ $slug ],
+				)
+			);
+		}
+
+		return array(
+			$this->section(
+				'Study model',
+				Builder::widget(
+					'forma-study-model',
+					array(
+						'source'         => 'project',
+						'project'        => (string) $ids['casa-nera'],
+						'camera'         => 'hero',
+						'view_height'    => Builder::size( 70, 'vh' ),
+						'caption'        => 'Casa Nera, Comporta',
+						'assemble'       => 'yes',
+						'drag'           => 'yes',
+						'callouts'       => 'yes',
+						'explode_toggle' => 'yes',
+					)
+				),
+				true
+			),
+			Builder::container(
+				array(
+					'content_width'  => 'full',
+					'flex_direction' => 'column',
+					'min_height'     => Builder::size( 300, 'vh' ),
+					'padding'        => Builder::box( 0 ),
+					'border_border'  => 'solid',
+					'border_width'   => Builder::box( 1, 0, 0, 0 ),
+					'border_color'   => 'rgba(22,25,23,.14)',
+				),
+				array(
+					$this->label( 'Widget — Study model, growing in stages as you scroll' ),
+					Builder::container(
+						array(
+							'content_width' => 'full',
+							'min_height'    => Builder::size( 100, 'vh' ),
+							'padding'       => Builder::box( 0 ),
+							'custom_css'    => 'selector { position: sticky; top: 0; }',
+						),
+						array(
+							Builder::widget(
+								'forma-study-model',
+								array(
+									'source'         => 'recipe',
+									'recipe'         => 'process',
+									'camera'         => 'three-quarter',
+									'view_height'    => Builder::size( 100, 'vh' ),
+									'drag'           => '',
+									'stages'         => 'yes',
+									'scroll_trigger' => 'section',
+								)
+							),
+						),
+						true
+					),
+				)
+			),
+			$this->section(
+				'Study model — the empty plot',
+				Builder::widget(
+					'forma-study-model',
+					array(
+						'source'      => 'recipe',
+						'recipe'      => 'plot',
+						'camera'      => 'three-quarter',
+						'view_height' => Builder::size( 60, 'vh' ),
+						'drag'        => 'yes',
+					)
+				),
+				true
+			),
+			$this->section(
+				'Study model — swaps while hovering',
+				Builder::container(
+					array(
+						'content_width'  => 'full',
+						'flex_direction' => 'row',
+						'flex_align_items' => 'center',
+						'flex_gap'       => Builder::gap( 48 ),
+					),
+					array(
+						Builder::container(
+							array( 'width' => Builder::size( 60, '%' ) ),
+							array(
+								Builder::widget(
+									'forma-study-model',
+									array(
+										'source'      => 'project',
+										'project'     => (string) $ids['casa-nera'],
+										'camera'      => 'three-quarter',
+										'view_height' => Builder::size( 60, 'vh' ),
+										'drag'        => 'yes',
+										'swap'        => 'hover',
+									)
+								),
+							),
+							true
+						),
+						Builder::container(
+							array(
+								'width'          => Builder::size( 40, '%' ),
+								'flex_direction' => 'column',
+							),
+							$swaps,
+							true
 						),
 					)
 				)

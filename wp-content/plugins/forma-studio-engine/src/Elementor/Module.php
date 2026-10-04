@@ -25,6 +25,7 @@ final class Module implements ModuleContract {
 		Widgets\ProjectIndex::class,
 		Widgets\NextProject::class,
 		Widgets\ScrollStory::class,
+		Widgets\StudyModel::class,
 	);
 
 	public static function id(): string {

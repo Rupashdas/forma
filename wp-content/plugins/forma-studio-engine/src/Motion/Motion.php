@@ -5,6 +5,7 @@ namespace Forma\Engine\Motion;
 use Elementor\Controls_Manager;
 use Elementor\Element_Base;
 use Forma\Engine\Contracts\Module;
+use Forma\Engine\Model\Models;
 use Forma\Engine\Support\Assets;
 use Forma\Engine\Support\Editor;
 
@@ -141,6 +142,26 @@ final class Motion implements Module {
 			)
 		);
 
+		$element->add_control(
+			'fm_model_swap',
+			array(
+				'label'       => esc_html__( 'Swap the page\'s study model to this project', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'description' => esc_html__( 'A study model set to swap changes to this project while the element is hovered, focused or nearest the centre. In a Loop Grid it is the card\'s project.', 'forma-studio-engine' ),
+			)
+		);
+
+		$element->add_control(
+			'fm_model_swap_to',
+			array(
+				'label'       => esc_html__( 'Project to swap to', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => '',
+				'options'     => array( '' => esc_html__( 'The current post (use inside loops)', 'forma-studio-engine' ) ) + Models::project_options(),
+				'condition'   => array( 'fm_model_swap' => 'yes' ),
+			)
+		);
+
 		$element->end_controls_section();
 	}
 
@@ -171,6 +192,14 @@ final class Motion implements Module {
 			$attrs['style'] = 'view-transition-name: forma-project-' . (int) get_the_ID();
 		}
 
+		if ( 'yes' === ( $settings['fm_model_swap'] ?? '' ) ) {
+			$target = (int) ( $settings['fm_model_swap_to'] ?? 0 ) ?: (int) get_the_ID();
+
+			if ( $target ) {
+				$attrs['data-model-swap'] = (string) $target;
+			}
+		}
+
 		foreach ( array_filter( $attrs, static fn( $value ) => '' !== $value ) as $name => $value ) {
 			$element->add_render_attribute( '_wrapper', $name, $value );
 		}
@@ -190,7 +219,7 @@ final class Motion implements Module {
 	public function is_dynamic( $is_dynamic, $raw_data ): bool {
 		$settings = $raw_data['settings'] ?? array();
 
-		return $is_dynamic || ! empty( $settings['fm_entrance'] ) || ! empty( $settings['fm_scroll'] );
+		return $is_dynamic || ! empty( $settings['fm_entrance'] ) || ! empty( $settings['fm_scroll'] ) || ! empty( $settings['fm_model_swap'] );
 	}
 
 	/**

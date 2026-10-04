@@ -1,0 +1,178 @@
+/* FORMA — study model. One canvas fills the figure; the runtime (model-stage.js) draws into it. */
+
+.forma-model {
+	-webkit-user-select: none;
+	cursor: grab;
+	height: var(--forma-model-h, 70vh);
+	margin: 0;
+	position: relative;
+	touch-action: pan-y;
+	user-select: none;
+	width: 100%;
+}
+
+.forma-model.is-dragging {
+	cursor: grabbing;
+}
+
+/* Not draggable: the pointer and touch behave as on the page around it. */
+.forma-model--fixed {
+	cursor: auto;
+	touch-action: auto;
+}
+
+.forma-model:focus-visible {
+	outline: 2px solid var(--forma-accent, #2b3bff);
+	outline-offset: -2px;
+}
+
+.forma-model canvas {
+	display: block;
+	height: 100%;
+	inset: 0;
+	position: absolute;
+	width: 100%;
+}
+
+/* The photograph stands in for the model until (or unless) the canvas can draw. */
+.forma-model__fallback {
+	display: none;
+}
+
+.forma-model--fallback .forma-model__fallback,
+html:not(.fm-js) body:not(.elementor-editor-active) .forma-model__fallback {
+	display: block;
+	height: 100%;
+	inset: 0;
+	object-fit: cover;
+	position: absolute;
+	width: 100%;
+}
+
+.forma-model--fallback {
+	background-color: var(--forma-raised, #fbfaf6);
+	cursor: auto;
+}
+
+.forma-model--fallback canvas,
+.forma-model--fallback .forma-model__parts,
+.forma-model--fallback .forma-model__explode {
+	display: none;
+}
+
+.forma-model__explode,
+.forma-model__caption,
+.forma-model__part {
+	font-family: var(--forma-font-sans, "Archivo", sans-serif);
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: 0.01em;
+	line-height: 1.3;
+}
+
+/* Doubled class: the Elementor Kit styles every button, and this one is its own pill. */
+.forma-model .forma-model__explode {
+	background-color: color-mix(in srgb, var(--forma-raised, #fbfaf6) 85%, transparent);
+	border: 1px solid var(--forma-ink, #111);
+	border-radius: 999px;
+	bottom: var(--forma-gutter, 24px);
+	color: var(--forma-ink, #111);
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.3;
+	padding: 10px 18px;
+	position: absolute;
+	right: var(--forma-gutter, 24px);
+	text-transform: none;
+	transition: background-color 0.2s, color 0.2s;
+	z-index: 2;
+}
+
+.forma-model .forma-model__explode:hover,
+.forma-model .forma-model__explode:focus-visible {
+	background-color: var(--forma-ink, #111);
+	border-color: var(--forma-ink, #111);
+	color: var(--forma-page, #e7e6e2);
+}
+
+.forma-model .forma-model__explode[aria-pressed="true"] {
+	background-color: var(--forma-accent, #2b3bff);
+	border-color: var(--forma-accent, #2b3bff);
+	color: #fff;
+}
+
+.forma-model .forma-model__explode:focus-visible {
+	outline: 2px solid var(--forma-accent, #2b3bff);
+	outline-offset: 2px;
+}
+
+.forma-model .forma-model__caption {
+	bottom: var(--forma-gutter, 24px);
+	color: var(--forma-muted, #55554f);
+	font-style: normal;
+	left: var(--forma-gutter, 24px);
+	margin: 0;
+	max-width: 36ch;
+	pointer-events: none;
+	position: absolute;
+	z-index: 2;
+}
+
+/* Callouts for the named parts, positioned from the projected model each frame. */
+.forma-model__parts {
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+	position: absolute;
+}
+
+.forma-model__part {
+	background-color: color-mix(in srgb, var(--forma-raised, #fbfaf6) 85%, transparent);
+	border: 1px solid var(--forma-ink, #111);
+	border-radius: 999px;
+	color: var(--forma-ink, #111);
+	left: 0;
+	opacity: 0;
+	padding: 5px 12px;
+	position: absolute;
+	top: 0;
+	white-space: nowrap;
+	will-change: transform, opacity;
+}
+
+/* The dotted leader from each pill to its part, and the dot on the part. */
+.forma-model__leaders {
+	height: 100%;
+	inset: 0;
+	overflow: visible;
+	position: absolute;
+	width: 100%;
+}
+
+.forma-model__leaders line {
+	opacity: 0;
+	stroke: var(--forma-accent, #2b3bff);
+	stroke-dasharray: 0.1 5;
+	stroke-linecap: round;
+	stroke-width: 2;
+}
+
+.forma-model__leaders circle {
+	fill: var(--forma-accent, #2b3bff);
+	opacity: 0;
+}
+
+/* A placeholder shown only in the Elementor editor when no model is chosen. */
+.forma-model--empty {
+	align-items: center;
+	border: 1px dashed var(--forma-line, rgba(17, 17, 17, 0.12));
+	color: var(--forma-muted, #55554f);
+	cursor: auto;
+	display: flex;
+	font-family: var(--forma-font-sans, "Archivo", sans-serif);
+	font-size: 13px;
+	justify-content: center;
+	padding: 24px;
+	text-align: center;
+}
