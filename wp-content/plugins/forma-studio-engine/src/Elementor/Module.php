@@ -39,6 +39,8 @@ final class Module implements ModuleContract {
 		add_action( 'elementor/elements/categories_registered', array( $this, 'category' ) );
 		add_action( 'elementor/widgets/register', array( $this, 'widgets' ) );
 		add_action( 'elementor/dynamic_tags/register', array( $this, 'tags' ) );
+
+		( new ArchiveFilter() )->register();
 	}
 
 	public function category( \Elementor\Elements_Manager $elements ): void {
