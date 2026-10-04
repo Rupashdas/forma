@@ -16,6 +16,10 @@ add_filter( 'elementor/fonts/groups', 'forma_theme_font_group' );
 add_filter( 'elementor/fonts/additional_fonts', 'forma_theme_fonts' );
 add_action( 'elementor/page_templates/header-footer/before_content', 'forma_theme_main_open' );
 add_action( 'elementor/page_templates/header-footer/after_content', 'forma_theme_main_close' );
+add_action( 'elementor/theme/before_do_single', 'forma_theme_main_open' );
+add_action( 'elementor/theme/after_do_single', 'forma_theme_main_close' );
+add_action( 'elementor/theme/before_do_archive', 'forma_theme_main_open' );
+add_action( 'elementor/theme/after_do_archive', 'forma_theme_main_close' );
 
 /**
  * Site stylesheet and script, versioned by file time so edits bust browser caches. The script drives the header
@@ -49,15 +53,38 @@ function forma_theme_assets(): void {
 }
 
 /**
- * Elementor's "Header and footer" page template prints its content bare. Wrapping it in <main id="content"> gives
- * Hello's "Skip to content" link a target and the page a main landmark.
+ * Elementor's "Header and footer" page template, and Theme Builder's single and archive locations, print their
+ * content bare. Wrapping them in <main id="content"> gives Hello's "Skip to content" link a target and the page a
+ * main landmark.
+ *
+ * The wrappers can nest: Pro prints a single or archive template through the Header and footer page template, so the
+ * location hooks fire inside the page template's. Only the outermost opens and closes the element, so it is printed
+ * once whichever route a page takes. Pro fires the location hooks only when a Theme Builder template prints; when none
+ * does, Hello falls back to its own template parts, which carry their own <main>.
  */
 function forma_theme_main_open(): void {
-	echo '<main id="content" class="site-main">';
+	if ( 1 === forma_theme_main_depth( 1 ) ) {
+		echo '<main id="content" class="site-main">';
+	}
 }
 
 function forma_theme_main_close(): void {
-	echo '</main>';
+	if ( 0 === forma_theme_main_depth( -1 ) ) {
+		echo '</main>';
+	}
+}
+
+/**
+ * How many main wrappers are open right now.
+ *
+ * @param int $change +1 when a wrapper opens, -1 when it closes, 0 to read.
+ */
+function forma_theme_main_depth( int $change ): int {
+	static $depth = 0;
+
+	$depth = max( 0, $depth + $change );
+
+	return $depth;
 }
 
 /**
