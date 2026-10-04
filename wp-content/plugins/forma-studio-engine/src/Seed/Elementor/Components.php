@@ -76,55 +76,72 @@ final class Components {
 	// Project cards.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** Portrait card: 4:5 image, number, title with the year, location, and an excerpt that appears on hover. */
+	/**
+	 * Portrait card: a rounded tile holding a 4:5 image (with the excerpt floating over it on hover), the sheet number
+	 * as a chip, the title, and the location and the year as separate Meta elements.
+	 */
 	private function card(): array {
 		return $this->card_shell(
 			'forma-card',
 			array(
-				$this->card_image( 'forma-960' ),
-				$this->card_text( 'clamp(26px, 2.4vw, 36px)' ),
-				$this->card_excerpt(),
+				$this->card_media( 'forma-960' ),
+				$this->card_text( 'subheading' ),
 			),
 			$this->card_css( '4 / 5', '4 / 5' ),
-			Builder::gap( 12 )
+			Builder::gap( 14 )
 		);
 	}
 
 	/**
-	 * Landscape card for a wide feature: a 16:9 image (3:2 on mobile) over the same text as the portrait card, at a
-	 * larger title size.
+	 * Landscape card for a wide feature: a 16:9 image (3:2 on mobile) over the same text as the portrait card, with
+	 * the Heading type for the title.
 	 */
 	private function card_wide(): array {
 		return $this->card_shell(
 			'forma-card forma-card--wide',
 			array(
-				$this->card_image( 'large' ),
-				$this->card_text( 'clamp(32px, 4vw, 64px)' ),
-				$this->card_excerpt(),
+				$this->card_media( 'large' ),
+				$this->card_text( 'heading' ),
 			),
 			$this->card_css( '16 / 9', '3 / 2' ),
-			Builder::gap( 20 )
+			Builder::gap( 18 )
 		);
 	}
 
 	/**
 	 * The card itself is one link to the project (a dynamic Post URL on a container rendered as `a`), so nothing
-	 * inside it may be a link of its own.
+	 * inside it may be a link of its own. It is a rounded tile: a Panel fill (an Ink tile inside the Ink band, where
+	 * the theme re-points the Panel global), the tile radius and 12px of padding.
 	 */
 	private function card_shell( string $classes, array $children, string $css, array $gap ): array {
 		return Builder::container(
 			array(
-				'content_width'  => 'full',
-				'html_tag'       => 'a',
-				'link'           => Style::link(),
-				'flex_direction' => 'column',
-				'flex_gap'       => $gap,
-				'css_classes'    => $classes,
-				'fm_cursor'      => 'View',
-				'custom_css'     => $css,
-				'__dynamic__'    => array( 'link' => Builder::tag( 'post-url' ) ),
+				'content_width'         => 'full',
+				'html_tag'              => 'a',
+				'link'                  => Style::link(),
+				'flex_direction'        => 'column',
+				'flex_gap'              => $gap,
+				'padding'               => Builder::box( 12 ),
+				'border_radius'         => Builder::box( 'var(--forma-r-tile)', null, null, null, 'custom' ),
+				'background_background' => 'classic',
+				'css_classes'           => $classes,
+				'fm_cursor'             => 'View',
+				'custom_css'            => $css,
+				'__dynamic__'           => array( 'link' => Builder::tag( 'post-url' ) ),
+				'__globals__'           => array( 'background_color' => Style::color( 'raised' ) ),
 			),
 			$children
+		);
+	}
+
+	/** The image and, over it, the excerpt: the excerpt shows as a glass card on hover (see {@see self::card_css()}). */
+	private function card_media( string $size ): array {
+		return Style::stack(
+			array(
+				$this->card_image( $size ),
+				$this->card_excerpt(),
+			),
+			array( 'css_classes' => 'forma-card__media' )
 		);
 	}
 
@@ -146,47 +163,53 @@ final class Components {
 		);
 	}
 
-	/** "No. 08": the project's sheet number, from the Forma dynamic tag. */
+	/** "No. 08": the project's sheet number, from the Forma dynamic tag, as a chip. */
 	private function card_number(): array {
-		return Style::label(
+		return Style::chip(
 			'No. 00',
-			'accent',
 			array( '__dynamic__' => array( 'title' => Builder::tag( 'forma-project-number', array( 'prefix' => 'No. ' ) ) ) )
 		);
 	}
 
-	private function card_title( string $size ): array {
+	/** The title on a Kit font: Subheading on the portrait card, Heading on the wide one. */
+	private function card_title( string $font ): array {
 		return Builder::widget(
 			'theme-post-title',
-			Style::serif_type( $size ) + array(
+			array(
 				'header_size' => 'h3',
 				'__dynamic__' => array( 'title' => Builder::tag( 'post-title' ) ),
-				'__globals__' => array( 'title_color' => Style::color( 'ink' ) ),
+				'__globals__' => array(
+					'typography_typography' => Style::font( $font ),
+					'title_color'           => Style::color( 'ink' ),
+				),
 			)
 		);
 	}
 
-	/** Number, the title with the year on its right, and the location under it. */
-	private function card_text( string $size ): array {
+	/** The chip, the title, and a row with the location and the year as separate Meta elements. */
+	private function card_text( string $font ): array {
 		return Style::stack(
 			array(
 				$this->card_number(),
-				$this->title_row( $size ),
-				$this->card_location(),
+				$this->card_title( $font ),
+				$this->meta_row(),
 			),
-			array( 'flex_gap' => Builder::gap( 6 ) )
+			array(
+				'flex_gap' => Builder::gap( 8 ),
+				'padding'  => Builder::box( 0, 6, 6, 6 ),
+			)
 		);
 	}
 
 	/**
-	 * The title on the left and the year on the right. They sit on one baseline (the control only offers start,
-	 * center, end and stretch, so the alignment is set in the row's Custom CSS), and the title may wrap under a year
-	 * that never does.
+	 * The location on the left and the year on the right, on one baseline (the control only offers start, center,
+	 * end and stretch, so the alignment is set in the row's Custom CSS). The location may wrap under a year that never
+	 * does.
 	 */
-	private function title_row( string $size ): array {
+	private function meta_row(): array {
 		return Style::row(
 			array(
-				Style::cell( array( $this->card_title( $size ) ), 'auto', 'auto', 'auto' ),
+				Style::cell( array( $this->card_location() ), 'auto', 'auto', 'auto' ),
 				Style::cell( array( $this->card_year() ), 'auto', 'auto', 'auto' ),
 			),
 			array(
@@ -247,26 +270,26 @@ final class Components {
 			array(
 				'_css_classes' => 'forma-card__excerpt',
 				'__dynamic__'  => array( 'excerpt' => Builder::tag( 'post-excerpt' ) ),
-				'__globals__'  => array(
-					'typography_typography' => Style::font( 'meta' ),
-					'title_color'           => Style::color( 'muted' ),
-				),
+				'__globals__'  => array( 'typography_typography' => Style::font( 'meta' ) ),
 			)
 		);
 	}
 
 	/**
-	 * The card's behaviour, kept on the card so it stays editable in Elementor: the image crops to a fixed ratio and
-	 * grows 3% on hover, and on devices that can hover the excerpt slides up and fades in on hover or keyboard focus.
-	 * Touch devices never show it.
+	 * The card's behaviour, kept on the card so it stays editable in Elementor: the image crops to a fixed ratio inside
+	 * its rounded frame and grows 3% on hover; on devices that can hover, the excerpt floats over the bottom of the
+	 * image as a glass card (Paper at 78% over a blur, always dark text, so it reads on a Panel tile and on an Ink
+	 * tile alike) and fades in on hover or keyboard focus. Touch devices never show it.
 	 *
 	 * @param string $ratio        Image aspect ratio, e.g. `4 / 5`.
 	 * @param string $mobile_ratio Image aspect ratio on mobile.
 	 */
 	private function card_css( string $ratio, string $mobile_ratio ): string {
 		return <<<CSS
-		selector .forma-card__image {
+		selector .forma-card__media {
+			position: relative;
 			overflow: hidden;
+			border-radius: var(--forma-r-img);
 		}
 		selector .forma-card__image img {
 			display: block;
@@ -280,6 +303,17 @@ final class Components {
 				aspect-ratio: {$mobile_ratio};
 			}
 		}
+		selector .forma-card__excerpt {
+			position: absolute;
+			inset: auto 10px 10px;
+			padding: 12px 14px;
+			border-radius: calc(var(--forma-r-img) - 2px);
+			background-color: rgba(246, 245, 241, 0.78);
+			background-color: color-mix(in srgb, var(--forma-page) 78%, transparent);
+			-webkit-backdrop-filter: blur(12px);
+			backdrop-filter: blur(12px);
+			color: var(--forma-deep);
+		}
 		@media (hover: hover) {
 			selector:hover .forma-card__image img,
 			selector:focus-visible .forma-card__image img {
@@ -287,8 +321,8 @@ final class Components {
 			}
 			selector .forma-card__excerpt {
 				opacity: 0;
-				transform: translateY(14px);
-				transition: opacity 0.6s var(--forma-ease), transform 0.9s var(--forma-ease);
+				transform: translateY(10px);
+				transition: opacity 0.5s var(--forma-ease), transform 0.7s var(--forma-ease);
 			}
 			selector:hover .forma-card__excerpt,
 			selector:focus-visible .forma-card__excerpt {
@@ -323,7 +357,7 @@ final class Components {
 						Style::heading( 'Let’s build something quiet.', 'display-l', 'h2' ),
 						Style::row(
 							array(
-								Style::heading( $email, 'statement', 'p', 'ink', array( 'link' => Style::link( 'mailto:' . $email ) ) ),
+								Style::heading( $email, 'subheading', 'p', 'ink', array( 'link' => Style::link( 'mailto:' . $email ) ) ),
 								Style::button( 'Start a conversation', $url ),
 							),
 							array(
@@ -352,7 +386,7 @@ final class Components {
 	// Recognition ledger.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** Awards, newest first: a bottle green band with a heading and one hairline row per recognised project. */
+	/** Awards, newest first: an Ink band with a heading and one hairline row per recognised project. */
 	private function recognition(): array {
 		$rows = array();
 

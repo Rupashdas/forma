@@ -7,10 +7,10 @@ use Forma\Engine\Seed\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The site-wide Theme Builder footer: a bottle green band that spans the viewport, with its content boxed to the Kit's
- * container width: four columns (studio, contact, index, elsewhere), the FORMA wordmark at the left in the Display XL
- * type and a credit row. Role colours (Ink, Slate, Brass) render as Chalk, Sage and Brass light, because the band
- * carries the `forma-deep` class.
+ * The site-wide Theme Builder footer: a rounded Ink band inset from the viewport (a panel), with its content boxed to
+ * the Kit's container width: the giant FORMA wordmark at the top, four columns (studio, contact, index, elsewhere)
+ * each headed by a Label in Ash, and a credit row. Role colours (Ink, Graphite, Signal blue) render as Paper, Ash and
+ * Light blue, because the band carries the `forma-deep` class.
  */
 final class Footer {
 
@@ -39,23 +39,33 @@ final class Footer {
 		return array(
 			Style::section(
 				array(
+					$this->wordmark(),
 					$this->columns(),
-					Style::heading( 'FORMA', 'display-xl', 'div', 'ink', array( 'fm_entrance' => 'chars' ) ),
 					$this->credits(),
 				),
 				'deep',
 				array(
-					'flex_gap' => Builder::gap( 'var(--forma-gutter)', null, 'custom' ),
+					'flex_gap' => Builder::gap( 'clamp(40px, 5vw, 80px)', null, 'custom' ),
 					'padding'  => Builder::box( 'var(--forma-section)', 'var(--forma-gutter)', 'clamp(24px, 3vw, 40px)', 'var(--forma-gutter)', 'custom' ),
 				)
 			),
 		);
 	}
 
-	/** Four columns: hairline dividers on desktop, two by two on tablet, stacked on mobile. */
+	/** The giant wordmark: Archivo Expanded 800 in the page colour (Paper on the Ink band), revealed by character. */
+	private function wordmark(): array {
+		return Style::display(
+			'FORMA',
+			'clamp(64px, 13vw, 220px)',
+			'div',
+			'ink',
+			Style::display_type( 'clamp(64px, 13vw, 220px)', 0.85, -0.03, Style::WORDMARK, '800' ) + array( 'fm_entrance' => 'chars' )
+		);
+	}
+
+	/** Four columns, each headed by a Label in Ash: four across on desktop, two by two on tablet, stacked on mobile. */
 	private function columns(): array {
 		$studio = $this->studio;
-		$line   = array( '__globals__' => array( 'border_color' => Style::color( 'line' ) ) );
 
 		$address = '<p>' . implode( '<br>', array_map( 'esc_html', $studio['address'] ) ) . '</p><p>' . esc_html( $studio['hours'] ) . '</p>';
 		$phone   = sprintf( '<p><a href="tel:%s">%s</a></p>', esc_attr( preg_replace( '/[^\d+]/', '', $studio['phone'] ) ), esc_html( $studio['phone'] ) );
@@ -88,7 +98,7 @@ final class Footer {
 				Style::label( 'Contact' ),
 				Style::heading(
 					$studio['email'],
-					'statement',
+					'subheading',
 					'p',
 					'ink',
 					array(
@@ -98,8 +108,8 @@ final class Footer {
 							'nofollow'          => '',
 							'custom_attributes' => '',
 						),
-						// The Statement face, sized down to fit a quarter-width column.
-						'custom_css' => 'selector .elementor-heading-title { font-size: clamp(22px, 1.9vw, 30px); overflow-wrap: anywhere; }',
+						// The Subheading face, sized down to fit a quarter-width column.
+						'custom_css' => 'selector .elementor-heading-title { font-size: clamp(16px, 1.4vw, 20px); overflow-wrap: anywhere; }',
 					)
 				),
 				Style::text( $phone, 'meta', 'muted' ),
@@ -145,24 +155,17 @@ final class Footer {
 
 		$stacks = array();
 
-		foreach ( $columns as $index => $children ) {
-			$first = 0 === $index;
-
+		foreach ( $columns as $children ) {
 			$stacks[] = Style::stack(
 				$children,
 				array(
-					'width'               => Builder::size( 25, '%' ),
-					'width_tablet'        => Builder::size( 50, '%' ),
-					'width_mobile'        => Builder::size( 100, '%' ),
-					'flex_gap'            => Builder::gap( 12 ),
-					'padding'             => Builder::box( 0, 24, 0, $first ? 0 : 24 ),
-					'padding_tablet'      => Builder::box( 0, 24, 0, 0 ),
-					'padding_mobile'      => Builder::box( 0 ),
-					'border_border'       => 'solid',
-					'border_width'        => Builder::box( 0, 0, 0, $first ? 0 : 1 ),
-					'border_width_tablet' => Builder::box( 0 ),
-					'border_width_mobile' => Builder::box( 0 ),
-				) + $line
+					'width'          => Builder::size( 25, '%' ),
+					'width_tablet'   => Builder::size( 50, '%' ),
+					'width_mobile'   => Builder::size( 100, '%' ),
+					'flex_gap'       => Builder::gap( 12 ),
+					'padding'        => Builder::box( 0, 24, 0, 0 ),
+					'padding_mobile' => Builder::box( 0 ),
+				)
 			);
 		}
 

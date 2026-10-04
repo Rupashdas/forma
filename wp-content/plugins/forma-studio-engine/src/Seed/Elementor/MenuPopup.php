@@ -5,9 +5,9 @@ namespace Forma\Engine\Seed\Elementor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The full-screen menu sheet the header's Menu button opens: a bottle green ProElements popup with the
- * primary nav and the studio's contact details. ProElements' accessible navigation traps focus inside it, closes it
- * on Esc and returns focus to the button.
+ * The full-screen menu sheet the header's Menu button opens: a Paper ProElements popup holding one rounded Panel
+ * inset from the screen, with the primary nav in Display L and the studio's contact details in Label. ProElements'
+ * accessible navigation traps focus inside it, closes it on Esc and returns focus to the button.
  */
 final class MenuPopup {
 
@@ -30,7 +30,7 @@ final class MenuPopup {
 		return $id;
 	}
 
-	/** Popup document settings: edge to edge, green, no overlay or shadow, fades in and out. */
+	/** Popup document settings: edge to edge, on Paper, no overlay or shadow, fades in and out. */
 	public function settings(): array {
 		return array(
 			'width'                       => Builder::size( 100, 'vw' ),
@@ -47,11 +47,11 @@ final class MenuPopup {
 			'a11y_navigation'             => 'yes',
 			'background_background'       => 'classic',
 			'box_shadow_box_shadow_type'  => '',
-			'padding'                     => Builder::box( 'var(--forma-gutter)', null, null, null, 'custom' ),
+			'padding'                     => Builder::box( 0 ),
 			'__globals__'                 => array(
-				'background_color'         => Style::color( 'deep' ),
-				'close_button_color'       => Style::color( 'page' ),
-				'close_button_hover_color' => Style::color( 'accent-on-deep' ),
+				'background_color'         => Style::color( 'page' ),
+				'close_button_color'       => Style::color( 'ink' ),
+				'close_button_hover_color' => Style::color( 'accent' ),
 			),
 		);
 	}
@@ -60,18 +60,18 @@ final class MenuPopup {
 		Builder::reset( self::KEY );
 
 		return array(
+			// The Panel brings its own inset margin (the forma-panel class), so the sheet has no padding; the panel's
+			// content is boxed to the Kit's container width.
 			Style::section(
 				array(
 					Style::label( 'Menu' ),
 					$this->nav(),
 					$this->details(),
 				),
-				'deep',
+				'raised',
 				array(
-					// The popup already pads the sheet by the gutter; the container fills what is left, and its content
-					// is boxed to the Kit's container width (the sheet itself stays full screen).
-					'padding'              => Builder::box( 0 ),
-					'min_height'           => Builder::size( 'calc(100vh - 2 * var(--forma-gutter))', 'custom' ),
+					'padding'              => Builder::box( 'clamp(28px, 4vw, 56px)', 'var(--forma-gutter)', 'clamp(28px, 4vw, 56px)', 'var(--forma-gutter)', 'custom' ),
+					'min_height'           => Builder::size( 'calc(100vh - 2 * var(--forma-inset))', 'custom' ),
 					'flex_justify_content' => 'space-between',
 					'flex_gap'             => Builder::gap( 48 ),
 				)
@@ -79,46 +79,47 @@ final class MenuPopup {
 		);
 	}
 
-	/** The primary nav: large display serif, no pointer, no numbers. */
+	/**
+	 * The primary nav in Display L (Archivo 500), no pointer, no numbers. The items are Ink on the Panel and Signal
+	 * blue on hover and when active.
+	 */
 	private function nav(): array {
 		return Builder::widget(
 			'nav-menu',
 			array(
-				'menu'                           => 'primary',
-				'menu_name'                      => 'Menu',
-				'layout'                         => 'vertical',
-				'align_items'                    => 'start',
-				'dropdown'                       => 'none',
-				'pointer'                        => 'none',
-				'menu_typography_typography'     => 'custom',
-				'menu_typography_font_family'    => Style::DISPLAY,
-				'menu_typography_font_weight'    => '400',
-				'menu_typography_font_size'      => Builder::size( 'clamp(44px, 10vw, 128px)', 'custom' ),
-				'menu_typography_line_height'    => Builder::size( 0.95, 'em' ),
-				'menu_typography_letter_spacing' => Builder::size( -0.02, 'em' ),
-				'padding_horizontal_menu_item'   => Builder::size( 0 ),
-				'padding_vertical_menu_item'     => Builder::size( 'clamp(2px, 0.8vw, 12px)', 'custom' ),
-				'__globals__'                    => array(
-					'color_menu_item'        => Style::color( 'ink' ),
-					'color_menu_item_hover'  => Style::color( 'accent' ),
-					'color_menu_item_active' => Style::color( 'accent' ),
+				'menu'                         => 'primary',
+				'menu_name'                    => 'Menu',
+				'layout'                       => 'vertical',
+				'align_items'                  => 'start',
+				'dropdown'                     => 'none',
+				'pointer'                      => 'none',
+				'padding_horizontal_menu_item' => Builder::size( 0 ),
+				'padding_vertical_menu_item'   => Builder::size( 'clamp(2px, 0.6vw, 8px)', 'custom' ),
+				'__globals__'                  => array(
+					'menu_typography_typography' => Style::font( 'display-l' ),
+					'color_menu_item'            => Style::color( 'ink' ),
+					'color_menu_item_hover'      => Style::color( 'accent' ),
+					'color_menu_item_active'     => Style::color( 'accent' ),
 				),
 			)
 		);
 	}
 
-	/** Address, email and coordinates under a hairline: a row on tablet and up, a column on mobile. */
+	/**
+	 * Address, email and coordinates under a hairline, all in Label and Graphite: a row on tablet and up, a column on
+	 * mobile.
+	 */
 	private function details(): array {
 		$studio = $this->studio;
 
 		return Style::row(
 			array(
-				Style::text( '<p>' . implode( '<br>', array_map( 'esc_html', $studio['address'] ) ) . '</p>', 'meta', 'muted' ),
+				Style::text( '<p>' . implode( '<br>', array_map( 'esc_html', $studio['address'] ) ) . '</p>', 'label', 'muted' ),
 				Style::heading(
 					$studio['email'],
 					'label',
 					'p',
-					'ink',
+					'muted',
 					array(
 						'link' => array(
 							'url'               => 'mailto:' . $studio['email'],
@@ -128,7 +129,7 @@ final class MenuPopup {
 						),
 					)
 				),
-				Style::label( $studio['coordinates'] ),
+				Style::label( $studio['coordinates'], 'muted' ),
 			),
 			array(
 				'flex_justify_content'    => 'space-between',

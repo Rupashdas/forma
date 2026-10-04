@@ -5,14 +5,12 @@ namespace Forma\Engine\Seed\Elementor;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The Elementor Kit (Site Settings): the Chalk and bottle green Global Colors, the type scale as Global Fonts, the
- * theme style that applies them to body text, links, headings, buttons, form fields and images, the layout defaults
- * and the breakpoints. Everything seeded afterwards references these globals instead of raw values.
+ * The Elementor Kit (Site Settings): the Paper, Panel, Ink and Signal blue Global Colors, the medium-weight Archivo type
+ * scale as Global Fonts, the theme style that applies them to body text, links, headings, Ink pill buttons, form fields
+ * and images, the layout defaults and the breakpoints. Everything seeded afterwards references these globals instead
+ * of raw values.
  */
 final class Kit {
-
-	/** Width-expanded face of the sans, declared in the child theme's site.css (Elementor can't set the width axis). */
-	private const SANS_EXPANDED = Style::SANS . ' Expanded';
 
 	public function __construct( private \Closure $log ) {}
 
@@ -31,7 +29,7 @@ final class Kit {
 		Builder::reset( 'kit' );
 
 		if ( Builder::save( $id, array(), $this->settings() ) ) {
-			( $this->log )( 'Kit: 10 colours, 8 fonts, theme style, layout and breakpoints.' );
+			( $this->log )( 'Kit: 13 colours, 8 fonts, theme style, layout and breakpoints.' );
 		} else {
 			( $this->log )( 'Kit: ' . Builder::SKIPPED );
 		}
@@ -65,18 +63,21 @@ final class Kit {
 
 		return array(
 			'system_colors' => array(
-				$color( 'primary', 'Chalk', '#F2EFE8' ),
-				$color( 'secondary', 'Ink', '#161917' ),
-				$color( 'text', 'Slate', '#575C57' ),
-				$color( 'accent', 'Brass', '#7D5C1D' ),
+				$color( 'primary', 'Paper', '#F6F5F1' ),
+				$color( 'secondary', 'Ink', '#141414' ),
+				$color( 'text', 'Graphite', '#55554F' ),
+				$color( 'accent', 'Signal blue', '#2B3BFF' ),
 			),
 			'custom_colors' => array(
-				$color( 'raised', 'Raised', '#E7E3D9' ),
-				$color( 'deep', 'Bottle', '#1E3A2F' ),
-				$color( 'sage', 'Sage', '#A9B8AE' ),
-				$color( 'brasslight', 'Brass light', '#D2AE63' ),
-				$color( 'line', 'Line', 'rgba(22,25,23,0.14)' ),
-				$color( 'linedeep', 'Line on deep', 'rgba(242,239,232,0.16)' ),
+				$color( 'raised', 'Panel', '#E9E8E3' ),
+				$color( 'deep', 'Ink band', '#141414' ),
+				$color( 'ash', 'Ash', '#A3A39C' ),
+				$color( 'lightblue', 'Light blue', '#8E98FF' ),
+				$color( 'line', 'Line', 'rgba(20,20,20,0.12)' ),
+				$color( 'linedeep', 'Line on deep', 'rgba(246,245,241,0.16)' ),
+				$color( 'chip', 'Chip', '#DCE0FF' ),
+				$color( 'chipink', 'Chip ink', '#1B2799' ),
+				$color( 'deepraised', 'Ink tile', '#222220' ),
 			),
 		);
 	}
@@ -104,24 +105,24 @@ final class Kit {
 			'system_typography'     => array(
 				$font(
 					'primary',
-					'Display XL',
+					'Display XXL',
 					Style::DISPLAY,
-					'400',
+					'500',
 					array(
-						'font_size'      => $clamp( 'clamp(80px, 16vw, 240px)' ),
-						'line_height'    => $em( 0.85 ),
-						'letter_spacing' => $em( -0.02 ),
+						'font_size'      => $clamp( 'clamp(44px, 6.4vw, 104px)' ),
+						'line_height'    => $em( 1 ),
+						'letter_spacing' => $em( -0.035 ),
 					)
 				),
 				$font(
 					'secondary',
 					'Display L',
 					Style::DISPLAY,
-					'400',
+					'500',
 					array(
-						'font_size'      => $clamp( 'clamp(56px, 9vw, 160px)' ),
-						'line_height'    => $em( 0.92 ),
-						'letter_spacing' => $em( -0.02 ),
+						'font_size'      => $clamp( 'clamp(40px, 5.2vw, 84px)' ),
+						'line_height'    => $em( 1.02 ),
+						'letter_spacing' => $em( -0.03 ),
 					)
 				),
 				$font(
@@ -130,20 +131,20 @@ final class Kit {
 					Style::SANS,
 					'400',
 					array(
-						'font_size'        => Builder::size( 17 ),
-						'font_size_mobile' => Builder::size( 16 ),
-						'line_height'      => $em( 1.6 ),
+						'font_size'        => Builder::size( 16 ),
+						'font_size_mobile' => Builder::size( 15 ),
+						'line_height'      => $em( 1.55 ),
 					)
 				),
 				$font(
 					'accent',
 					'Label',
-					self::SANS_EXPANDED,
+					Style::SANS,
 					'500',
 					array(
 						'font_size'      => Builder::size( 13 ),
 						'line_height'    => $em( 1.3 ),
-						'letter_spacing' => $em( 0.01 ),
+						'text_transform' => 'none',
 					)
 				),
 			),
@@ -152,31 +153,22 @@ final class Kit {
 					'heading',
 					'Heading',
 					Style::DISPLAY,
-					'400',
+					'500',
 					array(
-						'font_size'      => $clamp( 'clamp(40px, 5vw, 80px)' ),
-						'line_height'    => $em( 1 ),
-						'letter_spacing' => $em( -0.01 ),
-					)
-				),
-				$font(
-					'statement',
-					'Statement',
-					Style::DISPLAY,
-					'400',
-					array(
-						'font_size'   => $clamp( 'clamp(28px, 3.4vw, 50px)' ),
-						'line_height' => $em( 1.15 ),
+						'font_size'      => $clamp( 'clamp(28px, 3.2vw, 48px)' ),
+						'line_height'    => $em( 1.08 ),
+						'letter_spacing' => $em( -0.025 ),
 					)
 				),
 				$font(
 					'subheading',
 					'Subheading',
 					Style::SANS,
-					'500',
+					'600',
 					array(
-						'font_size'   => $clamp( 'clamp(20px, 1.8vw, 26px)' ),
-						'line_height' => $em( 1.25 ),
+						'font_size'      => $clamp( 'clamp(18px, 1.6vw, 22px)' ),
+						'line_height'    => $em( 1.25 ),
+						'letter_spacing' => $em( -0.01 ),
 					)
 				),
 				$font(
@@ -189,8 +181,18 @@ final class Kit {
 						'line_height' => $em( 1.4 ),
 					)
 				),
+				$font(
+					'chip',
+					'Chip',
+					Style::SANS,
+					'600',
+					array(
+						'font_size'   => Builder::size( 11 ),
+						'line_height' => $em( 1 ),
+					)
+				),
 			),
-			'default_generic_fonts' => 'serif',
+			'default_generic_fonts' => 'sans-serif',
 		);
 	}
 
@@ -206,21 +208,20 @@ final class Kit {
 			'link_normal_color'                => Style::color( 'ink' ),
 			'link_hover_color'                 => Style::color( 'accent' ),
 
-			// Buttons: Label type, outlined in Ink, filled with Ink on hover.
-			'button_typography_typography'     => Style::font( 'label' ),
-			'button_text_color'                => Style::color( 'ink' ),
-			'button_border_color'              => Style::color( 'ink' ),
+			// Buttons: an Ink pill with Paper text, a Signal blue fill on hover. Every colour is a global, so inside the
+			// Ink band, where the theme re-points Ink to Paper and Paper to the band, the pill flips to a Paper fill with
+			// Ink text and still reads. The typography is local (Label size at weight 600), not the Label global.
+			'button_background_color'          => Style::color( 'ink' ),
+			'button_text_color'                => Style::color( 'page' ),
 			'button_hover_text_color'          => Style::color( 'page' ),
-			'button_hover_background_color'    => Style::color( 'ink' ),
-			'button_hover_border_color'        => Style::color( 'ink' ),
+			'button_hover_background_color'    => Style::color( 'accent' ),
 
-			// Form fields: Raised surface, Line border, Slate labels.
+			// Form fields: Panel surface, no border, Graphite labels.
 			'form_label_color'                 => Style::color( 'muted' ),
 			'form_label_typography_typography' => Style::font( 'meta' ),
 			'form_field_typography_typography' => Style::font( 'body' ),
 			'form_field_text_color'            => Style::color( 'ink' ),
 			'form_field_background_color'      => Style::color( 'raised' ),
-			'form_field_border_color'          => Style::color( 'line' ),
 		);
 
 		// H1 is Display L, H2 Heading, H3 to H6 Subheading; all Ink.
@@ -231,18 +232,20 @@ final class Kit {
 
 		return array(
 			'body_background_background'         => 'classic',
+			'button_typography_typography'       => 'custom',
+			'button_typography_font_family'      => Style::SANS,
+			'button_typography_font_weight'      => '600',
+			'button_typography_font_size'        => Builder::size( 13 ),
+			'button_typography_line_height'      => Builder::size( 1.3, 'em' ),
+			'button_typography_text_transform'   => 'none',
 			'button_background_background'       => 'classic',
-			'button_background_color'            => 'rgba(0,0,0,0)',
-			'button_border_border'               => 'solid',
-			'button_border_width'                => Builder::box( 1 ),
-			'button_border_radius'               => Builder::box( 0 ),
-			'button_padding'                     => Builder::box( 18, 28 ),
+			'button_border_radius'               => Builder::box( 999 ),
+			'button_padding'                     => Builder::box( 14, 22 ),
 			'button_hover_background_background' => 'classic',
-			'form_field_border_border'           => 'solid',
-			'form_field_border_width'            => Builder::box( 1 ),
-			'form_field_border_radius'           => Builder::box( 0 ),
+			'form_field_border_border'           => 'none',
+			'form_field_border_radius'           => Builder::box( 12 ),
 			'form_field_padding'                 => Builder::box( 16 ),
-			'image_border_radius'                => Builder::box( 0 ),
+			'image_border_radius'                => Builder::box( 12 ),
 			'__globals__'                        => $globals,
 		);
 	}
@@ -255,7 +258,7 @@ final class Kit {
 			'space_between_widgets'     => Builder::gap( 0 ),
 			'default_page_template'     => 'elementor_header_footer',
 			'page_title_selector'       => 'h1.entry-title',
-			'mobile_browser_background' => '#F2EFE8',
+			'mobile_browser_background' => '#F6F5F1',
 		);
 	}
 
