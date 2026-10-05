@@ -21,7 +21,8 @@
 	touch-action: auto;
 }
 
-.forma-model:focus-visible {
+/* Drawn inside the figure: it fills its panel, which would clip a ring outside it. The doubled class outranks the theme's focus rule. */
+.forma-model.forma-model[tabindex]:focus-visible {
 	outline: 2px solid var(--forma-accent, #2b3bff);
 	outline-offset: -2px;
 }
@@ -52,6 +53,18 @@ html:not(.fm-js) body:not(.elementor-editor-active) .forma-model__fallback {
 .forma-model--fallback {
 	background-color: var(--forma-raised, #fbfaf6);
 	cursor: auto;
+}
+
+/* A model with no photograph stands in as a drawing of itself (the Plan class), kept clear of the figure's edges. */
+.forma-model__plan {
+	box-sizing: border-box;
+	padding: 6% 5%;
+}
+
+/* Hairlines stay hairlines however far the drawing is scaled. */
+.forma-model__plan polygon,
+.forma-model__plan line {
+	vector-effect: non-scaling-stroke;
 }
 
 .forma-model--fallback canvas,

@@ -176,8 +176,19 @@ img {
 	max-width: 100%;
 }
 
-/* One focus treatment everywhere: the accent ring, only for keyboard focus (Light blue inside deep sections). */
-:focus-visible {
+/*
+ * One focus treatment everywhere: the accent ring, only for keyboard focus (Light blue inside deep sections). The
+ * selectors are repeated for each kind of control because Hello Elementor's reset gives links, buttons and fields a black
+ * ring with a white halo through selectors more specific than a bare :focus-visible; this file loads after it.
+ */
+:focus-visible,
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+	box-shadow: none;
 	outline: 2px solid var(--forma-accent);
 	outline-offset: 3px;
 }
