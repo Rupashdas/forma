@@ -7,11 +7,18 @@ use Forma\Engine\Projects\Projects;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The Projects archive (spec 7.2): a Theme Builder archive template for the project post type archive and the
- * project type term archives. The H1 is the archive title, so on a term archive it is the term name, and the intro is
- * the archive description (the post type's description, or the term's). Under it sit a Taxonomy Filter on the project
- * type and a Loop Grid on the current query: two columns, an alternate wide card on every third project, six projects
- * at a time with a Load more button. The Closing CTA ends the page.
+ * The Projects archive (spec 5.2): a Theme Builder archive template for the project post type archive and the project
+ * type term archives, in four parts:
+ *
+ * 1. Hero: an inset Panel with the archive title as the H1 (so on a term archive it is the term name), one line of
+ *    copy and a chip with the number of projects (the type's own on a term archive).
+ * 2. Filter: a Taxonomy Filter on the project type, styled as pills (the active type is an Ink pill).
+ * 3. Grid and stage: the project cards as a Loop Grid on the current query (two columns, six at a time with a Load more
+ *    button) beside a sticky rounded Panel whose study model swaps to the card under the pointer.
+ * 4. The Closing CTA component.
+ *
+ * Text, the filter, the grid and the stage sit in the boxed 1320px column; only the hero's Panel and the stage's Panel
+ * are backgrounds.
  */
 final class Archive {
 
@@ -21,13 +28,9 @@ final class Archive {
 	public const PER_PAGE = 6;
 
 	/** The saved components the archive shows, which must exist before it is built. */
-	private const COMPONENTS = array( 'project-card', 'project-card-wide', 'closing-cta' );
+	private const COMPONENTS = array( 'project-card', 'closing-cta' );
 
-	private array $projects;
-
-	public function __construct( private \Closure $log ) {
-		$this->projects = require FORMA_ENGINE_PATH . 'data/projects.php';
-	}
+	public function __construct( private \Closure $log ) {}
 
 	/**
 	 * @return int The archive template's post id.
@@ -66,7 +69,7 @@ final class Archive {
 		Builder::reset( self::KEY );
 
 		return array(
-			$this->masthead(),
+			$this->hero(),
 			$this->listing(),
 			$this->component( 'closing-cta' ),
 		);
@@ -84,34 +87,51 @@ final class Archive {
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
-	// Masthead.
+	// 1. Hero.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** The archive title and its intro, then a hairline title block, under the fixed header. */
-	private function masthead(): array {
+	/**
+	 * An inset Panel with generous padding (its top clears the floating header), auto height. From 1024px the H1 is at
+	 * the left and the line of copy and the count chip at the right, level with the title's last line; below that they
+	 * stack.
+	 */
+	private function hero(): array {
 		return Style::section(
 			array(
 				Style::row(
 					array(
 						Style::cell( array( $this->title() ), 62, 100, 100 ),
-						Style::cell( array( $this->intro() ), 30, 100, 100 ),
+						Style::cell(
+							array(
+								Style::text(
+									'<p>Houses, hotels, workplaces, interiors and objects, 2019 to 2026.</p>',
+									'body',
+									'muted',
+									array( 'custom_css' => 'selector p { max-width: 36ch; margin: 0; }' )
+								),
+								Style::chip(
+									'11 projects',
+									array( '__dynamic__' => array( 'title' => Builder::tag( 'forma-project-count' ) ) )
+								),
+							),
+							32,
+							100,
+							100,
+							array( 'flex_gap' => Builder::gap( 16 ) )
+						),
 					),
 					array(
 						'flex_wrap'               => 'nowrap',
 						'flex_justify_content'    => 'space-between',
 						'flex_align_items'        => 'flex-end',
-						'flex_gap'                => Builder::gap( 24 ),
 						'flex_direction_tablet'   => 'column',
 						'flex_align_items_tablet' => 'stretch',
+						'flex_gap'                => Builder::gap( 'clamp(20px, 3vw, 40px)', null, 'custom' ),
 					)
 				),
-				$this->title_block(),
 			),
-			'page',
-			array(
-				'padding'  => Builder::box( 'clamp(112px, 14vw, 168px)', 'var(--forma-gutter)', 'clamp(32px, 4vw, 56px)', 'var(--forma-gutter)', 'custom' ),
-				'flex_gap' => Builder::gap( 'clamp(32px, 4vw, 64px)', null, 'custom' ),
-			)
+			'raised',
+			array( 'padding' => Builder::box( 'clamp(136px, 15vw, 220px)', Style::PANEL_GUTTER, 'clamp(40px, 5vw, 72px)', Style::PANEL_GUTTER, 'custom' ) )
 		);
 	}
 
@@ -121,6 +141,7 @@ final class Archive {
 			'theme-archive-title',
 			array(
 				'header_size' => 'h1',
+				'fm_entrance' => 'lines',
 				'__dynamic__' => array( 'title' => Builder::tag( 'archive-title', array( 'include_context' => '' ) ) ),
 				'__globals__' => array(
 					'typography_typography' => Style::font( 'display-l' ),
@@ -130,65 +151,11 @@ final class Archive {
 		);
 	}
 
-	/** One line under the title: the post type's description, or the term's. */
-	private function intro(): array {
-		return Style::text(
-			'',
-			'body',
-			'muted',
-			array(
-				'custom_css'  => 'selector { max-width: 40ch; }',
-				'__dynamic__' => array( 'editor' => Builder::tag( 'archive-description' ) ),
-			)
-		);
-	}
-
-	/**
-	 * What the index holds, in three hairline cells like the title block on a drawing sheet. The figures describe the
-	 * whole index, so they stay true on a type archive too ("in total").
-	 */
-	private function title_block(): array {
-		$years = array_map( static fn( array $project ): string => substr( $project['date'], 0, 4 ), $this->projects );
-		$texts = array(
-			'Complete index',
-			sprintf( '%d projects in total', count( $this->projects ) ),
-			sprintf( 'Completed %s–%s', min( $years ), max( $years ) ),
-		);
-
-		$cells = array();
-
-		foreach ( $texts as $index => $text ) {
-			$cells[] = Style::cell(
-				array( Style::label( $text, 0 === $index ? 'ink' : 'muted' ) ),
-				100 / 3,
-				100 / 3,
-				100 / 3,
-				array(
-					'padding'        => Builder::box( 14, 20, 14, 0 === $index ? 0 : 20 ),
-					'padding_mobile' => Builder::box( 10, 8, 10, 0 === $index ? 0 : 12 ),
-					'border_border'  => 'solid',
-					'border_width'   => Builder::box( 0, 0, 0, 0 === $index ? 0 : 1 ),
-					'__globals__'    => array( 'border_color' => Style::color( 'line' ) ),
-				)
-			);
-		}
-
-		return Style::row(
-			$cells,
-			array(
-				'flex_wrap'     => 'nowrap',
-				'border_border' => 'solid',
-				'border_width'  => Builder::box( 1, 0, 1, 0 ),
-				'__globals__'   => array( 'border_color' => Style::color( 'line' ) ),
-			)
-		);
-	}
-
 	// ---------------------------------------------------------------------------------------------------------------
-	// Filter and grid.
+	// 2. Filter and 3. grid with the stage.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** The type filter over the project grid. */
+	/** The type filter over the project grid and the model stage, in one boxed section. */
 	private function listing(): array {
 		$grid   = $this->grid();
 		$filter = $this->filter( $grid['id'] );
@@ -202,113 +169,159 @@ final class Archive {
 					'ink',
 					array( 'custom_css' => 'selector { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }' )
 				),
-				Style::stack(
-					array( $filter ),
+				$filter,
+				Style::row(
 					array(
-						'padding'       => Builder::box( 0, 0, 12, 0 ),
-						'border_border' => 'solid',
-						'border_width'  => Builder::box( 0, 0, 1, 0 ),
-						'__globals__'   => array( 'border_color' => Style::color( 'line' ) ),
+						Style::cell( array( $grid ), 66.667, 100, 100 ),
+						$this->stage(),
+					),
+					array(
+						'flex_wrap'             => 'nowrap',
+						'flex_align_items'      => 'flex-start',
+						'flex_direction_tablet' => 'column',
+						'flex_gap'              => Builder::gap( 'clamp(16px, 2vw, 32px)', null, 'custom' ),
 					)
 				),
-				$grid,
 			),
 			'page',
 			array(
-				'padding'  => Builder::box( 'clamp(8px, 1vw, 16px)', 'var(--forma-gutter)', 'clamp(64px, 8vw, 120px)', 'var(--forma-gutter)', 'custom' ),
-				'flex_gap' => Builder::gap( 'clamp(32px, 4vw, 56px)', null, 'custom' ),
+				'padding'  => Builder::box( 'clamp(24px, 3vw, 40px)', 'var(--forma-gutter)', 'clamp(48px, 6vw, 96px)', 'var(--forma-gutter)', 'custom' ),
+				'flex_gap' => Builder::gap( 'clamp(20px, 2.4vw, 32px)', null, 'custom' ),
 			)
 		);
 	}
 
 	/**
-	 * The Taxonomy Filter on the project type, linked to the grid by its element id. Items are Label type; the active
-	 * type is underlined in the accent colour (every state keeps the same 2px border, transparent when inactive, so
-	 * choosing a type never shifts the row).
+	 * The Taxonomy Filter on the project type, linked to the grid by its element id. Items are pills in Label 600: a
+	 * Panel fill, a darker one on hover, and an Ink fill with Paper text for the active type.
 	 */
 	private function filter( string $grid_id ): array {
-		$underline = static fn( string $state ): array => array(
-			"taxonomy_filter_{$state}_border_border" => 'solid',
-			"taxonomy_filter_{$state}_border_width"  => Builder::box( 0, 0, 2, 0 ),
-		);
-
 		return Builder::widget(
 			'taxonomy-filter',
 			array(
-				'selected_element'                    => $grid_id,
-				'taxonomy'                            => Projects::TYPE_TAX,
-				'direction'                           => 'horizontal',
-				'item_alignment_horizontal'           => 'start',
-				'show_first_item'                     => 'yes',
-				'first_item_title'                    => 'All',
+				'selected_element'                   => $grid_id,
+				'taxonomy'                           => Projects::TYPE_TAX,
+				'direction'                          => 'horizontal',
+				'item_alignment_horizontal'          => 'start',
+				'show_first_item'                    => 'yes',
+				'first_item_title'                   => 'All',
 				// On the current query Pro cannot work out which types the results use (it asks the query for every
 				// matching id and gets one page of posts), and would then list no type at all. Every type has
 				// projects, so all of them are listed.
-				'show_empty_items'                    => 'yes',
-				'taxonomy_filter_items_space_between' => Builder::size( 'clamp(20px, 3vw, 40px)', 'custom' ),
-				'taxonomy_filter_padding'             => Builder::box( 8, 0, 8, 0 ),
-				'taxonomy_filter_normal_border_color' => 'rgba(0,0,0,0)',
-				'custom_css'                          => <<<'CSS'
-				/* Pro's items are buttons; keep them square, flat and left-aligned like the rest of the page. */
+				'show_empty_items'                   => 'yes',
+				'taxonomy_filter_items_space_between' => Builder::size( 8 ),
+				'taxonomy_filter_typography_typography'  => 'custom',
+				'taxonomy_filter_typography_font_family' => Style::SANS,
+				'taxonomy_filter_typography_font_weight' => '600',
+				'taxonomy_filter_typography_font_size'   => Builder::size( 13 ),
+				'taxonomy_filter_typography_line_height' => Builder::size( 1.3, 'em' ),
+				'taxonomy_filter_normal_background_background' => 'classic',
+				'taxonomy_filter_hover_background_background'  => 'classic',
+				'taxonomy_filter_active_background_background' => 'classic',
+				'taxonomy_filter_border_radius'      => Builder::box( 999 ),
+				'taxonomy_filter_padding'            => Builder::box( 10, 16, 10, 16 ),
+				'custom_css'                         => <<<'CSS'
+				/* Pro's items are buttons: no shadow, and the label stays on one line inside its pill. */
 				selector .e-filter-item {
-					border-radius: 0;
 					box-shadow: none;
-					justify-content: flex-start;
+					white-space: nowrap;
 				}
 				CSS,
-				'__globals__'                         => array(
-					'taxonomy_filter_typography_typography' => Style::font( 'label' ),
-					'taxonomy_filter_normal_text_color'     => Style::color( 'muted' ),
-					'taxonomy_filter_hover_text_color'      => Style::color( 'ink' ),
-					'taxonomy_filter_hover_border_color'    => Style::color( 'line' ),
-					'taxonomy_filter_active_text_color'     => Style::color( 'ink' ),
-					'taxonomy_filter_active_border_color'   => Style::color( 'accent' ),
+				'__globals__'                        => array(
+					'taxonomy_filter_normal_text_color'        => Style::color( 'ink' ),
+					'taxonomy_filter_normal_background_color'  => Style::color( 'raised' ),
+					'taxonomy_filter_hover_text_color'         => Style::color( 'ink' ),
+					'taxonomy_filter_hover_background_color'   => Style::color( 'line' ),
+					'taxonomy_filter_active_text_color'        => Style::color( 'page' ),
+					'taxonomy_filter_active_background_color'  => Style::color( 'ink' ),
 				),
-			) + $underline( 'normal' ) + $underline( 'hover' ) + $underline( 'active' )
+			)
 		);
 	}
 
 	/**
-	 * The Loop Grid on the current query: two columns (one on mobile) of portrait project cards, with the wide card
-	 * on every third project spanning both. Pro prints a style element inside the grid, so the stagger below counts
-	 * items by type, not by child position.
+	 * The Loop Grid on the current query: two columns (one on mobile) of project cards with a 16px gap, six at a time and
+	 * a Load more button (an Ink pill, the Kit's button style).
 	 */
 	private function grid(): array {
 		return Builder::widget(
 			'loop-grid',
 			array(
-				'template_id'                      => (string) Templates::id( 'project-card' ),
-				'columns'                          => '2',
-				'columns_tablet'                   => '2',
-				'columns_mobile'                   => '1',
-				'posts_per_page'                   => self::PER_PAGE,
-				'post_query_post_type'             => 'current_query',
-				'alternate_template'               => 'yes',
-				'alternate_templates'              => array(
-					array(
-						'_id'             => Builder::id(),
-						'template_id'     => (string) Templates::id( 'project-card-wide' ),
-						'repeat_template' => 3,
-						'show_once'       => '',
-						'column_span'     => '2',
-					),
-				),
-				'pagination_type'                  => 'load_more_on_click',
-				'pagination_load_type'             => 'ajax',
-				'text'                             => 'Load more',
-				'load_more_button_align'           => 'center',
+				'template_id'                         => (string) Templates::id( 'project-card' ),
+				'columns'                             => '2',
+				'columns_tablet'                      => '2',
+				'columns_mobile'                      => '1',
+				'posts_per_page'                      => self::PER_PAGE,
+				'post_query_post_type'                => 'current_query',
+				'pagination_type'                     => 'load_more_on_click',
+				'pagination_load_type'                => 'ajax',
+				'text'                                => 'Load more',
+				'load_more_button_align'              => 'center',
 				'load_more_no_posts_message_switcher' => 'yes',
-				'load_more_no_posts_custom_message' => 'That is every project in this selection.',
-				'column_gap'                       => Builder::size( 'var(--forma-gutter)', 'custom' ),
-				'row_gap'                          => Builder::size( 'clamp(48px, 7vw, 104px)', 'custom' ),
-				'custom_css'                       => <<<'CSS'
-				/*
-				 * From 768px the right-hand card of each pair drops a little, so the two columns do not line up like
-				 * a catalogue. The wide card on every third place spans both columns, which resets the rhythm.
-				 */
-				@media (min-width: 768px) {
-					selector .elementor-loop-container > div:nth-of-type(3n+2) {
-						margin-top: clamp(32px, 8vw, 120px);
+				'load_more_no_posts_custom_message'   => 'That is every project in this selection.',
+				'column_gap'                          => Builder::size( 16 ),
+				'row_gap'                             => Builder::size( 16 ),
+				// The Kit's pill has Ink fill and Paper text, but the Loop Grid does not pick the text colour up.
+				'__globals__'                         => array(
+					'button_text_color'            => Style::color( 'page' ),
+					'button_background_hover_color' => Style::color( 'accent' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * The stage: a rounded Panel, sticky from 1024px (96px from the top, under the floating header) beside the grid, whose
+	 * study model swaps to the project card under the pointer or the keyboard (the cards carry the swap in the project-card
+	 * component). It is left out below 1024px, where there is no pointer to drive it.
+	 */
+	private function stage(): array {
+		$newest = get_posts(
+			array(
+				'post_type'      => Projects::POST_TYPE,
+				'post_status'    => 'publish',
+				'posts_per_page' => 1,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			)
+		);
+
+		return Style::cell(
+			array(
+				Builder::widget(
+					'forma-study-model',
+					array(
+						'source'      => 'project',
+						'project'      => (string) ( $newest[0] ?? 0 ),
+						'camera'      => 'three-quarter',
+						'view_height' => Builder::size( 60, 'vh' ),
+						'drag'        => 'yes',
+						'swap'        => 'hover',
+					)
+				),
+			),
+			33.333,
+			100,
+			100,
+			array(
+				'css_classes'           => 'forma-archive-stage',
+				'background_background' => 'classic',
+				'border_radius'         => Builder::box( 'var(--forma-r-panel)', null, null, null, 'custom' ),
+				'overflow'              => 'hidden',
+				'__globals__'           => array( 'background_color' => Style::color( 'raised' ) ),
+				'custom_css'            => <<<'CSS'
+				@media (min-width: 1024px) {
+					selector {
+						position: sticky;
+						top: 96px;
+						align-self: flex-start;
+					}
+				}
+				@media (max-width: 1023px) {
+					selector {
+						display: none;
 					}
 				}
 				CSS,

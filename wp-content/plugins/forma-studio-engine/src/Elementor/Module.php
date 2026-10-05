@@ -63,5 +63,6 @@ final class Module implements ModuleContract {
 	public function tags( \Elementor\Core\DynamicTags\Manager $tags ): void {
 		$tags->register_group( self::CATEGORY, array( 'title' => __( 'Forma', 'forma-studio-engine' ) ) );
 		$tags->register( new Tags\ProjectNumber() );
+		$tags->register( new Tags\ProjectCount() );
 	}
 }

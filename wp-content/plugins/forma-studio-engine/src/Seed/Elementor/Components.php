@@ -305,6 +305,31 @@ final class Components {
 				aspect-ratio: {$mobile_ratio};
 			}
 		}
+		/*
+		 * No photograph yet: Elementor leaves the image widget out of the page altogether, so the media frame holds only
+		 * the excerpt. It becomes a quiet block (a tint of the text colour, which reads on a Panel tile and on an Ink tile
+		 * alike) with the chip "Study model" in its middle.
+		 */
+		selector .forma-card__media:not(:has(img)) {
+			aspect-ratio: {$ratio};
+			background-color: rgba(20, 20, 20, 0.06);
+			background-color: color-mix(in srgb, var(--forma-ink) 7%, transparent);
+			display: grid;
+			place-items: center;
+		}
+		selector .forma-card__media:not(:has(img))::after {
+			background-color: var(--forma-chip);
+			border-radius: 999px;
+			color: var(--forma-chip-ink);
+			content: "Study model";
+			font: 600 11px/1 var(--forma-font-sans);
+			padding: 5px 10px;
+		}
+		@media (max-width: 767px) {
+			selector .forma-card__media:not(:has(img)) {
+				aspect-ratio: {$mobile_ratio};
+			}
+		}
 		selector .forma-card__excerpt {
 			position: absolute;
 			inset: auto 10px 10px;
