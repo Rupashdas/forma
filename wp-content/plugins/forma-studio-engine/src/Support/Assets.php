@@ -13,6 +13,9 @@ final class Assets {
 
 	public const GSAP_VERSION = '3.15.0';
 
+	/** Version of the vendored Lenis build in assets/vendor/lenis/ (MIT, UMD, global `Lenis`). */
+	public const LENIS_VERSION = '1.3.26';
+
 	/** Vendor handle => [file in assets/vendor/gsap/, dependencies]. */
 	private const VENDOR = array(
 		'forma-gsap'          => array( 'gsap.min.js', array() ),
@@ -27,10 +30,11 @@ final class Assets {
 		'scroll-story'  => array( 'forma-gsap', 'forma-scrolltrigger' ),
 		'project-index' => array(),
 		'before-after'  => array(),
+		'smooth-scroll' => array( 'forma-lenis', 'forma-gsap', 'forma-scrolltrigger' ),
 	);
 
 	/** Plugin stylesheet names. */
-	private const STYLES = array( 'motion', 'cursor', 'scroll-story', 'project-index', 'before-after', 'marquee', 'next-project' );
+	private const STYLES = array( 'motion', 'cursor', 'scroll-story', 'project-index', 'before-after', 'marquee', 'next-project', 'smooth-scroll' );
 
 	public static function register(): void {
 		add_action( 'wp_enqueue_scripts', array( self::class, 'register_assets' ), 5 );
@@ -46,6 +50,8 @@ final class Assets {
 		foreach ( self::VENDOR as $handle => [ $file, $deps ] ) {
 			wp_register_script( $handle, FORMA_ENGINE_URL . 'assets/vendor/gsap/' . $file, $deps, self::GSAP_VERSION, self::footer() );
 		}
+
+		wp_register_script( 'forma-lenis', FORMA_ENGINE_URL . 'assets/vendor/lenis/lenis.min.js', array(), self::LENIS_VERSION, self::footer() );
 
 		foreach ( self::SCRIPTS as $name => $deps ) {
 			wp_register_script( "forma-{$name}", FORMA_ENGINE_URL . "assets/js/{$name}.js", $deps, self::version( "assets/js/{$name}.js" ), self::footer() );

@@ -16,6 +16,32 @@
 	will-change: clip-path;
 }
 
+/*
+ * Horizontal scroll: the strip is one row, as wide as its items. From 1024px motion.js pins the section and slides the
+ * row; everywhere else (small screens, reduced motion, no JavaScript) it is a swipe row that snaps card by card.
+ */
+[data-fm-scroll="hscroll"] {
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x proximity;
+	scrollbar-width: none;
+}
+
+[data-fm-scroll="hscroll"]::-webkit-scrollbar {
+	display: none;
+}
+
+[data-fm-scroll="hscroll"] .elementor-loop-container {
+	display: flex;
+	flex-wrap: nowrap;
+	width: max-content;
+}
+
+[data-fm-scroll="hscroll"] .elementor-loop-container > div {
+	flex: none;
+	scroll-snap-align: start;
+}
+
 /* SplitText line masks must never clip the display face's descenders. */
 [data-fm-entrance] [class*="-mask"] {
 	padding-bottom: 0.08em;

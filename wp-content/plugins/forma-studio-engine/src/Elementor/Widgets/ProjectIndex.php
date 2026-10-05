@@ -85,6 +85,20 @@ final class ProjectIndex extends Base {
 			)
 		);
 
+		$this->add_control(
+			'preview',
+			array(
+				'label'       => esc_html__( 'Hover preview', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::SELECT,
+				'default'     => 'pointer',
+				'options'     => array(
+					'pointer' => esc_html__( 'Image follows the pointer', 'forma-studio-engine' ),
+					'none'    => esc_html__( 'None (a study model elsewhere on the page reacts instead)', 'forma-studio-engine' ),
+				),
+				'description' => esc_html__( 'With none, the pointer-following image is off and the thumbnails show only on touch screens.', 'forma-studio-engine' ),
+			)
+		);
+
 		foreach ( array(
 			'show_type'     => esc_html__( 'Show type', 'forma-studio-engine' ),
 			'show_location' => esc_html__( 'Show location', 'forma-studio-engine' ),
@@ -148,13 +162,30 @@ final class ProjectIndex extends Base {
 			return;
 		}
 
-		echo '<div class="forma-index"><ol class="forma-index__list">';
+		$preview = 'none' !== ( $settings['preview'] ?? 'pointer' );
+
+		// The grid reserves a column for each meta that is shown, so a list with fewer of them gives the title the room.
+		$metas  = count( array_filter( array( 'show_type', 'show_location', 'show_year' ), static fn( string $key ): bool => 'yes' === ( $settings[ $key ] ?? '' ) ) );
+		$narrow = $metas - ( 'yes' === ( $settings['show_location'] ?? '' ) ? 1 : 0 );
+
+		printf(
+			'<div class="forma-index%s" style="--forma-index-metas:%d;--forma-index-metas-narrow:%d"><ol class="forma-index__list">',
+			$preview ? '' : ' forma-index--no-preview',
+			max( 1, $metas ),
+			max( 1, $narrow )
+		);
 
 		foreach ( $projects as $project ) {
 			$this->row( $project, $settings );
 		}
 
-		echo '</ol><div class="forma-index__preview" aria-hidden="true"><img alt="" decoding="async"></div></div>';
+		echo '</ol>';
+
+		if ( $preview ) {
+			echo '<div class="forma-index__preview" aria-hidden="true"><img alt="" decoding="async"></div>';
+		}
+
+		echo '</div>';
 	}
 
 	private function row( \WP_Post $project, array $settings ): void {
@@ -171,9 +202,10 @@ final class ProjectIndex extends Base {
 		);
 
 		printf(
-			'<li class="forma-index__row"><a class="forma-index__link" href="%s" data-cursor="%s"><span class="forma-index__no">%s</span><span class="forma-index__title">%s</span><span class="forma-index__metas">',
+			'<li class="forma-index__row"><a class="forma-index__link" href="%s" data-cursor="%s" data-model-swap="%d"><span class="forma-index__no">%s</span><span class="forma-index__title">%s</span><span class="forma-index__metas">',
 			esc_url( get_permalink( $project ) ),
 			esc_attr__( 'View', 'forma-studio-engine' ),
+			(int) $project->ID,
 			esc_html( ProjectNumber::for_post( $project->ID ) ),
 			esc_html( get_the_title( $project ) )
 		);

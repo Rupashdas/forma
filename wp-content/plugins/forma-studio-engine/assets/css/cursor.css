@@ -1,4 +1,7 @@
-/* FORMA — cursor. An 8px Brass dot that grows to an 88px labelled disc; never intercepts the pointer. */
+/*
+ * FORMA — cursor. An 8px Signal blue dot that grows to an 88px labelled disc, or into a 240 x 300 image preview over
+ * an element with a cursor image; it never intercepts the pointer.
+ */
 
 .forma-cursor {
 	display: grid;
@@ -16,13 +19,13 @@
 }
 
 .forma-cursor::before {
-	background-color: var(--forma-accent, #7d5c1d);
+	background-color: var(--forma-accent, #2b3bff);
 	border-radius: 50%;
 	content: "";
 	inset: 0;
 	position: absolute;
 	transform: scale(0.09);
-	transition: transform 0.45s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+	transition: transform 0.45s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1)), opacity 0.25s;
 }
 
 .forma-cursor.is-visible {
@@ -34,10 +37,9 @@
 }
 
 .forma-cursor span {
-	color: var(--forma-page, #f2efe8);
+	color: #fff;
 	font-family: var(--forma-font-sans, "Archivo", sans-serif);
-	font-size: 11px;
-	font-stretch: 125%;
+	font-size: 12px;
 	font-weight: 500;
 	letter-spacing: 0.01em;
 	line-height: 1;
@@ -52,9 +54,45 @@
 	transform: none;
 }
 
+/* The image preview: the disc gives way to a rounded picture, centred on the pointer and cropped to fit. */
+.forma-cursor__image {
+	background-color: var(--forma-raised, #e9e8e3);
+	background-position: center;
+	background-size: cover;
+	border-radius: var(--forma-r-img, 12px);
+	height: 300px;
+	left: 50%;
+	margin: -150px 0 0 -120px;
+	opacity: 0;
+	position: absolute;
+	top: 50%;
+	transform: scale(0.3);
+	transition: opacity 0.3s, transform 0.5s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+	width: 240px;
+}
+
+.forma-cursor.is-image .forma-cursor__image {
+	opacity: 1;
+	transform: none;
+}
+
+.forma-cursor.is-image::before,
+.forma-cursor.is-image span {
+	opacity: 0;
+}
+
+/*
+ * Magnetic elements lean with JavaScript (cursor.js moves the `translate` property each frame), so a stylesheet
+ * transition on `translate` would fight it. Their own transitions stay for everything else.
+ */
+.forma-magnet {
+	transition-property: color, background-color, border-color, box-shadow, opacity, text-decoration-color !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.forma-cursor::before,
-	.forma-cursor span {
+	.forma-cursor span,
+	.forma-cursor__image {
 		transition: none;
 	}
 }

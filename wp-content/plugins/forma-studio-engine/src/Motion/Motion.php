@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 final class Motion implements Module {
 
 	private const ENTRANCES = array( 'fade-up', 'lines', 'words', 'chars', 'clip-up', 'clip-left', 'scale-in' );
-	private const SCROLLS   = array( 'parallax', 'expand' );
+	private const SCROLLS   = array( 'parallax', 'expand', 'hscroll' );
 
 	public static function id(): string {
 		return 'motion';
@@ -81,7 +81,9 @@ final class Motion implements Module {
 					''         => esc_html__( 'Nothing', 'forma-studio-engine' ),
 					'parallax' => esc_html__( 'Parallax', 'forma-studio-engine' ),
 					'expand'   => esc_html__( 'Expand to full bleed', 'forma-studio-engine' ),
+					'hscroll'  => esc_html__( 'Horizontal scroll (pins the section)', 'forma-studio-engine' ),
 				),
+				'description' => esc_html__( 'Horizontal scroll: put it on a Loop Grid (or any row wider than its container). From 1024px the section pins and the row slides sideways as you scroll; on smaller screens it is a swipe row.', 'forma-studio-engine' ),
 			)
 		);
 

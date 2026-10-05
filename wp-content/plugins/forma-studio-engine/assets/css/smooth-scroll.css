@@ -1,0 +1,24 @@
+/* FORMA — smooth scroll. The few rules Lenis needs (its own stylesheet, trimmed to what the site uses). */
+
+html.lenis,
+html.lenis body {
+	height: auto;
+}
+
+.lenis.lenis-smooth {
+	scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+	overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch] {
+	overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+	pointer-events: none;
+}

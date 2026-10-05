@@ -129,6 +129,62 @@
 		} );
 	} );
 
+	// Horizontal scroll is a wide-screen effect too: from 1024px the closest top-level container (the band the strip
+	// sits in) pins while the strip slides sideways, one screen of travel per scroll of its overflow. Below that, and
+	// under reduced motion (where this file stops above), the strip is the swipe row that motion.css makes it.
+	gsap.matchMedia().add( '(min-width: 1024px)', () => {
+		const restore = [];
+
+		document.querySelectorAll( '[data-fm-scroll="hscroll"]' ).forEach( ( el ) => {
+			const track = el.querySelector( '.elementor-loop-container' ) || el;
+			const pin = el.closest( '.e-con.e-parent' ) || el;
+			// The element that clips the strip: the widget itself, or (when the widget is the strip) its parent.
+			const clip = track === el ? el.parentElement : el;
+
+			if ( ! clip ) {
+				return;
+			}
+
+			const style = clip.style;
+			const was = { overflow: style.overflow, snap: style.scrollSnapType };
+
+			style.overflow = 'hidden';
+			style.scrollSnapType = 'none';
+			clip.scrollLeft = 0;
+
+			if ( track === el ) {
+				// The strip is the widget itself and slides inside its clipping parent.
+				el.style.overflow = 'visible';
+			}
+
+			restore.push( () => {
+				style.overflow = was.overflow;
+				style.scrollSnapType = was.snap;
+				el.style.overflow = '';
+			} );
+
+			const distance = () => Math.max( 1, track.scrollWidth - clip.clientWidth );
+			// Pinned where it sits, so the band keeps the gap above it that the other panels have.
+			const gap = parseFloat( window.getComputedStyle( pin ).marginTop ) || 0;
+
+			gsap.to( track, {
+				x: () => -distance(),
+				ease: 'none',
+				scrollTrigger: {
+					trigger: pin,
+					start: `top ${ gap }px`,
+					end: () => `+=${ distance() }`,
+					pin: true,
+					scrub: true,
+					anticipatePin: 1,
+					invalidateOnRefresh: true,
+				},
+			} );
+		} );
+
+		return () => restore.forEach( ( undo ) => undo() );
+	} );
+
 	const refresh = () => ScrollTrigger.refresh();
 
 	if ( document.fonts && document.fonts.ready ) {
