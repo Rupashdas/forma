@@ -14,11 +14,18 @@
 		return;
 	}
 
+	var holder = pill.closest( '.forma-stage-pill' );
+
 	var show = function ( stage ) {
 		var title = cards[ stage - 1 ];
 
 		if ( title ) {
 			pill.textContent = 'Stage ' + stage + ' of ' + cards.length + ', ' + title.textContent.trim();
+
+			// The pill stays hidden until the model reports a stage, so a page that cannot draw the model never shows a stale one.
+			if ( holder ) {
+				holder.classList.add( 'is-live' );
+			}
 		}
 	};
 

@@ -126,6 +126,10 @@ final class Process extends Page {
 					left: 0;
 					z-index: 2;
 				}
+				/* process.js shows it once the model reports a stage; with no model drawn there is no stage to read. */
+				selector:not(.is-live) {
+					visibility: hidden;
+				}
 				@media (min-width: 1024px) {
 					selector {
 						top: auto;
