@@ -251,6 +251,20 @@ final class StudyModel extends Base {
 			)
 		);
 
+		$this->add_control(
+			'distance',
+			array(
+				'label'       => esc_html__( 'Camera distance', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::NUMBER,
+				'min'         => 0.3,
+				'max'         => 3,
+				'step'        => 0.05,
+				'placeholder' => '1',
+				'description' => esc_html__( 'A multiplier of the camera preset\'s distance: above 1 pulls the camera back for a large model, below 1 brings it closer.', 'forma-studio-engine' ),
+				'condition'   => array( 'source' => 'custom' ),
+			)
+		);
+
 		$this->add_responsive_control(
 			'view_height',
 			array(
@@ -448,12 +462,14 @@ final class StudyModel extends Base {
 		$source = (string) ( $settings['source'] ?? 'current' );
 
 		if ( 'custom' === $source ) {
-			$volumes = Models::normalise( (array) ( $settings['volumes'] ?? array() ) );
+			$volumes  = Models::normalise( (array) ( $settings['volumes'] ?? array() ) );
+			$distance = is_numeric( $settings['distance'] ?? null ) ? (float) $settings['distance'] : 0.0;
 
 			return $volumes ? array(
-				'id'      => 'custom',
-				'title'   => __( 'the building', 'forma-studio-engine' ),
-				'volumes' => $volumes,
+				'id'       => 'custom',
+				'title'    => Projects::POST_TYPE === get_post_type() ? get_the_title() : __( 'the building', 'forma-studio-engine' ),
+				'volumes'  => $volumes,
+				'distance' => $distance > 0 ? Models::distance( $distance ) : null,
 			) : null;
 		}
 

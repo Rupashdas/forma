@@ -112,10 +112,15 @@ final class Models {
 			return null;
 		}
 
-		$volumes = self::custom_volumes( $post_id );
+		$custom  = self::custom_model( $post_id );
+		$volumes = $custom['volumes'];
 		$camera  = array();
 
-		if ( ! $volumes ) {
+		if ( $volumes ) {
+			if ( $custom['distance'] > 0 ) {
+				$camera = array( 'distance' => self::distance( $custom['distance'] ) );
+			}
+		} else {
 			$recipe  = self::recipe( $post->post_name );
 			$volumes = $recipe['volumes'] ?? array();
 			$camera  = $recipe['camera'] ?? array();
@@ -204,11 +209,16 @@ final class Models {
 	}
 
 	/**
-	 * Volumes from the project's own study-model widget (source "custom"), found by walking its Elementor data.
+	 * The project's own model: the volumes and the camera distance of its study-model widget (source "custom"), found
+	 * by walking its Elementor data. The volumes are empty when the project has no such widget.
 	 *
-	 * @return list<array>
+	 * @return array{volumes: list<array>, distance: float}
 	 */
-	private static function custom_volumes( int $post_id ): array {
+	private static function custom_model( int $post_id ): array {
+		$none = array(
+			'volumes'  => array(),
+			'distance' => 0.0,
+		);
 		$data = get_post_meta( $post_id, '_elementor_data', true );
 
 		if ( is_string( $data ) && '' !== $data ) {
@@ -216,12 +226,24 @@ final class Models {
 		}
 
 		if ( ! is_array( $data ) ) {
-			return array();
+			return $none;
 		}
 
 		$settings = self::find_widget( $data );
 
-		return $settings ? self::normalise( (array) ( $settings['volumes'] ?? array() ) ) : array();
+		if ( ! $settings ) {
+			return $none;
+		}
+
+		return array(
+			'volumes'  => self::normalise( (array) ( $settings['volumes'] ?? array() ) ),
+			'distance' => is_numeric( $settings['distance'] ?? null ) ? (float) $settings['distance'] : 0.0,
+		);
+	}
+
+	/** A camera distance multiplier, held to the range the runtime frames well. */
+	public static function distance( float $value ): float {
+		return round( min( 3, max( 0.3, $value ) ), 3 );
 	}
 
 	/**

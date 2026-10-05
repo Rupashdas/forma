@@ -2,6 +2,7 @@
 
 namespace Forma\Engine\Seed\Elementor;
 
+use Forma\Engine\Model\Models;
 use Forma\Engine\Seed\Content;
 use Forma\Engine\Seed\Drawings;
 use Forma\Engine\Seed\Images;
@@ -9,42 +10,42 @@ use Forma\Engine\Seed\Images;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The Elementor body of every project (spec 7.3), saved into the project post and shown through the Single template's
- * Post Content widget. Each body is assembled from eight kinds of section, ordered and varied by the project's layout
- * (a, b or c in data/projects.php) so that projects do not repeat:
+ * The Elementor body of every project (spec 4.1, 5.2), saved into the project post and shown through the Single
+ * template's Post Content widget. Each body is assembled from nine kinds of section, the first two always first and the
+ * last always last; the project's layout (a, b or c in data/projects.php) orders the ones between, so that projects do
+ * not repeat:
  *
- *   facts      Client, Area, Status, Team and Photography in a hairline table.
+ *   model      An inset Panel with the project's study model: its recipe, written into the widget's volumes so the model
+ *              is editable in Elementor, and found again by {@see Models::for_project()} from there.
+ *   facts      Client, Area, Status, Team and Photography as label and value pairs, in a grid.
  *   narrative  The site and The idea in two columns.
- *   full       One photograph edge to edge, drifting as it scrolls: the only full-width band of the body.
+ *   band       One landscape photograph in an inset rounded panel, drifting as it scrolls.
  *   pair       Two photographs, offset.
  *   quote      A pull quote.
  *   gallery    The project's photographs as a justified Pro Gallery with a lightbox.
  *   compare    Drawing / Built, on the projects that have a drawing.
- *   result     The result and, where there is one, the recognition line.
+ *   result     The result and, where there is one, the recognition as a chip.
+ *
+ * Text, grids and the model sit in the boxed 1320px column; only the model Panel and the photograph band run on to the
+ * viewport's inset.
  *
  * Photographs are found by name (`{slug}-02.jpg` to `-06.jpg`; 01 is the featured image the Single template shows), so
- * a project whose photographs are not imported yet gets a complete text-only body, and rerunning the build after
- * `wp forma images` picks them up. A section that needs photographs is left out when there are too few, never shown
- * empty. Pictures are chosen by shape: the widest for the full-width section, a portrait and a landscape for the pair.
+ * a project whose photographs are not imported yet gets a complete text-only body (model, facts, narrative, quote and
+ * result), and rerunning the build after `wp forma images` picks them up. A section that needs photographs is left out
+ * when there are too few, never shown empty. Pictures are chosen by shape: the widest for the band, a portrait and a
+ * landscape for the pair.
  */
 final class ProjectBodies {
 
 	/** Section order per layout variant. Sections that need missing photographs or a drawing are dropped. */
 	private const LAYOUTS = array(
-		'a' => array( 'facts', 'narrative', 'full', 'pair', 'quote', 'gallery', 'compare', 'result' ),
-		'b' => array( 'facts', 'pair', 'narrative', 'full', 'compare', 'quote', 'gallery', 'result' ),
-		'c' => array( 'facts', 'narrative', 'quote', 'gallery', 'full', 'pair', 'compare', 'result' ),
+		'a' => array( 'model', 'facts', 'narrative', 'band', 'pair', 'quote', 'gallery', 'compare', 'result' ),
+		'b' => array( 'model', 'facts', 'pair', 'narrative', 'band', 'compare', 'quote', 'gallery', 'result' ),
+		'c' => array( 'model', 'facts', 'narrative', 'quote', 'gallery', 'band', 'pair', 'compare', 'result' ),
 	);
 
-	/** Which surface the pull quote sits on, per layout. A body with no photographs always gets the bottle green. */
-	private const QUOTE_SURFACE = array(
-		'a' => 'page',
-		'b' => 'raised',
-		'c' => 'deep',
-	);
-
-	/** Vertical padding of a section on the page surface; bands use the full section padding. */
-	private const MID = 'clamp(48px, 7vw, 112px)';
+	/** Vertical padding of a boxed section. */
+	private const MID = 'clamp(32px, 4.4vw, 72px)';
 
 	/** Photographs below this width-to-height ratio count as portrait. */
 	private const PORTRAIT = 0.9;
@@ -136,9 +137,10 @@ final class ProjectBodies {
 
 		foreach ( self::LAYOUTS[ $project['layout'] ] as $section ) {
 			$built = match ( $section ) {
+				'model'     => $this->model( $ctx ),
 				'facts'     => $this->facts( $ctx ),
 				'narrative' => $this->narrative( $ctx ),
-				'full'      => $ctx['full'] ? $this->full( $ctx ) : null,
+				'band'      => $ctx['full'] ? $this->band( $ctx ) : null,
 				'pair'      => $ctx['pair'] ? $this->pair( $ctx ) : null,
 				'quote'     => $this->quote( $ctx ),
 				'gallery'   => count( $ctx['photos'] ) >= 3 ? $this->gallery( $ctx ) : null,
@@ -198,7 +200,7 @@ final class ProjectBodies {
 		$full   = null;
 		$pair   = array();
 
-		// The widest picture goes across the page (unless there are exactly two, which make the pair); the pair is the
+		// The widest picture goes in the band (unless there are exactly two, which make the pair); the pair is the
 		// narrowest and the widest of what is left.
 		if ( $pool && 2 !== count( $pool ) ) {
 			$full = $this->take( $pool, true );
@@ -220,7 +222,6 @@ final class ProjectBodies {
 			'drawing' => $drawing,
 			'built'   => (int) get_post_thumbnail_id( $post_id ),
 			'credit'  => $this->credit( $slug ),
-			'surface' => $photos ? self::QUOTE_SURFACE[ $project['layout'] ] : 'deep',
 		);
 	}
 
@@ -244,7 +245,7 @@ final class ProjectBodies {
 		return $photo;
 	}
 
-	/** The photographers of the project's pictures, for the facts table: one or two names, or "and others". */
+	/** The photographers of the project's pictures, for the facts: one or two names, or "and others". */
 	private function credit( string $slug ): string {
 		$names = array();
 
@@ -263,9 +264,9 @@ final class ProjectBodies {
 		$names = array_keys( $names );
 
 		return match ( true ) {
-			! $names          => 'To follow',
+			! $names            => 'To follow',
 			count( $names ) > 2 => $names[0] . ', ' . $names[1] . ' and others',
-			default           => implode( ' and ', $names ),
+			default             => implode( ' and ', $names ),
 		};
 	}
 
@@ -274,48 +275,112 @@ final class ProjectBodies {
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Client, Area, Status, Team and Photography as a hairline table: five across on desktop, three by two on tablet,
-	 * two by three on mobile (the last cell takes the full row).
+	 * The model: an inset Panel. From 1024px the heading and a line of copy sit in a narrow column at the left of the
+	 * boxed 1320px column and the study model fills the rest; below that they stack. The model is the project's recipe,
+	 * written into the widget's volumes (source "custom") so it can be edited in Elementor, with the recipe's camera
+	 * distance; it can be turned, turned with the arrow keys, opened up (Exploded view) and shows its parts' labels.
 	 */
-	private function facts( array $ctx ): array {
-		$facts = $ctx['project']['facts'] + array( 'Photography' => $ctx['credit'] );
-		$last  = count( $facts ) - 1;
-		$cells = array();
-		$index = 0;
+	private function model( array $ctx ): array {
+		$slug   = $ctx['project']['slug'];
+		$recipe = Models::recipe( $slug );
 
-		foreach ( $facts as $label => $value ) {
-			$cells[] = Style::cell(
-				array(
-					Style::label( $label ),
-					Style::text( '<p>' . esc_html( $value ) . '</p>', 'body', 'ink', array( 'custom_css' => 'selector p { margin: 0; }' ) ),
-				),
-				100 / count( $facts ),
-				100 / 3,
-				$index === $last ? 100 : 50,
-				array(
-					'flex_gap'       => Builder::gap( 8 ),
-					'padding'        => Builder::box( 22, 24, 26, 0 === $index ? 0 : 24 ),
-					'padding_tablet' => Builder::box( 18, 20, 22, 0 ),
-					'border_border'  => 'solid',
-					'border_width'   => Builder::box( 0, 0, 0, 0 === $index ? 0 : 1 ),
-					// Once the cells wrap there are no vertical rules, only a hairline above each cell.
-					'border_width_tablet' => Builder::box( 1, 0, 0, 0 ),
-					'__globals__'    => array( 'border_color' => Style::color( 'line' ) ),
-				)
-			);
-			++$index;
+		if ( ! $recipe ) {
+			throw new \RuntimeException( esc_html( "There is no model recipe for '{$slug}' in data/models.php." ) );
+		}
+
+		$volumes = array();
+
+		foreach ( $recipe['volumes'] as $volume ) {
+			$volumes[] = array( '_id' => Builder::id() ) + $volume;
+		}
+
+		$settings = array(
+			'source'             => 'custom',
+			'volumes'            => $volumes,
+			'camera'             => 'three-quarter',
+			'view_height'        => Builder::size( 70, 'vh' ),
+			'view_height_tablet' => Builder::size( 52, 'vh' ),
+			'view_height_mobile' => Builder::size( 46, 'vh' ),
+			'drag'               => 'yes',
+			'keyboard'           => 'yes',
+			'explode_toggle'     => 'yes',
+			'callouts'           => 'yes',
+		);
+
+		if ( ! empty( $recipe['camera']['distance'] ) ) {
+			$settings['distance'] = $recipe['camera']['distance'];
 		}
 
 		return Style::section(
 			array(
 				Style::row(
-					$cells,
 					array(
-						'border_border'       => 'solid',
-						'border_width'        => Builder::box( 1, 0, 1, 0 ),
-						'border_width_tablet' => Builder::box( 0, 0, 1, 0 ),
-						'__globals__'         => array( 'border_color' => Style::color( 'line' ) ),
+						Style::cell(
+							array(
+								Style::heading( 'The model', 'heading', 'h2' ),
+								Style::text(
+									'<p>A study model of the scheme. Turn it, or open it up to see how it&#8217;s made.</p>',
+									'body',
+									'muted',
+									array( 'custom_css' => 'selector p { max-width: 30ch; margin: 0; }' )
+								),
+							),
+							30,
+							100,
+							100,
+							array( 'flex_gap' => Builder::gap( 14 ) )
+						),
+						Style::cell( array( Builder::widget( 'forma-study-model', $settings ) ), 70, 100, 100 ),
+					),
+					array(
+						'flex_wrap'             => 'nowrap',
+						'flex_align_items'      => 'center',
+						'flex_direction_tablet' => 'column',
+						'flex_align_items_tablet' => 'stretch',
+						'flex_gap'              => Builder::gap( 'clamp(20px, 3vw, 48px)', null, 'custom' ),
 					)
+				),
+			),
+			'raised',
+			array(
+				'padding' => Builder::box( 'clamp(32px, 4vw, 64px)', Style::PANEL_GUTTER, 'clamp(16px, 2vw, 32px)', Style::PANEL_GUTTER, 'custom' ),
+			)
+		);
+	}
+
+	/**
+	 * Client, Area, Status, Team and Photography as a label (Graphite) over its value (Body), in a grid container: five
+	 * columns on desktop, three on tablet, two on mobile. No rules; the rows are set apart by space alone.
+	 */
+	private function facts( array $ctx ): array {
+		$facts = $ctx['project']['facts'] + array( 'Photography' => $ctx['credit'] );
+		$cells = array();
+
+		foreach ( $facts as $label => $value ) {
+			$cells[] = Style::stack(
+				array(
+					Style::label( $label ),
+					Style::text( '<p>' . esc_html( $value ) . '</p>', 'body', 'ink', array( 'custom_css' => 'selector p { margin: 0; }' ) ),
+				),
+				array( 'flex_gap' => Builder::gap( 6 ) )
+			);
+		}
+
+		return Style::section(
+			array(
+				Builder::container(
+					array(
+						'content_width'            => 'full',
+						'container_type'           => 'grid',
+						'grid_columns_grid'        => $this->fr( 5 ),
+						'grid_columns_grid_tablet' => $this->fr( 3 ),
+						'grid_columns_grid_mobile' => $this->fr( 2 ),
+						'grid_gaps'                => Builder::gap( 'clamp(24px, 3vw, 40px)', 'clamp(16px, 2.4vw, 32px)', 'custom' ),
+						// The control only offers equal rows (repeat(n, 1fr)); here each row is as tall as its own cells.
+						'custom_css'               => 'selector { --e-con-grid-template-rows: auto; }',
+					),
+					$cells,
+					true
 				),
 			),
 			'page',
@@ -359,26 +424,26 @@ final class ProjectBodies {
 		);
 	}
 
-	/** One narrative column: a heading and the paragraph. */
+	/** One narrative column: a Subheading and the paragraph. */
 	private function column( string $label, string $text, int $width, array $extra ): array {
 		return Style::cell(
 			array(
-				Style::serif( $label, 'clamp(32px, 3.6vw, 56px)', 'h2' ),
-				Style::text( '<p>' . esc_html( $text ) . '</p>', 'body', 'ink', array( 'custom_css' => 'selector { max-width: 54ch; }' ) ),
+				Style::heading( $label, 'subheading', 'h2' ),
+				Style::text( '<p>' . esc_html( $text ) . '</p>', 'body', 'ink', array( 'custom_css' => 'selector p { max-width: 54ch; margin: 0; }' ) ),
 			),
 			$width,
 			$width,
 			100,
-			array( 'flex_gap' => Builder::gap( 18 ) ) + $extra
+			array( 'flex_gap' => Builder::gap( 14 ) ) + $extra
 		);
 	}
 
 	/**
-	 * One photograph edge to edge, drifting as the page scrolls: the body's only full-width band. The frame crops at a
-	 * fixed ratio so the drift never shows an edge: wide for a landscape photograph, 16:9 for a portrait. The caption
-	 * sits below it inside the gutter.
+	 * One landscape photograph in an inset rounded panel, running the width of the page inside the inset, drifting as the
+	 * page scrolls (depth 8). The panel clips the drift and the frame crops at a fixed ratio, so the drift never shows
+	 * an edge: 21:9 on desktop, 3:2 on tablet, 4:5 on mobile.
 	 */
-	private function full( array $ctx ): array {
+	private function band( array $ctx ): array {
 		$photo = $ctx['full'];
 
 		return Style::section(
@@ -390,19 +455,15 @@ final class ProjectBodies {
 						'image_size' => 'full',
 						'width'      => Builder::size( 100, '%' ),
 						'fm_scroll'  => 'parallax',
-						'fm_speed'   => 10,
-						'custom_css' => $this->frame_css( $photo['ratio'] >= 1.15 ? array( '21 / 9', '16 / 9', '4 / 3' ) : array( '16 / 9', '4 / 3', '4 / 5' ) ),
+						'fm_speed'   => 8,
+						'custom_css' => $this->frame_css( $photo['ratio'] >= 1.15 ? array( '21 / 9', '3 / 2', '4 / 5' ) : array( '16 / 9', '4 / 3', '4 / 5' ), false ),
 					)
 				),
-				Style::stack(
-					array( $this->caption( $photo ) ),
-					array( 'padding' => Builder::box( 0, 'var(--forma-gutter)', 0, 'var(--forma-gutter)', 'custom' ) )
-				),
 			),
-			'page',
+			'raised',
 			array(
-				'padding'  => Builder::box( self::MID, 0, self::MID, 0, 'custom' ),
-				'flex_gap' => Builder::gap( 14 ),
+				'padding'     => Builder::box( 0 ),
+				'css_classes' => 'forma-band',
 			),
 			'full'
 		);
@@ -438,7 +499,7 @@ final class ProjectBodies {
 							'image'      => Builder::image( $photo['id'] ),
 							'image_size' => 'large',
 							'width'      => Builder::size( 100, '%' ),
-							'custom_css' => $this->frame_css( $portrait[ $index ] ? array( '4 / 5', '4 / 5', '4 / 5' ) : array( '3 / 2', '3 / 2', '3 / 2' ) ),
+							'custom_css' => $this->frame_css( $portrait[ $index ] ? array( '4 / 5', '4 / 5', '4 / 5' ) : array( '3 / 2', '3 / 2', '3 / 2' ), true ),
 						)
 					),
 					$this->caption( $photo ),
@@ -446,7 +507,7 @@ final class ProjectBodies {
 				$widths[ $index ],
 				$widths[ $index ],
 				100,
-				array( 'flex_gap' => Builder::gap( 14 ) ) + ( $dropped ? $drop : array() )
+				array( 'flex_gap' => Builder::gap( 12 ) ) + ( $dropped ? $drop : array() )
 			);
 		}
 
@@ -467,39 +528,34 @@ final class ProjectBodies {
 		);
 	}
 
-	/** A client's words in the display serif, italic, with the speaker below. */
+	/** A client's words in the Heading style (Archivo 500, upright), narrow, with the speaker in Meta below. */
 	private function quote( array $ctx ): array {
-		$quote   = $ctx['project']['quote'];
-		$surface = $ctx['surface'];
-		$padding = 'page' === $surface ? $this->pad( self::MID, self::MID ) : $this->pad( 'clamp(64px, 9vw, 144px)', 'clamp(64px, 9vw, 144px)' );
+		$quote = $ctx['project']['quote'];
 
 		return Style::section(
 			array(
 				Style::cell(
 					array(
 						Style::text(
-							'<p>“' . esc_html( $quote['text'] ) . '”</p>',
+							'<p>&#8220;' . esc_html( $quote['text'] ) . '&#8221;</p>',
 							'heading',
 							'ink',
-							array(
-								// The Heading global sets the face and size; the whole quote is set in the italic cut.
-								'custom_css' => 'selector { font-style: italic; max-width: 20em; } selector p { margin: 0; }',
-							)
+							array( 'custom_css' => 'selector p { max-width: 22em; margin: 0; }' )
 						),
-						Style::label( $quote['cite'] ),
+						Style::heading( $quote['cite'], 'meta', 'p', 'muted' ),
 					),
-					80,
+					66,
 					100,
 					100,
-					array( 'flex_gap' => Builder::gap( 'clamp(20px, 2.5vw, 32px)', null, 'custom' ) )
+					array( 'flex_gap' => Builder::gap( 'clamp(16px, 2vw, 24px)', null, 'custom' ) )
 				),
 			),
-			$surface,
-			array( 'padding' => $padding )
+			'page',
+			array( 'padding' => $this->pad( 'clamp(40px, 6vw, 96px)', 'clamp(40px, 6vw, 96px)' ) )
 		);
 	}
 
-	/** Every photograph in a justified Pro Gallery: hover captions, and a lightbox with the caption. */
+	/** Every photograph in a justified Pro Gallery: rounded 12px, captions over a dark veil on hover, and a lightbox. */
 	private function gallery( array $ctx ): array {
 		$items = array();
 
@@ -519,20 +575,23 @@ final class ProjectBodies {
 						'gallery'                       => $items,
 						'gallery_layout'                => 'justified',
 						'ideal_row_height'              => Builder::size( 340 ),
-						'gap'                           => Builder::size( 16 ),
+						'gap'                           => Builder::size( 12 ),
 						'link_to'                       => 'file',
 						'open_lightbox'                 => 'yes',
 						'thumbnail_image_size'          => 'forma-960',
+						'image_border_radius'           => Builder::size( 12 ),
 						'overlay_background'            => 'yes',
 						'overlay_title'                 => 'caption',
+						// Clear at rest, a dark veil with the caption on hover or focus.
 						'overlay_background_background' => 'classic',
-						'overlay_background_color'      => 'rgba(22, 25, 23, 0.5)',
+						'overlay_background_color'      => 'rgba(20, 20, 20, 0)',
+						'overlay_background_hover_color' => 'rgba(20, 20, 20, 0.5)',
 						'content_alignment'             => 'left',
 						'content_vertical_position'     => 'bottom',
 						'content_padding'               => Builder::size( 20 ),
 						'__globals__'                   => array(
-							'title_color'                       => Style::color( 'page' ),
-							'title_typography_typography'       => Style::font( 'meta' ),
+							'title_color'                 => Style::color( 'page' ),
+							'title_typography_typography' => Style::font( 'meta' ),
 						),
 					)
 				),
@@ -544,7 +603,8 @@ final class ProjectBodies {
 
 	/**
 	 * Drawing / Built: a short note on the left and the comparison on the right. The drawing is the line rendering
-	 * made from the built photograph; the widget reveals one over the other from a native range input.
+	 * made from the built photograph; the widget (rounded 18px, its labels as chips) reveals one over the other from a
+	 * native range input.
 	 */
 	private function compare( array $ctx ): array {
 		return Style::section(
@@ -553,18 +613,18 @@ final class ProjectBodies {
 					array(
 						Style::cell(
 							array(
-								Style::serif( 'Drawn, then built', 'clamp(32px, 3.6vw, 56px)', 'h2' ),
+								Style::heading( 'Drawn, then built', 'heading', 'h2' ),
 								Style::text(
 									'<p>Drag the handle, or use the arrow keys, to move from the line drawing to the finished building.</p>',
 									'body',
 									'muted',
-									array( 'custom_css' => 'selector { max-width: 32ch; } selector p { margin: 0; }' )
+									array( 'custom_css' => 'selector p { max-width: 32ch; margin: 0; }' )
 								),
 							),
 							28,
 							100,
 							100,
-							array( 'flex_gap' => Builder::gap( 18 ) )
+							array( 'flex_gap' => Builder::gap( 14 ) )
 						),
 						Style::cell(
 							array(
@@ -601,33 +661,30 @@ final class ProjectBodies {
 	}
 
 	/**
-	 * The result: its heading on the left, the text set large on the right, with the recognition line under it when
-	 * the project has one.
+	 * The result: its Subheading on the left and the text on the right, with the recognition under it as a chip when the
+	 * project has one.
 	 */
 	private function result( array $ctx ): array {
 		$project = $ctx['project'];
 		$body    = array(
 			Style::text(
 				'<p>' . esc_html( $project['result'] ) . '</p>',
-				'statement',
+				'body',
 				'ink',
-				array( 'custom_css' => 'selector { max-width: 32em; } selector p { margin: 0; }' )
+				array( 'custom_css' => 'selector p { max-width: 58ch; margin: 0; }' )
 			),
 		);
 
 		if ( '' !== trim( (string) $project['recognition'] ) ) {
 			$body[] = Style::row(
 				array(
-					Style::label( 'Recognition', 'accent' ),
-					Style::heading( $project['recognition'], 'subheading', 'p', 'ink' ),
+					Style::label( 'Recognition' ),
+					Style::chip( $project['recognition'] ),
 				),
 				array(
-					'flex_align_items'     => 'center',
-					'flex_gap'             => Builder::gap( 12, 32 ),
-					'padding'              => Builder::box( 20, 0, 0, 0 ),
-					'border_border'        => 'solid',
-					'border_width'         => Builder::box( 1, 0, 0, 0 ),
-					'__globals__'          => array( 'border_color' => Style::color( 'line' ) ),
+					'flex_wrap'        => 'wrap',
+					'flex_align_items' => 'center',
+					'flex_gap'         => Builder::gap( 10 ),
 				)
 			);
 		}
@@ -636,22 +693,20 @@ final class ProjectBodies {
 			array(
 				Style::row(
 					array(
-						Style::cell( array( Style::serif( $project['labels'][2], 'clamp(32px, 3.6vw, 56px)', 'h2' ) ), 24, 100, 100 ),
-						Style::cell( $body, 68, 100, 100, array( 'flex_gap' => Builder::gap( 'clamp(28px, 3.5vw, 48px)', null, 'custom' ) ) ),
+						Style::cell( array( Style::heading( $project['labels'][2], 'subheading', 'h2' ) ), 30, 100, 100 ),
+						Style::cell( $body, 62, 100, 100, array( 'flex_gap' => Builder::gap( 'clamp(20px, 2.4vw, 32px)', null, 'custom' ) ) ),
 					),
 					array(
 						'flex_wrap'               => 'nowrap',
 						'flex_justify_content'    => 'space-between',
-						'flex_gap'                => Builder::gap( 24 ),
+						'flex_gap'                => Builder::gap( 14 ),
 						'flex_direction_tablet'   => 'column',
 						'flex_align_items_tablet' => 'stretch',
 					)
 				),
 			),
 			'page',
-			array(
-				'padding' => $this->pad( self::MID, 'var(--forma-section)' ),
-			)
+			array( 'padding' => $this->pad( self::MID, 'clamp(56px, 7vw, 112px)' ) )
 		);
 	}
 
@@ -664,6 +719,15 @@ final class ProjectBodies {
 		return Builder::box( $top, 'var(--forma-gutter)', $bottom, 'var(--forma-gutter)', 'custom' );
 	}
 
+	/** A grid container's column count, as the `fr` slider stores it. */
+	private function fr( int $columns ): array {
+		return array(
+			'unit'  => 'fr',
+			'size'  => $columns,
+			'sizes' => array(),
+		);
+	}
+
 	/** The photograph's own caption ("The deck at the entrance"), in the Meta style under it. */
 	private function caption( array $photo ): array {
 		return Style::heading( esc_html( $photo['caption'] ), 'meta', 'p', 'muted' );
@@ -674,16 +738,18 @@ final class ProjectBodies {
 	 * parallax drift never shows an edge.
 	 *
 	 * @param string[] $ratios Aspect ratios for desktop, tablet and mobile, e.g. `21 / 9`.
+	 * @param bool     $round  Round the picture's corners (the image radius); the band's panel does its own.
 	 */
-	private function frame_css( array $ratios ): string {
+	private function frame_css( array $ratios, bool $round ): string {
 		[ $desktop, $tablet, $mobile ] = $ratios;
+		$radius                        = $round ? "\n\t\t\tborder-radius: var(--forma-r-img);" : '';
 
 		return <<<CSS
 		selector img {
 			display: block;
 			width: 100%;
 			aspect-ratio: {$desktop};
-			object-fit: cover;
+			object-fit: cover;{$radius}
 		}
 		@media (max-width: 1023px) {
 			selector img {

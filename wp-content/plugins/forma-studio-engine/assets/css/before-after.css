@@ -1,10 +1,14 @@
-/* FORMA — Drawing / Built. The revealed image is clipped to the range value, read from --forma-ba. */
+/*
+ * FORMA — Drawing / Built. The revealed image is clipped to the range value, read from --forma-ba. A rounded tile (the
+ * tile radius) with its two labels as chips.
+ */
 
 .forma-ba {
 	margin: 0;
 }
 
 .forma-ba__frame {
+	border-radius: var(--forma-r-tile, 18px);
 	overflow: hidden;
 	position: relative;
 }
@@ -36,23 +40,24 @@
 }
 
 .forma-ba__handle {
-	background-color: var(--forma-accent, #7d5c1d);
+	background-color: var(--forma-accent, #2b3bff);
 	bottom: 0;
 	left: var(--forma-ba, 50%);
+	margin-left: -1px;
 	pointer-events: none;
 	position: absolute;
 	top: 0;
-	width: 1px;
+	width: 2px;
 }
 
 .forma-ba__handle::after {
 	align-items: center;
-	background-color: var(--forma-accent, #7d5c1d);
+	background-color: var(--forma-accent, #2b3bff);
 	border-radius: 50%;
-	color: var(--forma-page, #f2efe8);
+	color: var(--forma-page, #f6f5f1);
 	content: "\2039\00a0\203A";
 	display: flex;
-	font: 500 16px/1 var(--forma-font-sans, sans-serif);
+	font: 500 16px/1 var(--forma-font-sans, "Archivo", sans-serif);
 	height: 48px;
 	justify-content: center;
 	left: 50%;
@@ -63,29 +68,29 @@
 }
 
 .forma-ba__range:focus-visible + .forma-ba__handle::after {
-	outline: 2px solid var(--forma-page, #f2efe8);
+	outline: 2px solid var(--forma-page, #f6f5f1);
 	outline-offset: 3px;
 }
 
+/* The labels are chips: the Chip colours, the Chip type, a full radius. */
 .forma-ba__label {
-	background-color: rgba(22, 25, 23, 0.72);
-	color: var(--forma-page, #f2efe8);
-	font-family: var(--forma-font-sans, sans-serif);
+	background-color: var(--forma-chip, #dce0ff);
+	border-radius: 999px;
+	color: var(--forma-chip-ink, #1b2799);
+	font-family: var(--forma-font-sans, "Archivo", sans-serif);
 	font-size: 11px;
-	font-stretch: 125%;
-	font-weight: 500;
-	letter-spacing: 0.01em;
+	font-weight: 600;
 	line-height: 1;
-	padding: 7px 10px;
+	padding: 5px 10px;
 	pointer-events: none;
 	position: absolute;
-	top: 16px;
+	top: 14px;
 }
 
 .forma-ba__label--after {
-	left: 16px;
+	left: 14px;
 }
 
 .forma-ba__label--before {
-	right: 16px;
+	right: 14px;
 }
