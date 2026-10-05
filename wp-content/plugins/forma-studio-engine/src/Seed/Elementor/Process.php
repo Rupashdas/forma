@@ -50,8 +50,9 @@ final class Process extends Page {
 	/**
 	 * The model's scroll follows the section, with its stages on: the volumes of stage n appear when the scroll passes
 	 * (n - 1) / 6 of the section. The pill is laid over the model at the bottom right of the column (the top left below
-	 * 1024px, where the cards cover the bottom); `process.js` rewrites it from the model's `forma-model:stage` event, and
-	 * it is hidden from assistive technology because the cards carry the same words.
+	 * 1024px, where the theme's stylesheet puts the stage under the cards); `process.js` rewrites it from the model's
+	 * `forma-model:stage` event, and it is hidden from assistive technology because the cards carry the same words. The
+	 * section is `forma-tour--long`: these cards are the tallest, so on a phone the stage is a little shorter.
 	 */
 	private function stages(): array {
 		$stages = $this->site['process']['stages'];
@@ -69,7 +70,8 @@ final class Process extends Page {
 			),
 			$notes,
 			self::TOUR,
-			array( $this->pill( count( $stages ), (string) $stages[0]['title'] ) )
+			array( $this->pill( count( $stages ), (string) $stages[0]['title'] ) ),
+			'forma-tour--long'
 		);
 	}
 

@@ -389,16 +389,18 @@ abstract class Page {
 	 * A tour: a section several screens tall whose first child is the stage, a Panel pinned to the viewport with
 	 * `sticky` (100vh less the inset), holding one study model that follows the section's scroll. The notes come
 	 * second and are pulled back up by 100vh, so they scroll over the stage; each is a slot as tall as its share of
-	 * the section, and its glass card sits at the left of the boxed column, or at the bottom of the screen below
-	 * 1024px. From 1024px the model fills the right 62% of the stage; the stage's drag is off so the page keeps the
-	 * wheel and the touch.
+	 * the section, and its glass card sits at the left of the boxed column. From 1024px the model fills the right 62%
+	 * of the stage; the stage's drag is off so the page keeps the wheel and the touch. Below 1024px the theme's
+	 * stylesheet (site.css) moves the stage to the foot of the screen and the cards above it, so they never cover the
+	 * model.
 	 *
 	 * @param array   $model   Settings of the study model widget: its source and the scroll behaviours.
 	 * @param array[] $notes   One list of elements per slot (what goes in its glass card).
 	 * @param int     $height  The section's height in vh.
-	 * @param array   $overlay Elements laid over the stage (they are positioned by their own Custom CSS).
+	 * @param array   $overlay  Elements laid over the stage (they are positioned by their own Custom CSS).
+	 * @param string  $modifier A class for the section: forma-tour--long gives the cards more of the screen on a phone.
 	 */
-	protected function tour( array $model, array $notes, int $height, array $overlay = array() ): array {
+	protected function tour( array $model, array $notes, int $height, array $overlay = array(), string $modifier = '' ): array {
 		$slot  = round( $height / max( 1, count( $notes ) ), 2 );
 		$slots = array();
 
@@ -478,7 +480,7 @@ abstract class Page {
 			array(
 				'padding'     => Builder::box( 0 ),
 				'min_height'  => Builder::size( $height, 'vh' ),
-				'css_classes' => 'forma-tour',
+				'css_classes' => trim( 'forma-tour ' . $modifier ),
 			),
 			'full'
 		);

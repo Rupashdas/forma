@@ -266,6 +266,68 @@ img {
 	pointer-events: auto;
 }
 
+/*
+ * The tours (the Home model tour, the Studio building, the Process stages) on a tablet or a phone. Beside the model the
+ * cards fit; over it they cover half of it. So below 1024px they stand above it: the Panel stage is pinned to the foot
+ * of the screen, and the notes (one screen less the stage tall) scroll up from behind its top edge, one card at a time.
+ * `order` puts the stage after the notes in the flow, which is what keeps a bottom-sticky stage on screen until the last
+ * card has been read. The model still follows the scroll through the whole section. The cards are solid Panel here:
+ * there is no model behind them to show through.
+ */
+@media (max-width: 1023px) {
+	.elementor .forma-tour.e-con {
+		--forma-tour-vh: 1vh;
+		--forma-tour-stage: 54;
+		min-height: 0;
+	}
+
+	/* The Process cards are the tallest, so its stage is shorter. */
+	.elementor .forma-tour.forma-tour--long.e-con {
+		--forma-tour-stage: 44;
+	}
+
+	@supports (height: 1svh) {
+		.elementor .forma-tour.e-con {
+			--forma-tour-vh: 1svh;
+		}
+	}
+
+	.elementor .forma-tour .forma-tour__stage.e-con {
+		order: 2;
+		top: auto;
+		bottom: 0;
+		height: calc(var(--forma-tour-stage) * var(--forma-tour-vh));
+	}
+
+	.elementor .forma-tour .forma-tour__stage .forma-model {
+		height: calc(var(--forma-tour-stage) * var(--forma-tour-vh));
+	}
+
+	/* The Process page's stage readout sits at the top left of the stage. */
+	.elementor .forma-tour__stage .forma-stage-pill.elementor-widget {
+		top: 14px;
+	}
+
+	.elementor .forma-tour .forma-tour__notes.e-con {
+		order: 1;
+		margin-top: 0;
+		z-index: 1;
+	}
+
+	.elementor .forma-tour__notes > .e-con-inner > .e-con {
+		justify-content: flex-end;
+		min-height: calc((100 - var(--forma-tour-stage)) * var(--forma-tour-vh) - 2 * var(--forma-inset));
+		padding: 0 0 12px;
+	}
+
+	.elementor .forma-tour__card.e-con {
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+		background-color: var(--forma-raised);
+		box-shadow: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,
