@@ -1123,6 +1123,31 @@ const mount = ( el ) => {
  */
 const MOUNT_MARGIN = '600px 0px';
 let mountObserver = null;
+const mountQueue = [];
+let mountTimer = 0;
+
+/** Mounts the queued figures one at a time, a moment apart, so two models never put their set-up in the same task. */
+const drainMounts = () => {
+	mountTimer = 0;
+
+	const el = mountQueue.shift();
+
+	if ( el ) {
+		mount( el );
+	}
+
+	if ( mountQueue.length ) {
+		mountTimer = window.setTimeout( drainMounts, 120 );
+	}
+};
+
+const queueMount = ( el ) => {
+	mountQueue.push( el );
+
+	if ( ! mountTimer ) {
+		mountTimer = window.setTimeout( drainMounts, 0 );
+	}
+};
 
 const mountLater = ( el ) => {
 	if ( ! el || el.formaView || el.dataset.formaMounted ) {
@@ -1142,7 +1167,7 @@ const mountLater = ( el ) => {
 				entries.forEach( ( entry ) => {
 					if ( entry.isIntersecting ) {
 						mountObserver.unobserve( entry.target );
-						mount( entry.target );
+						queueMount( entry.target );
 					}
 				} ),
 			{ rootMargin: MOUNT_MARGIN }
