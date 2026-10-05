@@ -3,7 +3,7 @@
  *
  * Draws every `.forma-model` figure as a Three.js study model: a list of volumes (boxes, gabled blocks, cylinders,
  * slabs and dashed outlines) on a plinth, lit by one soft key light. Each figure owns one small canvas (at most six
- * per page) and renders on demand. Behaviours come from the figure's `data-forma-model` JSON: assemble, drag, keyboard,
+ * per page), is mounted only when it nears the screen and renders on demand. Behaviours come from the figure's `data-forma-model` JSON: assemble, drag, keyboard,
  * scroll orbit, exploded view, growth stages and swapping to another project's model.
  *
  * GSAP and ScrollTrigger (classic globals) only drive the scroll behaviours; without them those simply do not run.
@@ -261,6 +261,7 @@ class View {
 		this.centre = new THREE.Vector3();
 		this.tmp = new THREE.Vector3();
 		this.lost = false;
+		this.compiling = false;
 
 		this.buildScene();
 		this.build( data.volumes || [] );
@@ -763,6 +764,19 @@ class View {
 		this.assembling = this.b.assemble && ! reduced() && ! this.edit;
 		this.assembleStart = performance.now();
 		this.slots.forEach( ( slot ) => ( slot.revealed = ! this.assembling ) );
+
+		// Compile the shaders where the browser can do it off the main thread (KHR_parallel_shader_compile); the first frame
+		// waits for them, and the assembly starts when they are ready.
+		if ( typeof this.renderer.compileAsync === 'function' ) {
+			const ready = () => {
+				this.compiling = false;
+				this.assembleStart = performance.now();
+				this.invalidate();
+			};
+
+			this.compiling = true;
+			this.renderer.compileAsync( this.scene, this.camera ).then( ready, ready );
+		}
 	}
 
 	invalidate() {
@@ -772,7 +786,7 @@ class View {
 
 	/** Advance and draw one frame. Returns whether another is needed. */
 	update( now ) {
-		if ( ! this.visible || ! this.started || this.lost || ! this.w ) {
+		if ( ! this.visible || ! this.started || this.compiling || this.lost || ! this.w ) {
 			this.last = 0;
 
 			return false;
@@ -1099,6 +1113,44 @@ const mount = ( el ) => {
 	schedule();
 };
 
+/* ------------------------------------------------------------------ lazy mounting */
+
+/*
+ * A figure gets its renderer (a WebGL context, its shader programs and a scene) only when it is about to come on
+ * screen. Every renderer compiles its own programs, so mounting all of a page's models at load put several of them on the
+ * main thread before the first one had even been looked at. The margin is generous so a model is ready well before it
+ * is seen; the editor, and browsers without IntersectionObserver, mount straight away.
+ */
+const MOUNT_MARGIN = '600px 0px';
+let mountObserver = null;
+
+const mountLater = ( el ) => {
+	if ( ! el || el.formaView || el.dataset.formaMounted ) {
+		return;
+	}
+
+	if ( editing() || ! ( 'IntersectionObserver' in window ) ) {
+		mount( el );
+
+		return;
+	}
+
+	mountObserver =
+		mountObserver ||
+		new IntersectionObserver(
+			( entries ) =>
+				entries.forEach( ( entry ) => {
+					if ( entry.isIntersecting ) {
+						mountObserver.unobserve( entry.target );
+						mount( entry.target );
+					}
+				} ),
+			{ rootMargin: MOUNT_MARGIN }
+		);
+
+	mountObserver.observe( el );
+};
+
 /* ------------------------------------------------------------------ swapping from elsewhere on the page */
 
 let hoverBound = false;
@@ -1203,17 +1255,22 @@ const setupSwap = ( view ) => {
 		window.addEventListener( 'resize', queueScrollSwap );
 		window.addEventListener( 'load', queueScrollSwap, { once: true } );
 	}
+
+	// A model mounted after the page has loaded starts on its own project; ask which one is in front now.
+	if ( view.b.swap === 'scroll' ) {
+		queueScrollSwap();
+	}
 };
 
 /* ------------------------------------------------------------------ start up */
 
 const boot = () => {
-	document.querySelectorAll( '.forma-model[data-forma-model]' ).forEach( mount );
+	document.querySelectorAll( '.forma-model[data-forma-model]' ).forEach( mountLater );
 
 	// Inside Elementor's editor the widget re-renders on every change; mount (and dispose the old) each time.
 	const hook = () =>
 		window.elementorFrontend.hooks.addAction( 'frontend/element_ready/forma-study-model.default', ( $scope ) => {
-			mount( $scope[ 0 ]?.querySelector( '.forma-model[data-forma-model]' ) );
+			mountLater( $scope[ 0 ]?.querySelector( '.forma-model[data-forma-model]' ) );
 		} );
 
 	if ( window.elementorFrontend?.hooks ) {

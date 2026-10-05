@@ -35,12 +35,14 @@ final class Model implements Module {
 	}
 
 	/**
-	 * Script modules: `three` and the model stage (which imports it), and the stylesheet.
+	 * Script modules: `three`, the model runtime (which imports it), the loader that fetches the runtime after the page has loaded, and the stylesheet.
 	 */
 	public static function register_assets(): void {
 		wp_register_script_module( 'three', FORMA_ENGINE_URL . 'assets/vendor/three/three.module.min.js', array(), self::THREE_VERSION );
-		wp_register_script_module( 'forma-model-stage', FORMA_ENGINE_URL . 'assets/js/model-stage.js', array( 'three' ), Assets::version( 'assets/js/model-stage.js' ) );
-		wp_register_style( 'forma-study-model', FORMA_ENGINE_URL . 'assets/css/study-model.css', array(), Assets::version( 'assets/css/study-model.css' ) );
+		wp_register_script_module( 'forma-model-runtime', FORMA_ENGINE_URL . 'assets/js/model-stage.js', array( 'three' ), Assets::version( 'assets/js/model-stage.js' ) );
+		// The loader is what pages enqueue; it imports the runtime (and so Three.js) once the page has loaded.
+		wp_register_script_module( 'forma-model-stage', FORMA_ENGINE_URL . 'assets/js/model-stage-loader.js', array( array( 'id' => 'forma-model-runtime', 'import' => 'dynamic' ) ), Assets::version( 'assets/js/model-stage-loader.js' ) );
+		Assets::register_style( 'forma-study-model', 'assets/css/study-model.css' );
 	}
 
 	/**
