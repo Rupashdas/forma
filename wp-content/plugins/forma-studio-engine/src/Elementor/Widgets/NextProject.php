@@ -104,7 +104,7 @@ final class NextProject extends Base {
 			</span>
 			<span class="forma-next__text">
 				<span class="forma-next__label"><?php echo esc_html( (string) ( $settings['label'] ?? '' ) ); ?></span>
-				<span class="forma-next__no"><?php echo esc_html( 'No. ' . ProjectNumber::for_post( $next ) ); ?></span>
+				<span class="forma-next__no" aria-hidden="true"><?php echo esc_html( 'No. ' . ProjectNumber::for_post( $next ) ); ?></span>
 				<span class="forma-next__title"><?php echo esc_html( $title ); ?></span>
 			</span>
 		</a>
