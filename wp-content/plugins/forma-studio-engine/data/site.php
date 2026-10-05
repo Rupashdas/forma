@@ -31,11 +31,13 @@ return array(
 
 	/*
 	 * What the studio does, in the order Home and Services list it. The slug is the anchor on the Services page.
-	 * `line` is the one-sentence summary, `deliverables` and `timeline` fill the Services accordion panel.
+	 * `line` is the one-sentence summary, `deliverables` and `timeline` fill the Services accordion panel, and
+	 * `project` is the slug of a typical project: the Services stage swaps its study model to it.
 	 */
 	'services'   => array(
 		'architecture'      => array(
 			'name'         => 'Architecture',
+			'project'      => 'casa-nera',
 			'line'         => 'New houses, hotels and public buildings, from the first site visit to the last coat of lime.',
 			'deliverables' => array(
 				'A site study and measured survey',
@@ -48,7 +50,8 @@ return array(
 		),
 		'interior-design'   => array(
 			'name'         => 'Interior Design',
-			'line'         => 'Rooms reworked inside existing buildings, down to the joinery and the light switches.',
+			'project'      => 'house-of-light',
+			'line'       => 'Rooms reworked inside existing buildings, down to the joinery and the light switches.',
 			'deliverables' => array(
 				'A measured survey of the existing rooms',
 				'Layout and furniture plans',
@@ -60,7 +63,8 @@ return array(
 		),
 		'hospitality'       => array(
 			'name'         => 'Hospitality',
-			'line'         => 'Hotels and restaurants where the quiet is designed as carefully as the rooms.',
+			'project'      => 'the-quiet-hotel',
+			'line'       => 'Hotels and restaurants where the quiet is designed as carefully as the rooms.',
 			'deliverables' => array(
 				'A study of the guest journey with the operator',
 				'A guest room built at full scale before the rest',
@@ -72,7 +76,8 @@ return array(
 		),
 		'workplace'         => array(
 			'name'         => 'Workplace',
-			'line'         => 'Offices and studios that make it easier for people to make things together.',
+			'project'      => 'axis-workspace',
+			'line'       => 'Offices and studios that make it easier for people to make things together.',
 			'deliverables' => array(
 				'A space study done with the people who will use it',
 				'Test fits and layout options',
@@ -84,7 +89,8 @@ return array(
 		),
 		'art-direction'     => array(
 			'name'         => 'Art Direction',
-			'line'         => 'Photography, signage and material palettes that keep a project whole once it opens.',
+			'project'      => 'atelier-27',
+			'line'       => 'Photography, signage and material palettes that keep a project whole once it opens.',
 			'deliverables' => array(
 				'A palette of materials, colours and finishes',
 				'Signage and wayfinding drawings',
@@ -95,7 +101,8 @@ return array(
 		),
 		'furniture-objects' => array(
 			'name'         => 'Furniture & Objects',
-			'line'         => 'Pieces made at the scale of the hand, many from offcuts of our own buildings.',
+			'project'      => 'plinth-series',
+			'line'       => 'Pieces made at the scale of the hand, many from offcuts of our own buildings.',
 			'deliverables' => array(
 				'Sketches and full-size prototypes',
 				'Samples of every material and finish',
@@ -177,10 +184,26 @@ return array(
 
 	/*
 	 * Studio page. The team are the people named on the projects' fact tables; the press names are invented.
+	 * `teams` are the three floors of the studio model, top floor first; each title matches the part label of its floor
+	 * in the `studio` recipe of data/models.php.
 	 */
 	'studio_page' => array(
-		'statement'  => 'Twenty-three people making quiet buildings, slowly.',
+		'statement'  => 'Twenty-three people, one long table.',
 		'intro'      => 'Inês Carvalho and Tomás Ribeiro founded FORMA in Lisbon in 2011. Today we design houses, hotels, workplaces and the furniture inside them.',
+		'teams'      => array(
+			array(
+				'title' => 'Architecture',
+				'text'  => 'Houses, hotels and public buildings, drawn by hand first and then built as models. A partner leads every project, and one architect stays with it until handover.',
+			),
+			array(
+				'title' => 'Interiors',
+				'text'  => 'Rooms inside old buildings and new ones: the plan, the joinery, the lighting and the colour of the plaster. Most of what you touch in a FORMA building was drawn on this floor.',
+			),
+			array(
+				'title' => 'Workshop and objects',
+				'text'  => 'The ground floor holds the model shop and the workshop. We test joints and finishes at full size here, and make the furniture.',
+			),
+		),
 		'principles_title' => 'What we hold to',
 		'principles' => array(
 			array(
@@ -360,45 +383,65 @@ return array(
 	 * 404 page.
 	 */
 	'not_found'  => array(
-		'title' => 'This room hasn’t been built yet.',
-		'text'  => 'The page you were looking for does not exist, or has moved. Here are three recent projects instead.',
+		'title'          => 'This room hasn’t been built yet.',
+		'text'           => 'The page you were looking for does not exist, or it has moved.',
+		'home'           => 'Back to the homepage',
+		'projects_title' => 'Three recent projects instead',
 	),
 
 	/*
 	 * Colophon: typefaces, privacy and the demo disclosure. Photography credits are generated from the media library.
 	 */
 	'colophon'   => array(
-		'title'       => 'Colophon',
-		'intro'       => 'How this site is set, who took its photographs, what it does with your data and why it exists.',
-		'type_title'  => 'Typefaces',
-		'typefaces'   => array(
-			array(
-				'name'    => 'Instrument Serif',
-				'use'     => 'Headings, numbers and statements',
-				'by'      => 'Rodrigo Fuenzalida and Jordan Egstad',
-				'licence' => 'SIL Open Font License 1.1',
+		'title'      => 'Colophon',
+		'intro'      => 'How this site is set and built, who took its photographs, what it does with your data and why it exists.',
+		'type'       => array(
+			'title'       => 'Typefaces',
+			'text'        => array(
+				'Everything is set in Archivo, a typeface by Omnibus-Type, in its regular, medium and semibold weights. The wordmark uses Archivo Expanded, the same family at its widest.',
+				'The font file is served from this site, not from Google, so a visit makes no request to a font provider.',
 			),
-			array(
-				'name'    => 'Archivo',
-				'use'     => 'Text, labels and captions',
-				'by'      => 'Omnibus-Type',
-				'licence' => 'SIL Open Font License 1.1',
-			),
+			'licence'     => 'Archivo is licensed under the SIL Open Font License 1.1.',
+			'licence_url' => 'https://openfontlicense.org',
 		),
-		'type_note'   => 'Both are served from this site, not from Google, so a visit makes no request to a font provider.',
-		'licence_url' => 'https://openfontlicense.org',
-		'credits'     => array(
+		'code'       => array(
+			'title' => 'Code',
+			'text'  => 'The study models and the motion are made with three open libraries, all served from this site.',
+			'items' => array(
+				array(
+					'name'    => 'Three.js',
+					'what'    => 'draws the study models in WebGL',
+					'licence' => 'MIT licence',
+					'url'     => 'https://github.com/mrdoob/three.js/blob/dev/LICENSE',
+				),
+				array(
+					'name'    => 'GSAP',
+					'what'    => 'with its ScrollTrigger and SplitText plugins, times the scroll and the text reveals',
+					'licence' => 'GSAP Standard “no charge” licence',
+					'url'     => 'https://gsap.com/standard-license',
+				),
+				array(
+					'name'    => 'Lenis',
+					'what'    => 'smooths the scroll',
+					'licence' => 'MIT licence',
+					'url'     => 'https://github.com/darkroomengineering/lenis/blob/main/LICENSE',
+				),
+			),
+			'note'  => 'The site itself is WordPress with Elementor, and a small plugin written for it.',
+		),
+		'credits'    => array(
 			'title' => 'Photography',
-			'intro' => 'Every photograph on this site is licensed for free use by its photographer on Unsplash or Pexels. They are shown here by the project or page they appear on, with a note of what each one shows.',
+			'intro' => 'Every photograph on this site is licensed for free use by its photographer on Unsplash or Pexels. They are listed here by the project or page they appear on.',
 		),
-		'privacy'     => array(
+		'privacy'    => array(
 			'title' => 'Privacy',
 			'text'  => array(
 				'This site sets no cookies of its own, runs no analytics and loads no scripts, fonts, maps or videos from other companies. WordPress sets a cookie only when someone signs in to edit it, and visitors never do.',
-				'The contact form emails your message to the address shown on the Contact page. The site also keeps a copy of the enquiry in its own database, so that nothing is lost if an email fails. Your details are used only to reply to you, and they are deleted if you ask.',
+				'The contact form sends your message to the studio by email. The site keeps a copy of the enquiry in its own database, so that nothing is lost if an email fails, and nothing else about your visit. Your details are used only to reply to you, and they are deleted if you ask.',
 			),
 		),
-		'about'       => array(
+		'about'      => array(
+			'title'  => 'Why it exists',
 			'before' => 'FORMA is a fictional studio, designed and built by ',
 			'name'   => 'Rupash Das',
 			'after'  => '.',
