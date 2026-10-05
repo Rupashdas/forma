@@ -6,13 +6,14 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The ordered steps of `wp forma design`: the Kit first (everything else references its globals), then the saved
- * components Home uses, the Theme Builder documents, and the pages built from them. Each step saves through
+ * components the pages use, the Theme Builder documents, Home, the projects (archive, single template and bodies) and
+ * the inner pages with the 404 template. Each step saves through
  * {@see Builder::save()}, so it skips a document that was edited in Elementor unless the run is forced.
  */
 final class Design {
 
 	/** Step names in build order. */
-	public const STEPS = array( 'kit', 'components', 'menu', 'header', 'footer', 'home', 'projects' );
+	public const STEPS = array( 'kit', 'components', 'menu', 'header', 'footer', 'home', 'projects', 'pages' );
 
 	public function __construct( private \Closure $log ) {}
 
@@ -53,6 +54,7 @@ final class Design {
 			'footer'     => ( new Footer( $this->log ) )->build(),
 			'home'       => ( new Home( $this->log ) )->build(),
 			'projects'   => $this->projects(),
+			'pages'      => $this->pages(),
 			default      => throw new \InvalidArgumentException( esc_html( "Unknown design step: {$step}." ) ),
 		};
 	}
@@ -72,5 +74,22 @@ final class Design {
 		( new ProjectBodies( $this->log ) )->build();
 
 		return $ids;
+	}
+
+	/**
+	 * The pages step builds the inner pages (Studio, Services, Process, Contact, Colophon) and the 404 template. The
+	 * saved components they show are built by the `components` step, which has to have run before.
+	 *
+	 * @return array<string,int> The post id of each, keyed by its slug (`not-found` for the 404 template).
+	 */
+	private function pages(): array {
+		return array(
+			'studio'    => ( new Studio( $this->log ) )->build(),
+			'services'  => ( new Services( $this->log ) )->build(),
+			'process'   => ( new Process( $this->log ) )->build(),
+			'contact'   => ( new Contact( $this->log ) )->build(),
+			'not-found' => ( new NotFound( $this->log ) )->build(),
+			'colophon'  => ( new Colophon( $this->log ) )->build(),
+		);
 	}
 }

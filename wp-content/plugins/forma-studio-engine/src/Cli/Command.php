@@ -73,11 +73,11 @@ final class Command {
 
 	/**
 	 * Build the Elementor design from code: the Kit (colours, fonts, theme style), the saved components, the Theme
-	 * Builder documents and the Home page. A document that was edited in Elementor since it was seeded is skipped
-	 * unless --force is given.
+	 * Builder documents, the Home page, the projects and the inner pages. A document that was edited in Elementor since
+	 * it was seeded is skipped unless --force is given.
 	 *
 	 * [--only=<steps>]
-	 * : Comma-separated steps to run, in build order: kit, components, menu, header, footer, home.
+	 * : Comma-separated steps to run, in build order: kit, components, menu, header, footer, home, projects, pages.
 	 *
 	 * [--force]
 	 * : Overwrite documents that were edited in Elementor.
