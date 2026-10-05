@@ -252,7 +252,8 @@ final class Home {
 	 * (100vh less the inset); the notes come second and are pulled back up by 100vh, so they scroll over the stage. The
 	 * model follows the section: it turns three quarters of a circle and comes apart into its named parts, and drag is
 	 * off so the page keeps the wheel and the touch. From 1024px the model fills the right 62% of the stage and the
-	 * notes sit on the left; below that the notes sit at the bottom of each screen, over the model.
+	 * notes sit on the left; below that the theme stylesheet (site.css) pins the stage to the foot of the screen and
+	 * scrolls the notes up from behind it, so no card covers the model.
 	 */
 	private function tour(): array {
 		$casa  = $this->content->project_id( 'casa-nera' );
@@ -347,15 +348,15 @@ final class Home {
 	}
 
 	/**
-	 * One note: a screen-tall slot with a glass card (Paper at 70% over a blur) at its left, or at its bottom on small
-	 * screens, holding a Subheading and a Body line.
+	 * One note: a screen-tall slot with a glass card (Paper at 70% over a blur) at its left, holding a Subheading (an H2, so
+	 * the outline runs on from the page's H1) and a Body line. Below 1024px site.css lays the cards out above the model.
 	 */
 	private function tour_note( string $title, string $text ): array {
 		return Style::stack(
 			array(
 				Style::stack(
 					array(
-						Style::heading( $title, 'subheading', 'h3' ),
+						Style::heading( $title, 'subheading', 'h2' ),
 						Style::text( '<p>' . esc_html( $text ) . '</p>', 'body', 'muted' ),
 					),
 					array(

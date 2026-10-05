@@ -42,8 +42,22 @@ final class Module implements ModuleContract {
 		add_action( 'elementor/widgets/register', array( $this, 'widgets' ) );
 		add_action( 'elementor/dynamic_tags/register', array( $this, 'tags' ) );
 		add_action( 'elementor/frontend/widget/before_render', array( $this, 'accordion_link' ) );
+		add_filter( 'elementor/skin/loop_header_attributes', array( $this, 'loop_attributes' ) );
 
 		( new ArchiveFilter() )->register();
+	}
+
+	/**
+	 * The Loop Grid marks its container as a list, but every card here is a link (a clickable container), not a list
+	 * item, so assistive technology rightly reports the list as invalid. Without the role the cards are plain links.
+	 *
+	 * @param array<string, mixed> $attributes The container's attributes (class and role).
+	 * @return array<string, mixed>
+	 */
+	public function loop_attributes( array $attributes ): array {
+		unset( $attributes['role'] );
+
+		return $attributes;
 	}
 
 	/**
