@@ -46,7 +46,7 @@ final class Footer {
 				'deep',
 				array(
 					'flex_gap' => Builder::gap( 'clamp(40px, 5vw, 80px)', null, 'custom' ),
-					'padding'  => Builder::box( 'var(--forma-section)', 'var(--forma-gutter)', 'clamp(24px, 3vw, 40px)', 'var(--forma-gutter)', 'custom' ),
+					'padding'  => Builder::box( 'var(--forma-section)', Style::PANEL_GUTTER, 'clamp(24px, 3vw, 40px)', Style::PANEL_GUTTER, 'custom' ),
 				)
 			),
 		);

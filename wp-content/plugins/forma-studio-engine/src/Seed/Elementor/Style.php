@@ -56,6 +56,12 @@ final class Style {
 	private const SURFACES = array( 'page', 'raised', 'deep' );
 
 	/**
+	 * The side padding of a panel: the page gutter less the inset the panel already has, so the content of a panel and
+	 * of a section on Paper start at the same distance from the viewport edge, at every width.
+	 */
+	public const PANEL_GUTTER = 'calc(var(--forma-gutter) - var(--forma-inset))';
+
+	/**
 	 * @throws \InvalidArgumentException For a token that is not in {@see self::COLORS}.
 	 */
 	public static function color( string $token ): string {
@@ -159,6 +165,37 @@ final class Style {
 		);
 	}
 
+	/**
+	 * A text link: a paragraph in the Label font with a 1px underline, Signal blue on hover. The secondary action next
+	 * to a pill button, or the quiet way on to a page.
+	 */
+	public static function text_link( string $label, string $url, array $extra = array() ): array {
+		return self::heading(
+			$label,
+			'label',
+			'p',
+			'ink',
+			self::merge(
+				array(
+					'link'       => self::link( $url ),
+					'custom_css' => <<<'CSS'
+					selector .elementor-heading-title a {
+						text-decoration: underline;
+						text-decoration-thickness: 1px;
+						text-underline-offset: 0.3em;
+						transition: color 0.4s var(--forma-ease);
+					}
+					selector .elementor-heading-title a:hover,
+					selector .elementor-heading-title a:focus-visible {
+						color: var(--forma-accent);
+					}
+					CSS,
+				),
+				$extra
+			)
+		);
+	}
+
 	/** A text editor widget on a Kit font and colour. */
 	public static function text( string $html, string $font = 'body', string $color = 'ink', array $extra = array() ): array {
 		return Builder::widget(
@@ -203,6 +240,7 @@ final class Style {
 		}
 
 		$panel = $extra['panel'] ?? true;
+		$side  = 'page' !== $surface && $panel ? self::PANEL_GUTTER : 'var(--forma-gutter)';
 
 		unset( $extra['panel'] );
 
@@ -210,7 +248,7 @@ final class Style {
 			'content_width'         => $width,
 			'flex_direction'        => 'column',
 			'flex_gap'              => Builder::gap( 0 ),
-			'padding'               => Builder::box( 'var(--forma-section)', 'var(--forma-gutter)', 'var(--forma-section)', 'var(--forma-gutter)', 'custom' ),
+			'padding'               => Builder::box( 'var(--forma-section)', $side, 'var(--forma-section)', $side, 'custom' ),
 			'background_background' => 'classic',
 			'__globals__'           => array( 'background_color' => self::color( $surface ) ),
 		);

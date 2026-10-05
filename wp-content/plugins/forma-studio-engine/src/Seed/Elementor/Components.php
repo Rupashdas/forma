@@ -7,8 +7,8 @@ use Forma\Engine\Seed\Content;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The saved components Home (and later Studio) is built from: the two project cards for the Loop Grid, the Closing CTA
- * and the Recognition ledger. Each is an Elementor library document, so it is edited once and updates wherever the
+ * The saved components the pages are built from: the two project cards for the Loop Grid, the Closing CTA (an inset
+ * Panel with the empty plot as a study model) and the Recognition ledger. Each is an Elementor library document, so it is edited once and updates wherever the
  * Template widget or the Loop Grid shows it.
  */
 final class Components {
@@ -111,7 +111,8 @@ final class Components {
 	/**
 	 * The card itself is one link to the project (a dynamic Post URL on a container rendered as `a`), so nothing
 	 * inside it may be a link of its own. It is a rounded tile: a Panel fill (an Ink tile inside the Ink band, where
-	 * the theme re-points the Panel global), the tile radius and 12px of padding.
+	 * the theme re-points the Panel global), the tile radius and 12px of padding. It carries the project's id in
+	 * `data-model-swap` (Forma Motion), so a study model that swaps follows the card.
 	 */
 	private function card_shell( string $classes, array $children, string $css, array $gap ): array {
 		return Builder::container(
@@ -126,6 +127,7 @@ final class Components {
 				'background_background' => 'classic',
 				'css_classes'           => $classes,
 				'fm_cursor'             => 'View',
+				'fm_model_swap'         => 'yes',
 				'custom_css'            => $css,
 				'__dynamic__'           => array( 'link' => Builder::tag( 'post-url' ) ),
 				'__globals__'           => array( 'background_color' => Style::color( 'raised' ) ),
@@ -342,43 +344,72 @@ final class Components {
 	// Closing CTA.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** The invitation that closes Home and the inner pages: a large headline, the email and a button to Contact. */
+	/**
+	 * The invitation that closes Home and the inner pages: an inset Panel whose content sits in the boxed 1320px
+	 * column, in two columns from 1024px. On the left a
+	 * Display L headline, an Ink pill to Contact (magnetic) and the email as a text link; on the right the empty plot,
+	 * a study model with its dashed blue volume that the visitor can turn. The columns stack on tablet and mobile.
+	 */
 	private function closing_cta(): array {
 		$content = new Content( $this->log );
 		$contact = $content->page_id( 'contact' );
 		$url     = $contact ? (string) get_permalink( $contact ) : home_url( '/contact/' );
 		$email   = $this->site['studio']['email'];
 
-		// The hairline above belongs to a stack inside the box, so it runs the width of the content, not of the viewport.
 		return Style::section(
 			array(
-				Style::stack(
+				Style::row(
 					array(
-						Style::heading( 'Let’s build something quiet.', 'display-l', 'h2' ),
-						Style::row(
+						Style::cell(
 							array(
-								Style::heading( $email, 'subheading', 'p', 'ink', array( 'link' => Style::link( 'mailto:' . $email ) ) ),
-								Style::button( 'Start a conversation', $url ),
+								Style::heading( 'Your project goes here.', 'display-l', 'h2' ),
+								Style::button(
+									'Start a conversation',
+									$url,
+									array(
+										'link' => array( 'custom_attributes' => 'data-magnetic|true' ) + Style::link( $url ),
+									)
+								),
+								Style::text_link( $email, 'mailto:' . $email ),
 							),
+							44,
+							100,
+							100,
 							array(
-								'flex_justify_content' => 'space-between',
-								'flex_align_items'     => 'center',
-								'flex_wrap'            => 'wrap',
-								'flex_gap'             => Builder::gap( 24, 32 ),
+								'flex_gap'         => Builder::gap( 'clamp(20px, 2.4vw, 32px)', null, 'custom' ),
+								'flex_align_items' => 'flex-start',
 							)
+						),
+						Style::cell(
+							array(
+								Builder::widget(
+									'forma-study-model',
+									array(
+										'source'             => 'recipe',
+										'recipe'             => 'plot',
+										'camera'             => 'three-quarter',
+										'view_height'        => Builder::size( 70, 'vh' ),
+										'view_height_tablet' => Builder::size( 52, 'vh' ),
+										'view_height_mobile' => Builder::size( 46, 'vh' ),
+										'drag'               => 'yes',
+									)
+								),
+							),
+							56,
+							100,
+							100
 						),
 					),
 					array(
-						'flex_gap'      => Builder::gap( 'clamp(24px, 3vw, 48px)', null, 'custom' ),
-						'padding'       => Builder::box( 'var(--forma-section)', 0, 0, 0, 'custom' ),
-						'border_border' => 'solid',
-						'border_width'  => Builder::box( 1, 0, 0, 0 ),
-						'__globals__'   => array( 'border_color' => Style::color( 'line' ) ),
+						'flex_wrap'              => 'nowrap',
+						'flex_align_items'       => 'center',
+						'flex_direction_tablet'  => 'column',
+						'flex_gap'               => Builder::gap( 'clamp(24px, 4vw, 64px)', null, 'custom' ),
 					)
 				),
 			),
-			'page',
-			array( 'padding' => Builder::box( 0, 'var(--forma-gutter)', 'var(--forma-section)', 'var(--forma-gutter)', 'custom' ) )
+			'raised',
+			array( 'padding' => Builder::box( 'clamp(48px, 6vw, 96px)', Style::PANEL_GUTTER, 'clamp(24px, 3vw, 48px)', Style::PANEL_GUTTER, 'custom' ) )
 		);
 	}
 
@@ -386,7 +417,10 @@ final class Components {
 	// Recognition ledger.
 	// ---------------------------------------------------------------------------------------------------------------
 
-	/** Awards, newest first: an Ink band with a heading and one hairline row per recognised project. */
+	/**
+	 * Awards, newest first: an inset Panel with the heading and a Line grid of rows, one per recognised project, the
+	 * year as a chip, the award, then the project. Home shows the awards as a ticker instead; this is for the Studio page.
+	 */
 	private function recognition(): array {
 		$rows = array();
 
@@ -407,10 +441,17 @@ final class Components {
 					)
 				),
 			),
-			'deep',
+			'raised',
 			array(
 				'flex_gap'   => Builder::gap( 16 ),
 				'custom_css' => <<<'CSS'
+				/* The cells are ruled off from each other from tablet up, so the rows read as a grid. */
+				@media (min-width: 768px) {
+					selector .forma-ledger__row > .e-con + .e-con {
+						border-left: 1px solid var(--forma-line);
+						padding-left: clamp(16px, 2vw, 32px);
+					}
+				}
 				/* A row nudges in on hover or focus, like a line being picked out on a drawing register. */
 				selector .forma-ledger__row {
 					transition: padding-inline-start 0.6s var(--forma-ease);
@@ -430,7 +471,7 @@ final class Components {
 	 *
 	 * @return array<int,array{year:string,award:string,title:string,url:string}>
 	 */
-	private function awards(): array {
+	public function awards(): array {
 		$content = new Content( $this->log );
 		$awards  = array();
 
@@ -462,7 +503,7 @@ final class Components {
 	private function ledger_row( array $award ): array {
 		return Style::row(
 			array(
-				Style::cell( array( Style::label( $award['year'], 'muted' ) ), 12, 14, 'auto' ),
+				Style::cell( array( Style::chip( $award['year'] ) ), 12, 14, 'auto' ),
 				Style::cell(
 					array( Style::heading( $award['award'], 'subheading', 'p', 'ink' ) ),
 					54,

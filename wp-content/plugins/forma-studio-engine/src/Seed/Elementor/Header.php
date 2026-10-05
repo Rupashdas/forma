@@ -38,16 +38,17 @@ final class Header {
 		Builder::reset( self::KEY );
 
 		return array(
-			// A full-width row with no background of its own: the pills sit at its two ends.
+			// A fixed row with no background of its own, boxed like every section's content (1320px, centred, 12px of
+			// padding on small screens): the pills sit at its two ends, so on a wide screen they line up with the page.
 			Builder::container(
 				array(
-					'content_width'        => 'full',
+					'content_width'        => 'boxed',
 					'flex_direction'       => 'row',
 					'flex_justify_content' => 'space-between',
 					'flex_align_items'     => 'center',
 					'flex_wrap'            => 'nowrap',
 					'flex_gap'             => Builder::gap( 12 ),
-					'padding'              => Builder::box( 0 ),
+					'padding'              => Builder::box( 0, 12, 0, 12 ),
 					'css_classes'          => 'forma-header',
 				),
 				array(

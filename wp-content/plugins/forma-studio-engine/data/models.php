@@ -391,7 +391,10 @@ return array(
 	'house-of-light'      => array( 'volumes' => $light ),
 	'monolith-house'      => array( 'volumes' => $monolith ),
 	'axis-workspace'      => array( 'volumes' => $axis ),
-	'casa-nera'           => array( 'volumes' => $casa ),
+	'casa-nera'           => array(
+		'volumes' => $casa,
+		'camera'  => array( 'distance' => 1.25 ),
+	),
 	'the-quiet-hotel'     => array( 'volumes' => $hotel ),
 	'plinth-series'       => array(
 		'volumes' => $series,

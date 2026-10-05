@@ -141,6 +141,8 @@ body {
  * margin is the gap between stacked panels (margins between siblings collapse to one inset).
  */
 .elementor .forma-panel.e-con {
+	/* auto, not Elementor's 100%: beside the inset margins a 100% wide panel is pushed past the right edge of its row. */
+	width: auto;
 	margin-inline: var(--forma-inset);
 	margin-block: var(--forma-inset);
 	border-radius: var(--forma-r-panel);
@@ -184,23 +186,25 @@ img {
 
 /*
  * Header (Theme Builder container with the class .forma-header): two floating glass pills, the nav on the left and the
- * "Start a project" button on the right, fixed 12px from the top and sides, above page content but below popups. The
- * bar itself is a transparent, click-through row; only the pills take pointer events. A glass pill is Paper at 72% over
+ * "Start a project" button on the right, fixed 12px from the top, above page content but below popups. The bar is
+ * boxed like every section's content: its inner row is the Kit's 1320px column, centred, with 12px of padding on the
+ * outer container, so on a wide screen the pills sit at the column's edges and line up with the page's content. The bar
+ * itself is a transparent, click-through row; only the pills take pointer events. A glass pill is Paper at 72% over
  * a blur. site.js toggles the states: condensed after a little scrolling (the glass turns more opaque so it stays
  * legible over content), hidden while scrolling down. Elementor sets the container's width and position-related
  * variables itself, so these selectors carry enough specificity to win over its CSS.
  */
 .elementor .forma-header.e-con {
 	position: fixed;
-	inset: 12px auto auto 12px;
-	width: calc(100% - 24px);
+	inset: 12px auto auto 0;
+	width: 100%;
 	max-width: none;
 	z-index: 90;
 	pointer-events: none;
 	transition: transform 0.5s var(--forma-ease);
 }
 
-.elementor .forma-header.e-con > * {
+.elementor .forma-header.e-con .e-con-inner > * {
 	pointer-events: auto;
 }
 
