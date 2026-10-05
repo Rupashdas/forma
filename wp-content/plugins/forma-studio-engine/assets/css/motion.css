@@ -17,8 +17,8 @@
 }
 
 /*
- * Horizontal scroll: the strip is one row, as wide as its items. From 1024px motion.js pins the section and slides the
- * row; everywhere else (small screens, reduced motion, no JavaScript) it is a swipe row that snaps card by card.
+ * Horizontal scroll: the strip is one row, as wide as its items. From 1024px motion.js sticks the section (CSS sticky inside a
+ * wrapper it adds, as tall as the row is wide) and slides the row; everywhere else (small screens, reduced motion, no JavaScript) it is a swipe row that snaps card by card.
  */
 [data-fm-scroll="hscroll"] {
 	overflow-x: auto;

@@ -81,9 +81,9 @@ final class Motion implements Module {
 					''         => esc_html__( 'Nothing', 'forma-studio-engine' ),
 					'parallax' => esc_html__( 'Parallax', 'forma-studio-engine' ),
 					'expand'   => esc_html__( 'Expand to full bleed', 'forma-studio-engine' ),
-					'hscroll'  => esc_html__( 'Horizontal scroll (pins the section)', 'forma-studio-engine' ),
+					'hscroll'  => esc_html__( 'Horizontal scroll (the section sticks)', 'forma-studio-engine' ),
 				),
-				'description' => esc_html__( 'Horizontal scroll: put it on a Loop Grid (or any row wider than its container). From 1024px the section pins and the row slides sideways as you scroll; on smaller screens it is a swipe row.', 'forma-studio-engine' ),
+				'description' => esc_html__( 'Horizontal scroll: put it on a Loop Grid (or any row wider than its container). From 1024px the section sticks to the screen and the row slides sideways as you scroll through it; on smaller screens it is a swipe row.', 'forma-studio-engine' ),
 			)
 		);
 

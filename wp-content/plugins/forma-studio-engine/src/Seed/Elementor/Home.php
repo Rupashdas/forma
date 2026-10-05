@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  *    right.
  * 2. Model tour: a sticky Panel stage inside a 300vh section; three glass notes scroll over it while the model turns
  *    and comes apart.
- * 3. Selected work: an inset Ink band that pins while a strip of five Ink tiles slides sideways; the model at its left
+ * 3. Selected work: an inset Ink band that sticks while a strip of five Ink tiles slides sideways; the model at its left
  *    swaps to the project in front.
  * 4. Practice: the six services in giant type, a project photo following the cursor.
  * 5. Index: every project in a list, with a sticky Panel stage whose model swaps to the hovered row.
@@ -392,7 +392,7 @@ final class Home {
 	// ---------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * An inset Ink band, a screen tall. From 1024px it pins while the strip of five Ink tiles slides sideways (Forma
+	 * An inset Ink band, a screen tall. From 1024px it sticks to the screen while the strip of five Ink tiles slides sideways (Forma
 	 * Motion "Horizontal scroll" on the Loop Grid): the model at its left, a study model that swaps by scroll, takes on
 	 * the project in front. The heading, the model and the strip's first card sit in the boxed 1320px column; only the
 	 * strip's track runs on past it and off the band's right edge. Below 1024px the model sits above a swipe row.
@@ -487,7 +487,7 @@ final class Home {
 	/**
 	 * The strip: the Loop Grid of the five featured projects (the project card, picked by id and ordered by their Order
 	 * field), laid out as one row. Each card is as wide as the screen allows and as the band is tall, so a card fits
-	 * the pinned band at any height; the swipe row on small screens uses narrower cards.
+	 * the stuck band at any height; the swipe row on small screens uses narrower cards.
 	 *
 	 * @param int[] $ids Featured project ids, in order.
 	 */
