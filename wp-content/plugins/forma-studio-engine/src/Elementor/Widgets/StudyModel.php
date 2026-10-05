@@ -6,6 +6,7 @@ use Elementor\Controls_Manager;
 use Elementor\Repeater;
 use Forma\Engine\Model\Model;
 use Forma\Engine\Model\Models;
+use Forma\Engine\Model\Plan;
 use Forma\Engine\Projects\Projects;
 use Forma\Engine\Support\Assets;
 use Forma\Engine\Support\Editor;
@@ -18,8 +19,8 @@ defined( 'ABSPATH' ) || exit;
  * the widget's repeater); assets/js/model-stage.js turns it into a canvas and its behaviours: assemble, drag,
  * keyboard, scroll orbit, explosion, stages, and swapping to another project.
  *
- * Complete without JavaScript or WebGL: the markup carries the project's photograph, which the runtime reveals
- * only when it cannot draw.
+ * Complete without JavaScript or WebGL: the markup carries the project's photograph (or, with no photograph, a drawing
+ * of the model itself: Model\Plan), which the runtime reveals only when it cannot draw.
  */
 final class StudyModel extends Base {
 
@@ -436,9 +437,8 @@ final class StudyModel extends Base {
 			$on( 'drag' ) ? ' data-cursor="' . esc_attr__( 'Drag', 'forma-studio-engine' ) . '"' : ''
 		);
 
-		if ( ! empty( $model['photo'] ) ) {
-			echo $model['photo']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core image markup.
-		}
+		// What stands in for the model where the page cannot draw it: its photograph, or else the model as a drawing.
+		echo ! empty( $model['photo'] ) ? $model['photo'] : Plan::svg( $model['volumes'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core image markup, or our own SVG.
 
 		printf(
 			'<span class="screen-reader-text">%s</span>',
