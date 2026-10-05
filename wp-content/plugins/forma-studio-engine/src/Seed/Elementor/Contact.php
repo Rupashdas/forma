@@ -546,7 +546,13 @@ final class Contact extends Page {
 			$blocks[] = Style::stack(
 				array(
 					Style::label( $label ),
-					Style::text( $html, 'body', 'ink' ),
+					// The phone number and the profiles are links on lines of their own: a 4px pad on a mouse, 10px on a phone.
+					Style::text(
+						$html,
+						'body',
+						'ink',
+						array( 'custom_css' => 'selector a { display: inline-block; padding-block: 4px; } @media (max-width: 1024px) { selector a { padding-block: 10px; } }' )
+					),
 				),
 				array(
 					'flex_gap'      => Builder::gap( 6 ),

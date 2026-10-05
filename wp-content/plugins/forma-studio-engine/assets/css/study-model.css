@@ -107,6 +107,13 @@ html:not(.fm-js) body:not(.elementor-editor-active) .forma-model__fallback {
 	outline-offset: 2px;
 }
 
+/* 45px tall where a finger is the pointer. */
+@media (max-width: 767px) {
+	.forma-model .forma-model__explode {
+		padding: 13px 18px;
+	}
+}
+
 .forma-model .forma-model__caption {
 	bottom: var(--forma-gutter, 24px);
 	color: var(--forma-muted, #55554f);

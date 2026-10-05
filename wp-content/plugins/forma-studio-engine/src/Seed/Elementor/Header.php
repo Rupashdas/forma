@@ -148,7 +148,8 @@ final class Header {
 			array(
 				'text'         => 'Menu',
 				'link'         => $link,
-				'text_padding' => Builder::box( 9, 16 ),
+				// 45px tall: the Menu button is only shown where a finger is the pointer.
+				'text_padding' => Builder::box( 14, 16 ),
 				'hide_desktop' => 'hidden-desktop',
 				'hide_laptop'  => 'hidden-laptop',
 				'__dynamic__'  => array(
@@ -176,6 +177,8 @@ final class Header {
 			array(
 				'link'         => $this->magnetic( $url ),
 				'text_padding' => Builder::box( 15, 24 ),
+				// On a tablet the glass pill holds the 45px Menu button, so this one grows to its 57px height.
+				'text_padding_tablet' => Builder::box( 20, 24 ),
 				'hide_mobile'  => 'hidden-mobile',
 			)
 		);

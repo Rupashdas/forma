@@ -164,6 +164,13 @@ a {
 	color: inherit;
 }
 
+/* A link inside a paragraph is underlined: colour alone does not tell it from the words around it. */
+.elementor-widget-text-editor p a {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+}
+
 img {
 	height: auto;
 	max-width: 100%;

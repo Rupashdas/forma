@@ -220,6 +220,8 @@ final class Archive {
 				'taxonomy_filter_active_background_background' => 'classic',
 				'taxonomy_filter_border_radius'      => Builder::box( 999 ),
 				'taxonomy_filter_padding'            => Builder::box( 10, 16, 10, 16 ),
+					// 45px tall where a finger is the pointer.
+					'taxonomy_filter_padding_tablet'     => Builder::box( 14, 18, 14, 18 ),
 				'custom_css'                         => <<<'CSS'
 				/* Pro's items are buttons: no shadow, and the label stays on one line inside its pill. */
 				selector .e-filter-item {

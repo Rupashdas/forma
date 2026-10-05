@@ -16,6 +16,9 @@ final class Footer {
 
 	public const KEY = 'footer';
 
+	/** A link that stands alone on its line keeps a 44px target where a finger is the pointer. */
+	private const TAP = '@media (max-width: 1024px) { selector a { display: inline-block; padding-block: 12px; } }';
+
 	private array $studio;
 
 	public function __construct( private \Closure $log ) {
@@ -109,10 +112,10 @@ final class Footer {
 							'custom_attributes' => '',
 						),
 						// The Subheading face, sized down to fit a quarter-width column.
-						'custom_css' => 'selector .elementor-heading-title { font-size: clamp(16px, 1.4vw, 20px); overflow-wrap: anywhere; }',
+						'custom_css' => 'selector .elementor-heading-title { font-size: clamp(16px, 1.4vw, 20px); overflow-wrap: anywhere; } @media (max-width: 1024px) { selector .elementor-heading-title a { display: inline-block; padding-block: 10px; } }',
 					)
 				),
-				Style::text( $phone, 'meta', 'muted' ),
+				Style::text( $phone, 'meta', 'muted', array( 'custom_css' => self::TAP ) ),
 			),
 			array(
 				Style::label( 'Index' ),
@@ -127,6 +130,8 @@ final class Footer {
 						'pointer'                      => 'none',
 						'padding_horizontal_menu_item' => Builder::size( 0 ),
 						'padding_vertical_menu_item'   => Builder::size( 4 ),
+						// A finger needs 44px: the 4px of a mouse's padding grows to 10px.
+						'padding_vertical_menu_item_tablet' => Builder::size( 10 ),
 						'__globals__'                  => array(
 							'menu_typography_typography' => Style::font( 'body' ),
 							'color_menu_item'            => Style::color( 'ink' ),
@@ -143,6 +148,8 @@ final class Footer {
 					array(
 						'icon_list'     => $social,
 						'space_between' => Builder::size( 8 ),
+						'space_between_tablet' => Builder::size( 0 ),
+						'custom_css'    => '@media (max-width: 1024px) { selector .elementor-icon-list-item > a { padding-block: 11px; } }',
 						'__globals__'   => array(
 							'icon_typography_typography' => Style::font( 'body' ),
 							'text_color'                 => Style::color( 'ink' ),
@@ -186,7 +193,7 @@ final class Footer {
 		return Style::row(
 			array(
 				Style::text( '<p>© 2026 FORMA. A fictional studio, designed and built by <a href="https://devrupash.com">Rupash Das</a>.</p>', 'meta', 'muted' ),
-				Style::text( '<p><a href="' . esc_url( $colophon ) . '">Colophon</a></p>', 'meta', 'muted' ),
+				Style::text( '<p><a href="' . esc_url( $colophon ) . '">Colophon</a></p>', 'meta', 'muted', array( 'custom_css' => self::TAP ) ),
 			),
 			array(
 				'flex_justify_content' => 'space-between',
