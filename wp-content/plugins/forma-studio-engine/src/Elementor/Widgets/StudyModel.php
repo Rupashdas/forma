@@ -7,6 +7,7 @@ use Elementor\Repeater;
 use Forma\Engine\Model\Model;
 use Forma\Engine\Model\Models;
 use Forma\Engine\Projects\Projects;
+use Forma\Engine\Support\Assets;
 use Forma\Engine\Support\Editor;
 
 defined( 'ABSPATH' ) || exit;
@@ -412,6 +413,11 @@ final class StudyModel extends Base {
 		}
 
 		Model::enqueue( $scrolling );
+
+		if ( $on( 'stages' ) ) {
+			// The stage readout of the Process page: a pill that follows the model's `forma-model:stage` events.
+			Assets::enqueue( 'process' );
+		}
 
 		if ( 'none' !== $swap ) {
 			Model::need_projects_json();

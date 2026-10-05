@@ -404,5 +404,8 @@ return array(
 	'studio'              => array( 'volumes' => $studio ),
 	'lisbon-block'        => array( 'volumes' => $block ),
 	'plot'                => array( 'volumes' => $plot ),
-	'process'             => array( 'volumes' => $process ),
+	'process'             => array(
+		'volumes' => $process,
+		'camera'  => array( 'distance' => 0.82 ),
+	),
 );
