@@ -187,7 +187,7 @@ final class Kit {
 					Style::SANS,
 					'600',
 					array(
-						'font_size'   => Builder::size( 11 ),
+						'font_size'   => Builder::size( 12 ),
 						'line_height' => $em( 1 ),
 					)
 				),

@@ -43,7 +43,7 @@
 	border-radius: 999px;
 	color: var(--forma-chip-ink, #1b2799);
 	content: "Study model";
-	font: 600 11px/1 var(--forma-font-sans, "Archivo", sans-serif);
+	font: 600 12px/1 var(--forma-font-sans, "Archivo", sans-serif);
 	left: 50%;
 	padding: 5px 10px;
 	position: absolute;
@@ -70,7 +70,7 @@
 	background-color: var(--forma-chip, #dce0ff);
 	border-radius: 999px;
 	color: var(--forma-chip-ink, #1b2799);
-	font: 600 11px/1 var(--forma-font-sans, "Archivo", sans-serif);
+	font: 600 12px/1 var(--forma-font-sans, "Archivo", sans-serif);
 	order: 2;
 	padding: 5px 10px;
 }

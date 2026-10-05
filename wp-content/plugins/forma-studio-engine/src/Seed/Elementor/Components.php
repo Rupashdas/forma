@@ -322,7 +322,7 @@ final class Components {
 			border-radius: 999px;
 			color: var(--forma-chip-ink);
 			content: "Study model";
-			font: 600 11px/1 var(--forma-font-sans);
+			font: 600 12px/1 var(--forma-font-sans);
 			padding: 5px 10px;
 		}
 		@media (max-width: 767px) {
