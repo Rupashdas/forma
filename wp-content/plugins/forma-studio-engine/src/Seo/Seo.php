@@ -10,7 +10,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * The search and sharing basics without an SEO plugin: one meta description per page, Open Graph and Twitter tags,
- * and a JSON-LD graph (the studio, the site, and for projects the work itself plus its breadcrumb trail).
+ * and a JSON-LD graph (the studio, the site, for projects the work itself plus its breadcrumb trail, and for the
+ * Services page its FAQ as a FAQPage).
  * Descriptions come from excerpts, which every page and project already carries.
  */
 final class Seo implements Module {
@@ -130,6 +131,10 @@ final class Seo implements Module {
 			array_push( $graph, ...$this->project( get_queried_object(), $home ) );
 		}
 
+		if ( is_page( 'services' ) ) {
+			$graph[] = $this->faq();
+		}
+
 		printf(
 			'<script type="application/ld+json" id="forma-schema">%s</script>' . "\n",
 			wp_json_encode(
@@ -139,6 +144,33 @@ final class Seo implements Module {
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG
 			)
+		);
+	}
+
+	/**
+	 * The Services page's FAQPage: the same questions and answers its accordion shows, from data/site.php, as plain text.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function faq(): array {
+		$site      = require FORMA_ENGINE_PATH . 'data/site.php';
+		$questions = array();
+
+		foreach ( (array) ( $site['faq'] ?? array() ) as $entry ) {
+			$questions[] = array(
+				'@type'          => 'Question',
+				'name'           => (string) $entry['q'],
+				'acceptedAnswer' => array(
+					'@type' => 'Answer',
+					'text'  => (string) $entry['a'],
+				),
+			);
+		}
+
+		return array(
+			'@type'      => 'FAQPage',
+			'@id'        => trailingslashit( (string) get_permalink() ) . '#faq',
+			'mainEntity' => $questions,
 		);
 	}
 

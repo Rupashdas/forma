@@ -3,6 +3,7 @@
 namespace Forma\Engine\Elementor;
 
 use Forma\Engine\Contracts\Module as ModuleContract;
+use Forma\Engine\Support\Assets;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,8 +41,19 @@ final class Module implements ModuleContract {
 		add_action( 'elementor/elements/categories_registered', array( $this, 'category' ) );
 		add_action( 'elementor/widgets/register', array( $this, 'widgets' ) );
 		add_action( 'elementor/dynamic_tags/register', array( $this, 'tags' ) );
+		add_action( 'elementor/frontend/widget/before_render', array( $this, 'accordion_link' ) );
 
 		( new ArchiveFilter() )->register();
+	}
+
+	/**
+	 * A Nested Accordion whose items have ids can be linked to (`/services/#architecture`): the item the address points
+	 * at is opened by a small script, loaded with the accordion.
+	 */
+	public function accordion_link( \Elementor\Element_Base $widget ): void {
+		if ( 'nested-accordion' === $widget->get_name() ) {
+			Assets::enqueue( 'accordion-link' );
+		}
 	}
 
 	public function category( \Elementor\Elements_Manager $elements ): void {

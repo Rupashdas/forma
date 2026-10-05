@@ -25,12 +25,15 @@ final class Assets {
 
 	/** Plugin script name => dependency handles. */
 	private const SCRIPTS = array(
-		'motion'        => array( 'forma-gsap', 'forma-scrolltrigger', 'forma-splittext' ),
-		'cursor'        => array(),
-		'scroll-story'  => array( 'forma-gsap', 'forma-scrolltrigger' ),
-		'project-index' => array(),
-		'before-after'  => array(),
-		'smooth-scroll' => array( 'forma-lenis', 'forma-gsap', 'forma-scrolltrigger' ),
+		'motion'         => array( 'forma-gsap', 'forma-scrolltrigger', 'forma-splittext' ),
+		'cursor'         => array(),
+		'scroll-story'   => array( 'forma-gsap', 'forma-scrolltrigger' ),
+		'project-index'  => array(),
+		'before-after'   => array(),
+		'smooth-scroll'  => array( 'forma-lenis', 'forma-gsap', 'forma-scrolltrigger' ),
+		// The Process page's stage readout, and the opening of a Nested Accordion item by link (see Elementor\Module).
+		'process'        => array(),
+		'accordion-link' => array(),
 	);
 
 	/** Plugin stylesheet names. */

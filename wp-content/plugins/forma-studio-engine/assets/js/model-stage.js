@@ -1108,8 +1108,21 @@ const scrollers = new WeakMap();
 
 const swapAll = ( mode, id ) => views.forEach( ( view ) => view.b.swap === mode && view.swapTo( id ) );
 
+/**
+ * The element that names the project for a pointer or focus on `node`: the closest marked ancestor or, inside a Nested
+ * Accordion item, the marked panel of that item, so the item's header swaps the model too (the header is not an element
+ * Elementor lets you mark).
+ */
+const swapSource = ( node ) => {
+	if ( ! ( node instanceof Element ) ) {
+		return null;
+	}
+
+	return node.closest( '[data-model-swap]' ) || node.closest( '.e-n-accordion-item' )?.querySelector( '[data-model-swap]' ) || null;
+};
+
 const onSwapIntent = ( event ) => {
-	const target = event.target instanceof Element ? event.target.closest( '[data-model-swap]' ) : null;
+	const target = swapSource( event.target );
 
 	if ( target ) {
 		swapAll( 'hover', target.dataset.modelSwap );
