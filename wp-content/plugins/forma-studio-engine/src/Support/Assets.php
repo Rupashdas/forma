@@ -34,6 +34,8 @@ final class Assets {
 		// The Process page's stage readout, and the opening of a Nested Accordion item by link (see Elementor\Module).
 		'process'        => array(),
 		'accordion-link' => array(),
+		// Keeps imagesLoaded (which Elementor Pro's Loop Grid calls) from loading lazy photographs early; see the file.
+		'lazy-images'    => array( 'imagesloaded' ),
 	);
 
 	/** Stylesheets up to this many bytes are printed inline rather than linked. */
@@ -61,6 +63,7 @@ final class Assets {
 		'deferforms-base',
 		'deferforms-validate',
 		'deferforms-select',
+		'forma-lazy-images',
 	);
 
 	/** Plugin stylesheet names. */
@@ -71,6 +74,16 @@ final class Assets {
 		add_action( 'elementor/frontend/after_register_scripts', array( self::class, 'register_assets' ) );
 		add_action( 'elementor/frontend/after_register_styles', array( self::class, 'register_assets' ) );
 		add_filter( 'script_loader_tag', array( self::class, 'defer_footer_scripts' ), 10, 2 );
+		add_action( 'wp_print_footer_scripts', array( self::class, 'lazy_images' ), 1 );
+	}
+
+	/**
+	 * On any page that loads imagesLoaded, load the small script that stops it fetching lazy photographs early.
+	 */
+	public static function lazy_images(): void {
+		if ( ! is_admin() && wp_script_is( 'imagesloaded', 'enqueued' ) && ! Editor::active() ) {
+			self::enqueue( 'lazy-images' );
+		}
 	}
 
 	/**
