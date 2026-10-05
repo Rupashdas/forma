@@ -1,83 +1,124 @@
-/* FORMA — Next Project. One large link: the next project's image under its name. */
+/*
+ * FORMA — Next Project. One rounded tile: the next project's photograph beside its name. On Paper the tile is a Panel;
+ * inside an Ink band the role tokens are re-pointed, so it is an Ink tile with Paper type, with no change here.
+ */
 
 .forma-next {
-	color: var(--forma-page, #f2efe8);
+	background-color: var(--forma-raised, #e9e8e3);
+	border-radius: var(--forma-r-tile, 18px);
+	color: var(--forma-ink, #141414);
 	display: grid;
+	gap: clamp(12px, 2.4vw, 40px);
+	grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 	isolation: isolate;
-	min-height: clamp(420px, 78vh, 900px);
-	overflow: hidden;
-	position: relative;
+	padding: 12px;
 	text-decoration: none;
 }
 
-.forma-next__media,
-.forma-next__media img {
-	height: 100%;
-	inset: 0;
-	position: absolute;
-	width: 100%;
-}
-
-.forma-next__media img {
-	object-fit: cover;
-	transition: transform 1.2s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
-}
-
-/* A flat Ink veil keeps Chalk type readable on any photograph. */
-.forma-next__media::after {
-	background-color: rgba(22, 25, 23, 0.45);
-	content: "";
-	inset: 0;
-	position: absolute;
-	transition: background-color 0.6s ease;
-}
-
-.forma-next__text {
-	align-self: end;
-	display: grid;
-	gap: 12px;
-	padding: clamp(24px, 4vw, 64px) var(--forma-gutter, clamp(16px, 3.2vw, 48px));
+/* The picture sets the frame's shape (16:10, 4:3 on mobile) through its own aspect ratio, so the tile sizes itself. */
+.forma-next__media {
+	background-color: color-mix(in srgb, var(--forma-ink, #141414) 7%, transparent);
+	border-radius: var(--forma-r-img, 12px);
+	display: block;
+	overflow: hidden;
 	position: relative;
 }
 
-.forma-next__label,
-.forma-next__no {
-	font-family: var(--forma-font-sans, sans-serif);
-	font-size: 12px;
-	font-stretch: 125%;
-	font-weight: 500;
-	letter-spacing: 0.01em;
+.forma-next__media img {
+	aspect-ratio: 16 / 10;
+	display: block;
+	height: auto;
+	object-fit: cover;
+	transition: scale 1.2s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
+	width: 100%;
+}
+
+/* No photograph yet: a quiet block with the study model's chip, as on the project cards. */
+.forma-next__media:not(:has(img)) {
+	aspect-ratio: 16 / 10;
+}
+
+.forma-next__media:not(:has(img))::after {
+	background-color: var(--forma-chip, #dce0ff);
+	border-radius: 999px;
+	color: var(--forma-chip-ink, #1b2799);
+	content: "Study model";
+	font: 600 11px/1 var(--forma-font-sans, "Archivo", sans-serif);
+	left: 50%;
+	padding: 5px 10px;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+/* Label and project number at the top of the text column, the name at its foot. */
+.forma-next__text {
+	align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: clamp(8px, 1.4vw, 24px) clamp(8px, 1.4vw, 24px) clamp(8px, 1.4vw, 24px) 0;
+}
+
+.forma-next__label {
+	color: var(--forma-muted, #55554f);
+	font: 500 13px/1.3 var(--forma-font-sans, "Archivo", sans-serif);
+	order: 1;
 }
 
 .forma-next__no {
-	color: var(--forma-accent-on-deep, #d2ae63);
+	background-color: var(--forma-chip, #dce0ff);
+	border-radius: 999px;
+	color: var(--forma-chip-ink, #1b2799);
+	font: 600 11px/1 var(--forma-font-sans, "Archivo", sans-serif);
+	order: 2;
+	padding: 5px 10px;
 }
 
 .forma-next__title {
 	font-family: var(--forma-font-display, "Archivo", sans-serif);
-	font-size: clamp(56px, 11vw, 200px);
-	font-weight: 400;
-	letter-spacing: -0.04em;
-	line-height: 0.88;
+	font-size: clamp(28px, 3.2vw, 48px);
+	font-weight: 500;
+	letter-spacing: -0.025em;
+	line-height: 1.08;
+	margin-top: auto;
+	order: 3;
+	transition: color 0.4s var(--forma-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .forma-next:hover .forma-next__media img,
 .forma-next:focus-visible .forma-next__media img {
-	transform: scale(1.04);
+	scale: 1.03;
 }
 
-.forma-next:hover .forma-next__media::after,
-.forma-next:focus-visible .forma-next__media::after {
-	background-color: rgba(22, 25, 23, 0.3);
+.forma-next:hover .forma-next__title,
+.forma-next:focus-visible .forma-next__title {
+	color: var(--forma-accent, #2b3bff);
 }
 
-.forma-next:focus-visible {
-	outline-offset: -6px;
+@media (max-width: 767px) {
+	.forma-next {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.forma-next__media img,
+	.forma-next__media:not(:has(img)) {
+		aspect-ratio: 4 / 3;
+	}
+
+	.forma-next__text {
+		gap: 10px;
+		padding: 4px 8px 10px;
+	}
+
+	.forma-next__title {
+		margin-top: 6px;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.forma-next__media img,
-	.forma-next__media::after {
+	.forma-next__title {
 		transition: none;
 	}
 }
