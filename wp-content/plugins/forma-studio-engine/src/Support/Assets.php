@@ -36,6 +36,33 @@ final class Assets {
 		'accordion-link' => array(),
 	);
 
+	/** Stylesheets up to this many bytes are printed inline rather than linked. */
+	private const INLINE_MAX = 6144;
+
+	/**
+	 * Footer scripts of Elementor, Elementor Pro, the theme, Contact Form 7 and its deferred-forms add-on that are loaded with `defer`. They sit at the end
+	 * of the body as plain scripts, which stops the parser (and so the first paint, on a slow connection) while the 250KB
+	 * of them arrive; deferred, they run in the same order, just before DOMContentLoaded, without holding the page up.
+	 * jQuery stays in the head: an inline script that follows jQuery UI needs it at once.
+	 */
+	private const DEFERRED = array(
+		'swv',
+		'contact-form-7',
+		'hello-theme-frontend',
+		'elementor-webpack-runtime',
+		'elementor-frontend-modules',
+		'jquery-ui-core',
+		'elementor-frontend',
+		'smartmenus',
+		'imagesloaded',
+		'elementor-pro-webpack-runtime',
+		'elementor-pro-frontend',
+		'pro-elements-handlers',
+		'deferforms-base',
+		'deferforms-validate',
+		'deferforms-select',
+	);
+
 	/** Plugin stylesheet names. */
 	private const STYLES = array( 'motion', 'cursor', 'scroll-story', 'project-index', 'before-after', 'marquee', 'next-project', 'smooth-scroll' );
 
@@ -43,6 +70,18 @@ final class Assets {
 		add_action( 'wp_enqueue_scripts', array( self::class, 'register_assets' ), 5 );
 		add_action( 'elementor/frontend/after_register_scripts', array( self::class, 'register_assets' ) );
 		add_action( 'elementor/frontend/after_register_styles', array( self::class, 'register_assets' ) );
+		add_filter( 'script_loader_tag', array( self::class, 'defer_footer_scripts' ), 10, 2 );
+	}
+
+	/**
+	 * Adds `defer` to the footer scripts listed in DEFERRED, on the public site only (never in the editor or its preview).
+	 */
+	public static function defer_footer_scripts( string $tag, string $handle ): string {
+		if ( ! in_array( $handle, self::DEFERRED, true ) || is_admin() || str_contains( $tag, ' defer' ) || Editor::active() ) {
+			return $tag;
+		}
+
+		return str_replace( ' src=', ' defer src=', $tag );
 	}
 
 	public static function register_assets(): void {
@@ -61,8 +100,25 @@ final class Assets {
 		}
 
 		foreach ( self::STYLES as $name ) {
-			wp_register_style( "forma-{$name}", FORMA_ENGINE_URL . "assets/css/{$name}.css", array(), self::version( "assets/css/{$name}.css" ) );
+			self::register_style( "forma-{$name}", "assets/css/{$name}.css" );
 		}
+	}
+
+	/**
+	 * Registers a stylesheet of the plugin. One this small costs more as a request than as bytes (every request is a round
+	 * trip before the page can paint), so it is printed inline, and only on the pages that enqueue it.
+	 */
+	public static function register_style( string $handle, string $path ): void {
+		$file = FORMA_ENGINE_PATH . $path;
+
+		if ( is_readable( $file ) && filesize( $file ) <= self::INLINE_MAX ) {
+			wp_register_style( $handle, false, array(), self::version( $path ) );
+			wp_add_inline_style( $handle, (string) file_get_contents( $file ) );
+
+			return;
+		}
+
+		wp_register_style( $handle, FORMA_ENGINE_URL . $path, array(), self::version( $path ) );
 	}
 
 	/**

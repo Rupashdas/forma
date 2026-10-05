@@ -33,6 +33,29 @@ final class Media implements Module {
 		add_filter( 'image_size_names_choose', array( $this, 'size_names' ) );
 		add_filter( 'elementor/widget/render_content', array( $this, 'mark_hero_images' ), 10, 2 );
 		add_filter( 'wp_content_img_tag', array( $this, 'load_hero_images' ), 99 );
+		add_filter( 'wp_get_loading_optimization_attributes', array( $this, 'lazy_by_default' ), 20, 3 );
+	}
+
+	/**
+	 * Every page here opens on type and a study model, never a photograph, so the photographs are all below the fold. WordPress
+	 * cannot know that: it skips lazy-loading for the first few images of a page and gives the first large one a high fetch
+	 * priority, which here sent the first three project cards of Home's strip (a swipe row far down the page) ahead of the
+	 * styles and scripts. Photographs load lazily unless they are the marked hero layers.
+	 *
+	 * @param array<string, string> $attrs   The loading attributes WordPress chose.
+	 * @param string                $tag     The tag name.
+	 * @param array<string, mixed>  $attr    The tag's attributes.
+	 * @return array<string, string>
+	 */
+	public function lazy_by_default( array $attrs, string $tag, array $attr ): array {
+		if ( 'img' !== $tag || str_contains( (string) ( $attr['class'] ?? '' ), 'is-hero-' ) ) {
+			return $attrs;
+		}
+
+		$attrs['loading'] = 'lazy';
+		unset( $attrs['fetchpriority'] );
+
+		return $attrs;
 	}
 
 	/**
