@@ -197,7 +197,39 @@
 				onRefresh: ( self ) => setX( -self.progress * distance() ),
 			} );
 
+			// Focus (Tab) on a card that is out of view makes the browser scroll the clip itself, which would pull the strip out
+			// of step with the page's scroll. The clip is kept still and the page is scrolled to the place where the card is
+			// in the middle of the window instead.
+			const holdClip = () => {
+				clip.scrollLeft = 0;
+			};
+			const reveal = ( event ) => {
+				const card = event.target.closest( '.elementor-loop-container > div' );
+
+				holdClip();
+
+				if ( ! card ) {
+					return;
+				}
+
+				const left = card.getBoundingClientRect().left - track.getBoundingClientRect().left;
+				const x = Math.min( distance(), Math.max( 0, left - ( clip.clientWidth - card.offsetWidth ) / 2 ) );
+				const to = () => {
+					holdClip();
+					window.formaLenis ? window.formaLenis.scrollTo( trigger.start + x, { immediate: true, force: true } ) : window.scrollTo( 0, trigger.start + x );
+				};
+
+				to();
+				// The browser's own scroll-into-view may follow the focus event; this puts it right afterwards.
+				window.requestAnimationFrame( to );
+			};
+
+			clip.addEventListener( 'scroll', holdClip );
+			el.addEventListener( 'focusin', reveal );
+
 			restore.push( () => {
+				clip.removeEventListener( 'scroll', holdClip );
+				el.removeEventListener( 'focusin', reveal );
 				trigger.kill();
 				ScrollTrigger.removeEventListener( 'refreshInit', size );
 				gsap.set( track, { clearProps: 'transform' } );
