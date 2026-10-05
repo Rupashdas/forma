@@ -59,7 +59,7 @@ final class Footer {
 			'clamp(64px, 13vw, 220px)',
 			'div',
 			'ink',
-			Style::display_type( 'clamp(64px, 13vw, 220px)', 0.85, -0.03, Style::WORDMARK, '800' ) + array( 'fm_entrance' => 'chars' )
+			Style::display_type( 'clamp(64px, 13vw, 220px)', 0.85, -0.03, Style::WORDMARK, '800' )
 		);
 	}
 
