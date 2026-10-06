@@ -12,12 +12,18 @@ defined( 'ABSPATH' ) || exit;
  * model is the volumes of the first `forma-study-model` widget in its Elementor body whose source is "custom";
  * a project without one shows the recipe for its slug.
  *
- * A volume is array{kind, w, h, d, x, y, z, rot, material, part, stage}; see data/models.php for the units.
+ * A volume is array{kind, w, h, d, x, y, z, rot, material, part, stage[, windows]}; see data/models.php for the units.
+ * A model may also ask for `trees` and `people`: how many stylised trees the runtime plants on the free edges of the plinth, and how
+ * many scale figures (1.8 m, simple capsules) it stands near the buildings (both default 0; phones show none).
  */
 final class Models {
 
 	public const KINDS     = array( 'box', 'gable', 'cylinder', 'slab', 'wire' );
-	public const MATERIALS = array( 'foam', 'shade', 'ink', 'glass', 'wire' );
+	public const MATERIALS = array( 'foam', 'shade', 'ink', 'timber', 'stone', 'ground', 'metal', 'leaf', 'water', 'glass', 'wire' );
+
+	/** Most trees, and most scale figures, a model may ask for. */
+	public const MAX_TREES  = 6;
+	public const MAX_PEOPLE = 8;
 	public const RECIPES   = array( 'studio', 'lisbon-block', 'plot', 'process' );
 
 	/** Most volumes a model may have; the runtime budget assumes it. */
@@ -32,7 +38,7 @@ final class Models {
 	/**
 	 * A recipe by project slug or recipe name.
 	 *
-	 * @return array{volumes: list<array>, camera?: array{distance?: float}}|null
+	 * @return array{volumes: list<array>, camera?: array{distance?: float}, trees?: int, people?: int}|null
 	 */
 	public static function recipe( string $key ): ?array {
 		if ( null === self::$recipes ) {
@@ -48,6 +54,14 @@ final class Models {
 					$normalised['camera'] = array( 'distance' => round( min( 3, max( 0.3, $distance ) ), 3 ) );
 				}
 
+				if ( self::trees( $recipe['trees'] ?? 0 ) > 0 ) {
+					$normalised['trees'] = self::trees( $recipe['trees'] );
+				}
+
+				if ( self::people( $recipe['people'] ?? 0 ) > 0 ) {
+					$normalised['people'] = self::people( $recipe['people'] );
+				}
+
 				self::$recipes[ (string) $name ] = $normalised;
 			}
 		}
@@ -57,7 +71,8 @@ final class Models {
 
 	/**
 	 * Cast a list of volumes (from a recipe or from widget settings) into the shape the runtime reads: numbers cast
-	 * and sizes clamped to 0.02–40, kind and material limited to the allowed sets, at most 30 volumes.
+	 * and sizes clamped to 0.02–40, kind and material limited to the allowed sets, at most 30 volumes. `windows` is
+	 * kept only when it is false (a box that must stay blank); otherwise the runtime decides from the box's size.
 	 *
 	 * @param array $volumes Raw volumes.
 	 * @return list<array>
@@ -82,7 +97,7 @@ final class Models {
 				$material = 'wire';
 			}
 
-			$out[] = array(
+			$row = array(
 				'kind'     => $kind,
 				'w'        => $w,
 				'h'        => self::size( $volume['h'] ?? 1 ),
@@ -95,6 +110,12 @@ final class Models {
 				'part'     => mb_substr( sanitize_text_field( (string) ( $volume['part'] ?? '' ) ), 0, 40 ),
 				'stage'    => (int) min( 6, max( 0, (int) ( $volume['stage'] ?? 0 ) ) ),
 			);
+
+			if ( isset( $volume['windows'] ) && ! filter_var( $volume['windows'], FILTER_VALIDATE_BOOLEAN ) ) {
+				$row['windows'] = false;
+			}
+
+			$out[] = $row;
 		}
 
 		return $out;
@@ -103,7 +124,7 @@ final class Models {
 	/**
 	 * The model a project shows: its own custom volumes, else the recipe for its slug.
 	 *
-	 * @return array{id: int, slug: string, title: string, url: string, number: string, volumes: list<array>, camera?: array{distance?: float}}|null
+	 * @return array{id: int, slug: string, title: string, url: string, number: string, volumes: list<array>, camera?: array{distance?: float}, trees?: int, people?: int}|null
 	 */
 	public static function for_project( int $post_id ): ?array {
 		$post = get_post( $post_id );
@@ -115,8 +136,13 @@ final class Models {
 		$custom  = self::custom_model( $post_id );
 		$volumes = $custom['volumes'];
 		$camera  = array();
+		$trees   = 0;
+		$people  = 0;
 
 		if ( $volumes ) {
+			$trees  = $custom['trees'];
+			$people = $custom['people'];
+
 			if ( $custom['distance'] > 0 ) {
 				$camera = array( 'distance' => self::distance( $custom['distance'] ) );
 			}
@@ -124,6 +150,8 @@ final class Models {
 			$recipe  = self::recipe( $post->post_name );
 			$volumes = $recipe['volumes'] ?? array();
 			$camera  = $recipe['camera'] ?? array();
+			$trees   = $recipe['trees'] ?? 0;
+			$people  = $recipe['people'] ?? 0;
 		}
 
 		if ( ! $volumes ) {
@@ -141,6 +169,14 @@ final class Models {
 
 		if ( $camera ) {
 			$model['camera'] = $camera;
+		}
+
+		if ( $trees > 0 ) {
+			$model['trees'] = $trees;
+		}
+
+		if ( $people > 0 ) {
+			$model['people'] = $people;
 		}
 
 		return $model;
@@ -212,12 +248,14 @@ final class Models {
 	 * The project's own model: the volumes and the camera distance of its study-model widget (source "custom"), found
 	 * by walking its Elementor data. The volumes are empty when the project has no such widget.
 	 *
-	 * @return array{volumes: list<array>, distance: float}
+	 * @return array{volumes: list<array>, distance: float, trees: int, people: int}
 	 */
 	private static function custom_model( int $post_id ): array {
 		$none = array(
 			'volumes'  => array(),
 			'distance' => 0.0,
+			'trees'    => 0,
+			'people'   => 0,
 		);
 		$data = get_post_meta( $post_id, '_elementor_data', true );
 
@@ -238,7 +276,19 @@ final class Models {
 		return array(
 			'volumes'  => self::normalise( (array) ( $settings['volumes'] ?? array() ) ),
 			'distance' => is_numeric( $settings['distance'] ?? null ) ? (float) $settings['distance'] : 0.0,
+			'trees'    => self::trees( $settings['trees'] ?? 0 ),
+			'people'   => self::people( $settings['people'] ?? 0 ),
 		);
+	}
+
+	/** A number of scale figures, held to what the runtime stands (0 to MAX_PEOPLE). */
+	public static function people( mixed $value ): int {
+		return (int) min( self::MAX_PEOPLE, max( 0, is_numeric( $value ) ? (int) $value : 0 ) );
+	}
+
+	/** A number of trees, held to what the runtime plants (0 to MAX_TREES). */
+	public static function trees( mixed $value ): int {
+		return (int) min( self::MAX_TREES, max( 0, is_numeric( $value ) ? (int) $value : 0 ) );
 	}
 
 	/** A camera distance multiplier, held to the range the runtime frames well. */

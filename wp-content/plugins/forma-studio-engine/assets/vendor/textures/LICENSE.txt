@@ -1,0 +1,28 @@
+Surface textures and the daylight HDRI used by the study models
+================================================================
+
+Both sets are released under the Creative Commons CC0 1.0 Universal public-domain dedication
+(https://creativecommons.org/publicdomain/zero/1.0/): free for any use, with no attribution required.
+They are credited here anyway.
+
+Textures (this folder): ambientCG, https://ambientcg.com (CC0 1.0)
+-----------------------------------------------------------------
+Each set was downloaded as the 1K-JPG pack and reduced to 512 x 512 pixels, saved as compressed JPEG:
+colour (<name>-color.jpg), the OpenGL normal map (<name>-normal.jpg) and roughness (<name>-rough.jpg).
+
+  File prefix  Model material            ambientCG asset  Source
+  -----------  ------------------------  ---------------  ------------------------------------
+  ink          charred timber            Planks025C       https://ambientcg.com/a/Planks025C
+  timber       oak                       Planks026A       https://ambientcg.com/a/Planks026A
+  shade        board-formed concrete     Concrete028      https://ambientcg.com/a/Concrete028
+  foam         plaster / lime-wash       Plaster001       https://ambientcg.com/a/Plaster001
+  stone        travertine                Travertine003    https://ambientcg.com/a/Travertine003
+  ground       fine gravel (the plinth)  Gravel037        https://ambientcg.com/a/Gravel037
+
+Daylight HDRI (../hdri/): Poly Haven, https://polyhaven.com (CC0 1.0)
+----------------------------------------------------------------------
+  kloofendal_overcast_puresky_1k.hdr   "Kloofendal Overcast (Pure Sky)", 1k Radiance HDR, by Greg Zaal
+  https://polyhaven.com/a/kloofendal_overcast_puresky
+
+The HDR is decoded with three.js' HDRLoader (the loader that RGBELoader now extends; MIT, see ../three/LICENSE) and
+turned into image-based light and reflections with PMREMGenerator.

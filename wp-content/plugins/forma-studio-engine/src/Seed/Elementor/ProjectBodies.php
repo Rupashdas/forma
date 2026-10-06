@@ -311,6 +311,14 @@ final class ProjectBodies {
 			$settings['distance'] = $recipe['camera']['distance'];
 		}
 
+		if ( ! empty( $recipe['trees'] ) ) {
+			$settings['trees'] = $recipe['trees'];
+		}
+
+		if ( ! empty( $recipe['people'] ) ) {
+			$settings['people'] = $recipe['people'];
+		}
+
 		return Style::section(
 			array(
 				Style::row(

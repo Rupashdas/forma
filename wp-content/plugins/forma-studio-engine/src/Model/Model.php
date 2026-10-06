@@ -35,11 +35,34 @@ final class Model implements Module {
 	}
 
 	/**
-	 * Script modules: `three`, the model runtime (which imports it), the loader that fetches the runtime after the page has loaded, and the stylesheet.
+	 * Script modules: `three` and three of its addons, the model runtime (which imports them), the loader that fetches the runtime after the page has loaded, and the stylesheet.
 	 */
 	public static function register_assets(): void {
 		wp_register_script_module( 'three', FORMA_ENGINE_URL . 'assets/vendor/three/three.module.min.js', array(), self::THREE_VERSION );
-		wp_register_script_module( 'forma-model-runtime', FORMA_ENGINE_URL . 'assets/js/model-stage.js', array( 'three' ), Assets::version( 'assets/js/model-stage.js' ) );
+		// Three addons of the same Three.js build, mapped under the names the runtime imports them by. The rounded box is
+		// needed by every model; the HDR loader (the daylight HDRI) and the room environment (the lighter light phones use,
+		// and the fallback) are fetched only on screens that use them. The maps, the HDRI and their licences are in
+		// assets/vendor/textures and assets/vendor/hdri; the runtime fetches those itself.
+		wp_register_script_module( 'three/addons/geometries/RoundedBoxGeometry.js', FORMA_ENGINE_URL . 'assets/vendor/three/addons/geometries/RoundedBoxGeometry.min.js', array( 'three' ), self::THREE_VERSION );
+		wp_register_script_module( 'three/addons/environments/RoomEnvironment.js', FORMA_ENGINE_URL . 'assets/vendor/three/addons/environments/RoomEnvironment.min.js', array( 'three' ), self::THREE_VERSION );
+		wp_register_script_module( 'three/addons/loaders/HDRLoader.js', FORMA_ENGINE_URL . 'assets/vendor/three/addons/loaders/HDRLoader.min.js', array( 'three' ), self::THREE_VERSION );
+		wp_register_script_module(
+			'forma-model-runtime',
+			FORMA_ENGINE_URL . 'assets/js/model-stage.js',
+			array(
+				'three',
+				'three/addons/geometries/RoundedBoxGeometry.js',
+				array(
+					'id'     => 'three/addons/environments/RoomEnvironment.js',
+					'import' => 'dynamic',
+				),
+				array(
+					'id'     => 'three/addons/loaders/HDRLoader.js',
+					'import' => 'dynamic',
+				),
+			),
+			Assets::version( 'assets/js/model-stage.js' )
+		);
 		// The loader is what pages enqueue; it imports the runtime (and so Three.js) once the page has loaded.
 		wp_register_script_module( 'forma-model-stage', FORMA_ENGINE_URL . 'assets/js/model-stage-loader.js', array( array( 'id' => 'forma-model-runtime', 'import' => 'dynamic' ) ), Assets::version( 'assets/js/model-stage-loader.js' ) );
 		Assets::register_style( 'forma-study-model', 'assets/css/study-model.css' );

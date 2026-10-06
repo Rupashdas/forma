@@ -19,10 +19,16 @@ final class Plan {
 
 	/** Fill of each material. */
 	private const FILL = array(
-		'foam'  => '#fbfaf6',
-		'shade' => '#c6c4ba',
-		'ink'   => '#1a1a19',
-		'glass' => '#e3e7ee',
+		'foam'   => '#fbfaf6',
+		'shade'  => '#c6c4ba',
+		'ink'    => '#1a1a19',
+		'timber' => '#c4a074',
+		'stone'  => '#dacdb6',
+		'ground' => '#d3c8b2',
+		'metal'  => '#5a4a3a',
+		'leaf'   => '#8f9d78',
+		'water'  => '#a9c0c4',
+		'glass'  => '#e3e7ee',
 	);
 
 	/**

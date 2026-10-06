@@ -157,12 +157,28 @@ final class StudyModel extends Base {
 				'type'    => Controls_Manager::SELECT,
 				'default' => 'foam',
 				'options' => array(
-					'foam'  => esc_html__( 'Foam', 'forma-studio-engine' ),
-					'shade' => esc_html__( 'Shaded foam', 'forma-studio-engine' ),
-					'ink'   => esc_html__( 'Ink', 'forma-studio-engine' ),
-					'glass' => esc_html__( 'Glass', 'forma-studio-engine' ),
-					'wire'  => esc_html__( 'Blue wire', 'forma-studio-engine' ),
+					'foam'   => esc_html__( 'Lime-washed plaster', 'forma-studio-engine' ),
+					'shade'  => esc_html__( 'Board-marked concrete', 'forma-studio-engine' ),
+					'ink'    => esc_html__( 'Charred timber', 'forma-studio-engine' ),
+					'timber' => esc_html__( 'Oak', 'forma-studio-engine' ),
+					'stone'  => esc_html__( 'Travertine', 'forma-studio-engine' ),
+					'ground' => esc_html__( 'Gravel', 'forma-studio-engine' ),
+					'metal'  => esc_html__( 'Dark bronze', 'forma-studio-engine' ),
+					'leaf'   => esc_html__( 'Foliage (a tall one is a tree)', 'forma-studio-engine' ),
+					'water'  => esc_html__( 'Water', 'forma-studio-engine' ),
+					'glass'  => esc_html__( 'Glass', 'forma-studio-engine' ),
+					'wire'   => esc_html__( 'Blue wire', 'forma-studio-engine' ),
 				),
+			)
+		);
+
+		$repeater->add_control(
+			'windows',
+			array(
+				'label'       => esc_html__( 'Windows', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::SWITCHER,
+				'default'     => 'yes',
+				'description' => esc_html__( 'Boxes taller than 0.6 are built with recessed windows in thin frames. Turn off for a wall, a terrace or a block that should stay blank.', 'forma-studio-engine' ),
 			)
 		);
 
@@ -228,6 +244,34 @@ final class StudyModel extends Base {
 						'part'     => esc_html__( 'Gabled wing', 'forma-studio-engine' ),
 					),
 				),
+				'condition'   => array( 'source' => 'custom' ),
+			)
+		);
+
+		$this->add_control(
+			'trees',
+			array(
+				'label'       => esc_html__( 'Trees', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::NUMBER,
+				'min'         => 0,
+				'max'         => Models::MAX_TREES,
+				'step'        => 1,
+				'default'     => 0,
+				'description' => esc_html__( 'Stylised trees planted on the free edges of the plinth (tablets and desktops only).', 'forma-studio-engine' ),
+				'condition'   => array( 'source' => 'custom' ),
+			)
+		);
+
+		$this->add_control(
+			'people',
+			array(
+				'label'       => esc_html__( 'Scale figures', 'forma-studio-engine' ),
+				'type'        => Controls_Manager::NUMBER,
+				'min'         => 0,
+				'max'         => Models::MAX_PEOPLE,
+				'step'        => 1,
+				'default'     => 0,
+				'description' => esc_html__( 'Simple 1.8 m figures standing near the buildings, for scale (tablets and desktops only).', 'forma-studio-engine' ),
 				'condition'   => array( 'source' => 'custom' ),
 			)
 		);
@@ -413,6 +457,14 @@ final class StudyModel extends Base {
 			$data['distance'] = $model['distance'];
 		}
 
+		if ( ! empty( $model['trees'] ) ) {
+			$data['trees'] = (int) $model['trees'];
+		}
+
+		if ( ! empty( $model['people'] ) ) {
+			$data['people'] = (int) $model['people'];
+		}
+
 		Model::enqueue( $scrolling );
 
 		if ( $on( 'stages' ) ) {
@@ -462,7 +514,7 @@ final class StudyModel extends Base {
 	/**
 	 * The model this instance shows: id, title, volumes, an optional camera distance factor, and the fallback photo.
 	 *
-	 * @return array{id: string, title: string, volumes: list<array>, distance?: float, photo?: string}|null
+	 * @return array{id: string, title: string, volumes: list<array>, distance?: float, trees?: int, people?: int, photo?: string}|null
 	 */
 	private function model( array $settings ): ?array {
 		$source = (string) ( $settings['source'] ?? 'current' );
@@ -476,6 +528,8 @@ final class StudyModel extends Base {
 				'title'    => Projects::POST_TYPE === get_post_type() ? get_the_title() : __( 'the building', 'forma-studio-engine' ),
 				'volumes'  => $volumes,
 				'distance' => $distance > 0 ? Models::distance( $distance ) : null,
+				'trees'    => Models::trees( $settings['trees'] ?? 0 ),
+				'people'   => Models::people( $settings['people'] ?? 0 ),
 			) : null;
 		}
 
@@ -494,6 +548,8 @@ final class StudyModel extends Base {
 				'title'    => mb_strtolower( $labels[ $key ] ?? $key ),
 				'volumes'  => $recipe['volumes'],
 				'distance' => $recipe['camera']['distance'] ?? null,
+				'trees'    => $recipe['trees'] ?? 0,
+				'people'   => $recipe['people'] ?? 0,
 			);
 		}
 
@@ -509,6 +565,8 @@ final class StudyModel extends Base {
 			'title'    => $project['title'],
 			'volumes'  => $project['volumes'],
 			'distance' => $project['camera']['distance'] ?? null,
+			'trees'    => $project['trees'] ?? 0,
+			'people'   => $project['people'] ?? 0,
 			'photo'    => (string) get_the_post_thumbnail(
 				$post_id,
 				'large',
