@@ -537,3 +537,66 @@ textarea:focus-visible,
 		transition-duration: 0.01ms !important;
 	}
 }
+
+/* ==========================================================================
+   Forms (every Contact Form 7 form). Defer Forms for Contact Form 7 draws the
+   controls from its Design settings (seeded by Contact::form_design()); this
+   only adds what those settings don't cover and keeps the Kit's button style
+   off the plugin's own buttons (the select trigger, chips, file picker).
+   ========================================================================== */
+.wpcf7 .wpcf7-form button:not(.wpcf7-submit),
+.wpcf7 .wpcf7-form button:not(.wpcf7-submit):is(:hover, :focus, :focus-visible, :active) {
+	background-color: var(--deferforms-bg, var(--forma-page));
+	color: var(--deferforms-text, var(--forma-ink));
+	border-radius: var(--deferforms-radius, 12px);
+	font: inherit;
+	letter-spacing: normal;
+	text-transform: none;
+	transform: none;
+}
+
+.wpcf7 .wpcf7-form label {
+	color: var(--forma-ink);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.3;
+}
+
+.wpcf7 .wpcf7-form .deferforms-col > label:first-child {
+	display: block;
+	margin: 0 0 8px;
+}
+
+.wpcf7 .wpcf7-form textarea {
+	min-height: 170px;
+}
+
+.wpcf7 .wpcf7-form .wpcf7-submit {
+	min-height: 52px;
+	padding: 14px 26px;
+	border-radius: 999px;
+	font-size: 14px;
+	font-weight: 600;
+	transition: background-color 0.3s var(--forma-ease);
+}
+
+.wpcf7 .wpcf7-form .wpcf7-submit:is(:hover, :focus-visible):not(:disabled) {
+	background-color: var(--forma-accent);
+	color: #fff;
+}
+
+.wpcf7 form .wpcf7-response-output {
+	margin: 16px 0 0;
+	padding: 14px 18px;
+	border: 0;
+	border-radius: 12px;
+	background-color: var(--forma-page);
+	color: var(--forma-ink);
+	font-size: 15px;
+	line-height: 1.5;
+	box-shadow: inset 0 0 0 1px var(--deferforms-error, #b3261e);
+}
+
+.wpcf7 form.sent .wpcf7-response-output {
+	box-shadow: inset 0 0 0 1px var(--forma-accent);
+}

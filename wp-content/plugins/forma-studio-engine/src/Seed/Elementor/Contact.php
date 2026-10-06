@@ -158,145 +158,45 @@ final class Contact extends Page {
 
 	/** The form's shortcode in Elementor's Shortcode widget, with the styles that fit it to the tile. */
 	private function form_widget(): array {
-		return Builder::widget(
-			'shortcode',
-			array(
-				'shortcode'  => $this->form_shortcode(),
-				'custom_css' => $this->form_css(),
-			)
-		);
+		$this->form_design();
+
+		return Builder::widget( 'shortcode', array( 'shortcode' => $this->form_shortcode() ) );
 	}
 
 	/**
-	 * The form's skin. Defer Forms for Contact Form 7 draws every control (the select widget, the checkbox, the focus ring
-	 * and the button) from `--deferforms-*` custom properties, so they are pointed at FORMA's tokens here instead of the
-	 * controls being restyled one by one: Paper fields on the Panel tile, 12px corners, no borders, a Signal blue focus ring
-	 * and an Ink pill for the button. Labels are a Label over every field and always visible. The rest is layout: two
-	 * columns from the mobile width, and Contact Form 7's response box and error tips in the same voice.
+	 * The FORMA look for every Contact Form 7 form on the site, set in Defer Forms for Contact Form 7's own design
+	 * settings (the same values its Design screen saves): Paper fields with a quiet border on the Panel tile, 12px
+	 * corners, a Signal blue accent and focus ring, and an Ink button. The theme's site.css adds only what those settings
+	 * don't cover (pill button, labels, response box).
 	 */
-	private function form_css(): string {
-		return <<<'CSS'
-		selector .wpcf7-form {
-			--deferforms-text: var(--forma-ink);
-			--deferforms-muted: var(--forma-muted);
-			--deferforms-bg: var(--forma-page);
-			--deferforms-surface: var(--forma-page);
-			--deferforms-surface-alt: var(--forma-raised);
-			--deferforms-border: transparent;
-			--deferforms-border-hover: var(--forma-line);
-			--deferforms-primary: var(--forma-accent);
-			--deferforms-primary-contrast: var(--forma-page);
-			--deferforms-error: #b3261e;
-			--deferforms-radius: var(--forma-r-img);
-			--deferforms-control-height: 52px;
-			--deferforms-font-size: 16px;
-			--deferforms-padding-x: 16px;
-			--deferforms-padding-y: 14px;
-			--deferforms-ring: 3px;
-			--deferforms-ring-color: rgba(43, 59, 255, 0.22);
-			--deferforms-btn-bg: var(--forma-ink);
-			--deferforms-btn-text: var(--forma-page);
-			--deferforms-btn-radius: var(--forma-r-pill);
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-			gap: clamp(18px, 2vw, 26px) clamp(16px, 2vw, 24px);
-			margin: 0;
+	private function form_design(): void {
+		if ( ! class_exists( \DEFERFORMS\DB\Settings_Repository::class ) ) {
+			return;
 		}
-		selector .wpcf7-form > .hidden-fields-container,
-		selector .wpcf7-form > .screen-reader-response,
-		selector .wpcf7-form > fieldset.hidden-fields-container {
-			display: none;
-		}
-		selector .wpcf7-form .forma-field {
-			min-width: 0;
-			margin: 0;
-		}
-		selector .wpcf7-form .forma-field p {
-			margin: 0;
-		}
-		selector .wpcf7-form .forma-field--full,
-		selector .wpcf7-form .wpcf7-response-output {
-			grid-column: 1 / -1;
-		}
-		selector .wpcf7-form .forma-field > label {
-			display: block;
-			margin: 0 0 8px;
-			color: var(--forma-ink);
-			font-size: 13px;
-			font-weight: 500;
-			line-height: 1.3;
-		}
-		selector .wpcf7-form .wpcf7-form-control-wrap {
-			display: block;
-		}
-		/* The Kit paints every input in the Panel colour, which is the tile's own colour: the fields are Paper. */
-		selector .wpcf7 .wpcf7-form :is(input[type="text"], input[type="email"], input[type="tel"], input[type="url"]) {
-			background-color: var(--deferforms-bg);
-		}
-		selector .wpcf7 .wpcf7-form :is(input, textarea, select):focus-visible {
-			outline: 2px solid var(--forma-accent);
-			outline-offset: 2px;
-		}
-		selector .wpcf7-form textarea {
-			min-height: 170px;
-		}
-		selector .wpcf7-form .wpcf7-acceptance label {
-			font-size: 15px;
-			line-height: 1.45;
-		}
-		selector .wpcf7-form .forma-submit {
-			min-height: 52px;
-			padding: 14px 26px;
-			font-size: 14px;
-			transition: background-color 0.3s var(--forma-ease);
-		}
-		selector .wpcf7-form .forma-submit:hover:not(:disabled),
-		selector .wpcf7-form .forma-submit:focus-visible {
-			background-color: var(--forma-accent);
-			opacity: 1;
-		}
-		selector .wpcf7-form .wpcf7-spinner {
-			margin: 0 0 0 12px;
-		}
-		selector .wpcf7-not-valid-tip {
-			display: block;
-			margin-top: 8px;
-			color: var(--deferforms-error);
-			font-size: 14px;
-			line-height: 1.4;
-		}
-		selector .wpcf7 form .wpcf7-response-output,
-		selector .wpcf7 form.invalid .wpcf7-response-output,
-		selector .wpcf7 form.unaccepted .wpcf7-response-output,
-		selector .wpcf7 form.failed .wpcf7-response-output,
-		selector .wpcf7 form.aborted .wpcf7-response-output,
-		selector .wpcf7 form.spam .wpcf7-response-output,
-		selector .wpcf7 form.sent .wpcf7-response-output {
-			margin: 0;
-			padding: 14px 18px;
-			border: 0;
-			border-radius: var(--forma-r-img);
-			background-color: var(--forma-page);
-			color: var(--forma-ink);
-			font-size: 15px;
-			line-height: 1.5;
-		}
-		selector .wpcf7 form.sent .wpcf7-response-output {
-			box-shadow: inset 0 0 0 1px var(--forma-accent);
-		}
-		selector .wpcf7 form.invalid .wpcf7-response-output,
-		selector .wpcf7 form.unaccepted .wpcf7-response-output,
-		selector .wpcf7 form.failed .wpcf7-response-output,
-		selector .wpcf7 form.aborted .wpcf7-response-output,
-		selector .wpcf7 form.spam .wpcf7-response-output {
-			box-shadow: inset 0 0 0 1px var(--deferforms-error);
-		}
-		@media (max-width: 767px) {
-			selector .wpcf7-form {
-				grid-template-columns: minmax(0, 1fr);
-			}
-		}
-		CSS;
+
+		( new \DEFERFORMS\DB\Settings_Repository() )->update_section(
+			'design',
+			array(
+				'primary'          => '#2b3bff',
+				'primary_contrast' => '#ffffff',
+				'text'             => '#141414',
+				'muted'            => '#55554f',
+				'border'           => '#dcdbd5',
+				'bg'               => '#f6f5f1',
+				'surface_alt'      => '#e9e8e3',
+				'error'            => '#b3261e',
+				'radius'           => 12,
+				'control_height'   => 52,
+				'font_size'        => 16,
+				'padding_x'        => 16,
+				'padding_y'        => 14,
+				'gap'              => 20,
+				'ring'             => 3,
+				'button_custom'    => true,
+				'button_bg'        => '#141414',
+				'button_text'      => '#f6f5f1',
+			)
+		);
 	}
 
 	/** The form's id, creating or updating it first. */
@@ -379,30 +279,32 @@ final class Contact extends Page {
 		$types = '"' . implode( '" "', $page['project_types'] ) . '"';
 		$sums  = '"' . implode( '" "', $page['budgets'] ) . '"';
 
-		$field = static fn( string $label, string $id, string $tag, string $class = '' ): string => sprintf(
-			'<div class="forma-field%1$s"><label for="%2$s">%3$s</label>%4$s</div>',
-			$class ? " {$class}" : '',
-			$id,
-			$label,
-			$tag
-		);
+		$field = static fn( string $label, string $id, string $tag ): string => sprintf( '<label for="%1$s">%2$s</label>%3$s', $id, $label, $tag );
+		$row   = static fn( string ...$cols ): string => '[deferforms_row cols="' . count( $cols ) . '"]' . implode( '', array_map( static fn( string $c ): string => '[deferforms_col]' . $c . '[/deferforms_col]', $cols ) ) . '[/deferforms_row]';
 
 		return implode(
-			"\n\n",
+			"
+
+",
 			array(
-				$field( 'Name', 'forma-name', '[text* your-name id:forma-name autocomplete:name]' ),
-				$field( 'Email', 'forma-email', '[email* your-email id:forma-email autocomplete:email]' ),
-				$field( 'Project type', 'forma-type', "[select* project-type id:forma-type first_as_label \"Choose one\" {$types}]" ),
-				$field( 'Budget range (optional)', 'forma-budget', "[select budget id:forma-budget first_as_label \"Choose a range\" {$sums}]" ),
-				$field( 'Site location (optional)', 'forma-location', '[text site-location id:forma-location autocomplete:off]' ),
-				$field( 'When would you like to start? (optional)', 'forma-timeline', '[text timeline id:forma-timeline autocomplete:off]' ),
-				$field( 'Message', 'forma-message', '[textarea* your-message id:forma-message]', 'forma-field--full' ),
-				'<div class="forma-field forma-field--full">[acceptance forma-consent id:forma-consent]' . $page['consent'] . '[/acceptance]</div>',
-				'<div class="forma-field forma-field--full">[submit class:forma-submit "Send message"]</div>',
+				$row(
+					$field( 'Name', 'forma-name', '[text* your-name id:forma-name autocomplete:name]' ),
+					$field( 'Email', 'forma-email', '[email* your-email id:forma-email autocomplete:email]' )
+				),
+				$row(
+					$field( 'Project type', 'forma-type', "[select* project-type id:forma-type first_as_label \"Choose one\" {$types}]" ),
+					$field( 'Budget range (optional)', 'forma-budget', "[select budget id:forma-budget first_as_label \"Choose a range\" {$sums}]" )
+				),
+				$row(
+					$field( 'Site location (optional)', 'forma-location', '[text site-location id:forma-location autocomplete:off]' ),
+					$field( 'When would you like to start? (optional)', 'forma-timeline', '[text timeline id:forma-timeline autocomplete:off]' )
+				),
+				$row( $field( 'Message', 'forma-message', '[textarea* your-message id:forma-message]' ) ),
+				$row( '[acceptance forma-consent id:forma-consent]' . $page['consent'] . '[/acceptance]' ),
+				'[submit class:forma-submit "Send message"]',
 			)
 		);
 	}
-
 	/** The email to the studio, with the sender's address as Reply-To so a reply goes straight to them. */
 	private function mail(): array {
 		$studio = $this->site['studio'];

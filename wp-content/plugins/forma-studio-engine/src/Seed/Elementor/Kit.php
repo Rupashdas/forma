@@ -216,12 +216,8 @@ final class Kit {
 			'button_hover_text_color'          => Style::color( 'page' ),
 			'button_hover_background_color'    => Style::color( 'accent' ),
 
-			// Form fields: Panel surface, no border, Graphite labels.
-			'form_label_color'                 => Style::color( 'muted' ),
-			'form_label_typography_typography' => Style::font( 'meta' ),
-			'form_field_typography_typography' => Style::font( 'body' ),
-			'form_field_text_color'            => Style::color( 'ink' ),
-			'form_field_background_color'      => Style::color( 'raised' ),
+			// Form fields are left to Defer Forms for Contact Form 7, whose design settings (Contact::form_design()) give
+			// every form the FORMA look; Kit field styles would override its controls.
 		);
 
 		// H1 is Display L, H2 Heading, H3 to H6 Subheading; all Ink.
@@ -242,9 +238,6 @@ final class Kit {
 			'button_border_radius'               => Builder::box( 999 ),
 			'button_padding'                     => Builder::box( 14, 22 ),
 			'button_hover_background_background' => 'classic',
-			'form_field_border_border'           => 'none',
-			'form_field_border_radius'           => Builder::box( 12 ),
-			'form_field_padding'                 => Builder::box( 16 ),
 			'image_border_radius'                => Builder::box( 12 ),
 			'__globals__'                        => $globals,
 		);
