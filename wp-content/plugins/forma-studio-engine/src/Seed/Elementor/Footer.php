@@ -55,14 +55,22 @@ final class Footer {
 		);
 	}
 
-	/** The giant wordmark: Archivo Expanded 800 in the page colour (Paper on the Ink band), revealed by character. */
+	/** The large logo, in its light version for the Ink band, linked to Home. */
 	private function wordmark(): array {
-		return Style::display(
-			'FORMA',
-			'clamp(64px, 13vw, 220px)',
-			'div',
-			'ink',
-			Style::display_type( 'clamp(64px, 13vw, 220px)', 0.85, -0.03, Style::WORDMARK, '800' )
+		return Builder::widget(
+			'image',
+			array(
+				'image'          => Builder::image( Brand::ids()['light'] ),
+				'image_size'     => 'large',
+				'align'          => 'left',
+				'link_to'        => 'custom',
+				'link'           => Style::link( home_url( '/' ) ),
+				'width'          => Builder::size( 520 ),
+				'width_tablet'   => Builder::size( 400 ),
+				'width_mobile'   => Builder::size( 240 ),
+				'caption_source' => 'none',
+				'custom_css'     => 'selector img { display: block; max-width: 100%; height: auto; }',
+			)
 		);
 	}
 

@@ -80,21 +80,20 @@ final class Header {
 		);
 	}
 
-	/** The wordmark: the site title in Archivo Expanded 800, 18px, linked to Home. */
+	/** The FORMA logo (Media Library image), about 30px tall, linked to Home. */
 	private function wordmark(): array {
 		return Builder::widget(
-			'theme-site-title',
+			'image',
 			array(
-				'header_size'               => 'div',
-				'link'                      => Style::link( home_url( '/' ) ),
-				'typography_typography'     => 'custom',
-				'typography_font_family'    => Style::WORDMARK,
-				'typography_font_weight'    => '800',
-				'typography_font_size'      => Builder::size( 18 ),
-				'typography_line_height'    => Builder::size( 1, 'em' ),
-				'typography_letter_spacing' => Builder::size( -0.01, 'em' ),
-				'__dynamic__'               => array( 'title' => Builder::tag( 'site-title' ) ),
-				'__globals__'               => array( 'title_color' => Style::color( 'ink' ) ),
+				'image'          => Builder::image( Brand::ids()['logo'] ),
+				'image_size'     => 'medium',
+				'link_to'        => 'custom',
+				'link'           => Style::link( home_url( '/' ) ),
+				'width'          => Builder::size( 104 ),
+				'width_tablet'   => Builder::size( 100 ),
+				'width_mobile'   => Builder::size( 92 ),
+				'caption_source' => 'none',
+				'custom_css'     => 'selector img { display: block; height: auto; } selector a { display: block; }',
 			)
 		);
 	}

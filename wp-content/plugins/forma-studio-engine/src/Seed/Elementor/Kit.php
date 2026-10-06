@@ -34,6 +34,8 @@ final class Kit {
 			( $this->log )( 'Kit: ' . Builder::SKIPPED );
 		}
 
+		Brand::apply_site_identity();
+
 		return $id;
 	}
 
@@ -45,6 +47,8 @@ final class Kit {
 			array(
 				'site_name'        => $site['blog']['name'],
 				'site_description' => $site['blog']['description'],
+				'site_logo'        => Builder::image( Brand::ids()['logo'] ),
+				'site_favicon'     => Builder::image( Brand::ids()['mark'] ),
 			),
 			$this->colors(),
 			$this->fonts(),
