@@ -359,6 +359,7 @@ final class StudyModel extends Base {
 			'scroll_explode' => array( esc_html__( 'Explode on scroll', 'forma-studio-engine' ), esc_html__( 'The parts move apart and are labelled as you scroll.', 'forma-studio-engine' ), '' ),
 			'explode_toggle' => array( esc_html__( 'Exploded view button', 'forma-studio-engine' ), '', '' ),
 			'stages'         => array( esc_html__( 'Grow in stages on scroll', 'forma-studio-engine' ), esc_html__( 'Volumes with a stage from 1 to 6 appear as you scroll (the Process model).', 'forma-studio-engine' ), '' ),
+			'tour'           => array( esc_html__( 'Tell the tour', 'forma-studio-engine' ), esc_html__( 'The model tour of the Home page. The model tells three steps as the page scrolls through its section, following the card nearest the middle of the screen (cards marked data-tour-step 1 to 3): the site, with the building as a dashed ghost; the building in foam, with dimension lines; the finished, labelled building, coming gently apart. Use with the scroll trigger set to the section, and with Orbit on scroll.', 'forma-studio-engine' ), '' ),
 		) as $key => [ $label, $description, $default ] ) {
 			$this->add_control(
 				$key,
@@ -432,7 +433,7 @@ final class StudyModel extends Base {
 		$trigger   = 'section' === ( $settings['scroll_trigger'] ?? '' ) ? 'section' : 'self';
 		$camera    = in_array( $settings['camera'] ?? '', self::CAMERAS, true ) ? $settings['camera'] : 'hero';
 		$caption   = trim( (string) ( $settings['caption'] ?? '' ) );
-		$scrolling = $on( 'scroll_orbit' ) || $on( 'scroll_explode' ) || $on( 'stages' ) || 'scroll' === $swap;
+		$scrolling = $on( 'scroll_orbit' ) || $on( 'scroll_explode' ) || $on( 'stages' ) || $on( 'tour' ) || 'scroll' === $swap;
 
 		$data = array(
 			'id'            => $model['id'],
@@ -448,6 +449,7 @@ final class StudyModel extends Base {
 				'scrollExplode' => $on( 'scroll_explode' ),
 				'explodeToggle' => $on( 'explode_toggle' ),
 				'stages'        => $on( 'stages' ),
+				'tour'          => $on( 'tour' ),
 				'swap'          => $swap,
 			),
 			'scrollTrigger' => $trigger,

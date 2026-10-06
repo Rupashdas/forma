@@ -346,6 +346,187 @@ textarea:focus-visible,
 	}
 }
 
+/*
+ * The Home tour's dressing. The model runtime sets data-tour-active (1 to 3) on .forma-tour as the page scrolls, and these
+ * rules follow it: the giant outlined word of the step behind the model, and the progress rail down the stage's right edge
+ * with its counter. Both are decoration (aria-hidden) and are left out below 768px.
+ */
+.elementor .forma-tour-dress.elementor-widget {
+	position: absolute;
+	z-index: 0;
+	width: auto;
+	pointer-events: none;
+}
+
+.elementor .forma-tour-dress--words.elementor-widget {
+	inset: 0;
+	overflow: hidden;
+}
+
+.elementor .forma-tour-words {
+	position: absolute;
+	inset: 0;
+	font-family: var(--forma-font-wordmark);
+	font-size: 16vw;
+	font-weight: 800;
+	letter-spacing: -0.04em;
+	line-height: 1;
+}
+
+.elementor .forma-tour-words span {
+	position: absolute;
+	left: 3%;
+	bottom: 1%;
+	white-space: nowrap;
+	color: transparent;
+	-webkit-text-stroke: 1px rgba(20, 20, 20, 0.18);
+	-webkit-text-stroke: 1px color-mix(in srgb, var(--forma-ink) 18%, transparent);
+	opacity: 0;
+	transform: translateX(7%);
+	transition:
+		opacity 0.8s var(--forma-ease),
+		transform 1.1s var(--forma-ease);
+}
+
+/* The word of the step the section is at (and, before the runtime has said, the first); the ones before it have gone left. */
+.elementor .forma-tour-words span[data-n="1"],
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-words span[data-n="2"],
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-words span[data-n="3"] {
+	opacity: 1;
+	transform: none;
+}
+
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-words span[data-n="1"],
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-words span[data-n="1"],
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-words span[data-n="2"] {
+	opacity: 0;
+	transform: translateX(-7%);
+}
+
+.elementor .forma-tour-dress--rail.elementor-widget {
+	top: 50%;
+	right: 22px;
+	z-index: 3;
+	transform: translateY(-50%);
+}
+
+.elementor .forma-tour-rail {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	font-family: var(--forma-font-sans);
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1;
+}
+
+.elementor .forma-tour-rail ol {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 30px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* The line the dots hang on. */
+.elementor .forma-tour-rail ol::before {
+	content: "";
+	position: absolute;
+	top: 5px;
+	right: 4px;
+	bottom: 5px;
+	width: 1px;
+	background: var(--forma-line);
+}
+
+.elementor .forma-tour-rail li {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 10px;
+	margin: 0;
+	color: var(--forma-muted);
+	transition: color 0.5s var(--forma-ease);
+}
+
+.elementor .forma-tour-rail li i {
+	position: relative;
+	display: block;
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--forma-raised);
+	box-shadow: inset 0 0 0 1px var(--forma-muted);
+	transition:
+		background-color 0.5s var(--forma-ease),
+		box-shadow 0.5s var(--forma-ease);
+}
+
+/* The step the section is at in Signal blue (the first, before the runtime has said); the steps behind it filled in Ink. */
+.elementor .forma-tour-rail li[data-n="1"],
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-rail li[data-n="2"],
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail li[data-n="3"] {
+	color: var(--forma-ink);
+}
+
+.elementor .forma-tour-rail li[data-n="1"] i,
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-rail li[data-n="2"] i,
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail li[data-n="3"] i {
+	background: var(--forma-accent);
+	box-shadow: 0 0 0 4px rgba(43, 59, 255, 0.2);
+}
+
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-rail li[data-n="1"],
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail li[data-n="1"],
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail li[data-n="2"] {
+	color: var(--forma-muted);
+}
+
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-rail li[data-n="1"] i,
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail li[data-n="1"] i,
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail li[data-n="2"] i {
+	background: var(--forma-ink);
+	box-shadow: none;
+}
+
+.elementor .forma-tour-rail__count {
+	margin: 26px 0 0;
+	color: var(--forma-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.elementor .forma-tour-rail__count b {
+	color: var(--forma-ink);
+	font-weight: 600;
+}
+
+.elementor .forma-tour-rail__count b::before {
+	content: "01";
+}
+
+.elementor .forma-tour[data-tour-active="2"] .forma-tour-rail__count b::before {
+	content: "02";
+}
+
+.elementor .forma-tour[data-tour-active="3"] .forma-tour-rail__count b::before {
+	content: "03";
+}
+
+@media (max-width: 767px) {
+	.elementor .forma-tour-dress.elementor-widget {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.elementor .forma-tour-words span {
+		transition: none;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,

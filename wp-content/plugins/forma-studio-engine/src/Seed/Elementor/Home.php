@@ -250,29 +250,53 @@ final class Home {
 	/**
 	 * A section as tall as three screens. Its first child is the stage, a Panel pinned to the viewport with `sticky`
 	 * (100vh less the inset); the notes come second and are pulled back up by 100vh, so they scroll over the stage. The
-	 * model follows the section: it turns three quarters of a circle and comes apart into its named parts, and drag is
-	 * off so the page keeps the wheel and the touch. From 1024px the model fills the right 62% of the stage and the
-	 * notes sit on the left; below that the theme stylesheet (site.css) pins the stage to the foot of the screen and
-	 * scrolls the notes up from behind it, so no card covers the model.
+	 * model follows the section and tells three steps (the `tour` behaviour reads the cards, marked `data-tour-step`, and takes
+	 * the one nearest the middle of the screen): the site, with the house as a dashed ghost; the house as plain foam, with its
+	 * dimensions drawn; the house built, labelled and coming gently apart. Drag is off so the page keeps the wheel and the touch.
+	 *
+	 * The stage is dressed behind and beside the model, all of it driven by the section's `data-tour-active` (set by the
+	 * runtime): a dotted grid, a giant outlined word for the step, and a progress rail down the right edge with a counter.
+	 * From 1024px the model fills the right 62% of the stage and the notes sit on the left; below that the theme stylesheet
+	 * (site.css) pins the stage to the foot of the screen and scrolls the notes up from behind it, so no card covers the model.
+	 * The word and the rail are left out below 768px.
 	 */
 	private function tour(): array {
 		$casa  = $this->content->project_id( 'casa-nera' );
 		$notes = array(
-			array( 'Site first.', 'We walk the plot with a level and a notebook before anyone draws a line.' ),
-			array( 'Models before drawings.', 'Every building starts as blocks of foam on a table, moved until the light falls right.' ),
-			array( 'Built to last.', 'Lime, timber and stone, detailed to age well rather than stay new.' ),
+			array(
+				'title' => 'Site first.',
+				'text'  => 'We walk the plot with a level and a notebook before anyone draws a line.',
+				'stat'  => '2',
+				'label' => 'site visits before a line is drawn',
+				'photo' => 'home-02.jpg',
+			),
+			array(
+				'title' => 'Models before drawings.',
+				'text'  => 'Every building starts as blocks of foam on a table, moved until the light falls right.',
+				'stat'  => '40',
+				'label' => 'foam models for one house',
+				'photo' => 'home-04.jpg',
+			),
+			array(
+				'title' => 'Built to last.',
+				'text'  => 'Lime, timber and stone, detailed to age well rather than stay new.',
+				'stat'  => '100',
+				'label' => 'years the details are made to last',
+				'photo' => 'casa-nera-01.jpg',
+			),
 		);
 
 		$cards = array();
 
-		foreach ( $notes as [ $title, $text ] ) {
-			$cards[] = $this->tour_note( $title, $text );
+		foreach ( $notes as $index => $note ) {
+			$cards[] = $this->tour_note( $index + 1, $note );
 		}
 
 		return Style::section(
 			array(
 				Style::stack(
 					array(
+						$this->tour_words(),
 						Builder::widget(
 							'forma-study-model',
 							array(
@@ -284,7 +308,7 @@ final class Home {
 								'drag'               => '',
 								'callouts'           => 'yes',
 								'scroll_orbit'       => 'yes',
-								'scroll_explode'     => 'yes',
+								'tour'               => 'yes',
 								'scroll_trigger'     => 'section',
 								'custom_css'         => <<<'CSS'
 								@media (min-width: 1024px) {
@@ -296,6 +320,7 @@ final class Home {
 								CSS,
 							)
 						),
+						$this->tour_rail(),
 					),
 					array(
 						// Boxed: the model sits in the 1320px column, the panel behind it runs the width of the page.
@@ -311,6 +336,20 @@ final class Home {
 							z-index: 1;
 							flex: none;
 							height: calc(100vh - 2 * var(--forma-inset));
+							overflow: hidden;
+						}
+						/* A faint dotted grid, 24px apart, that fades out toward the edges of the stage. Behind everything in it. */
+						selector::after {
+							content: "";
+							position: absolute;
+							inset: 0;
+							z-index: -1;
+							pointer-events: none;
+							background-image: radial-gradient(circle at center, rgba(20, 20, 20, 0.1) 0 1px, transparent 1.5px);
+							background-image: radial-gradient(circle at center, color-mix(in srgb, var(--forma-ink) 10%, transparent) 0 1px, transparent 1.5px);
+							background-size: 24px 24px;
+							-webkit-mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, #000 28%, transparent 100%);
+							mask-image: radial-gradient(ellipse 78% 72% at 50% 50%, #000 28%, transparent 100%);
 						}
 						CSS,
 					)
@@ -342,31 +381,128 @@ final class Home {
 				'padding'     => Builder::box( 0 ),
 				'min_height'  => Builder::size( 300, 'vh' ),
 				'css_classes' => 'forma-tour',
+				// The runtime moves this to the step the page is at.
+				'_attributes' => 'data-tour-active|1',
 			),
 			'full'
 		);
 	}
 
 	/**
-	 * One note: a screen-tall slot with a glass card (Paper at 70% over a blur) at its left, holding a Subheading (an H2, so
-	 * the outline runs on from the page's H1) and a Body line. Below 1024px site.css lays the cards out above the model.
+	 * The giant word of the step, behind the model: outlined (no fill, a 1px Ink line at 18%), Archivo Expanded 800, about 16vw.
+	 * The three words sit one over another; the one for the step the section is at fades in sliding from the right, the one
+	 * before it slides out to the left. Its look, and which word shows, are the `.forma-tour-words` rules of the theme stylesheet
+	 * (they follow the section's `data-tour-active`, which a widget's own Custom CSS cannot reach). Left out below 768px.
 	 */
-	private function tour_note( string $title, string $text ): array {
+	private function tour_words(): array {
+		return Builder::widget(
+			'html',
+			array(
+				'html'         => '<div class="forma-tour-words" aria-hidden="true"><span data-n="1">Site</span><span data-n="2">Model</span><span data-n="3">Built</span></div>',
+				'_css_classes' => 'forma-tour-dress forma-tour-dress--words',
+			)
+		);
+	}
+
+	/**
+	 * A progress rail inside the stage's right edge: a dot for each step with its name, the one the section is at in Signal
+	 * blue, the ones behind it filled, and a counter underneath ("01 / 03"). Styled, like the word, by the theme stylesheet.
+	 * Left out below 768px.
+	 */
+	private function tour_rail(): array {
+		return Builder::widget(
+			'html',
+			array(
+				'html'         => '<div class="forma-tour-rail" aria-hidden="true"><ol><li data-n="1"><span>Site</span><i></i></li><li data-n="2"><span>Model</span><i></i></li><li data-n="3"><span>Built</span><i></i></li></ol><p class="forma-tour-rail__count"><b></b> / 03</p></div>',
+				'_css_classes' => 'forma-tour-dress forma-tour-dress--rail',
+			)
+		);
+	}
+
+	/**
+	 * One note: a screen-tall slot with a glass card (Paper at 70% over a blur) at its left. The card carries its step
+	 * (`data-tour-step`, which the runtime reads), a chip with the count, a Subheading (an H2, so the outline runs on from the
+	 * page's H1), a Body line, and under a hairline one big number (in the Heading size, with a Label) beside a small rounded
+	 * photograph. Below 1024px site.css lays the cards out above the model.
+	 *
+	 * @param array{title:string,text:string,stat:string,label:string,photo:string} $note
+	 */
+	private function tour_note( int $step, array $note ): array {
+		$photo = Images::attachment_id( $note['photo'] );
+
 		return Style::stack(
 			array(
 				Style::stack(
 					array(
-						Style::heading( $title, 'subheading', 'h2' ),
-						Style::text( '<p>' . esc_html( $text ) . '</p>', 'body', 'muted' ),
+						Style::chip( sprintf( '%02d / 03', $step ) ),
+						Style::heading( $note['title'], 'subheading', 'h2' ),
+						Style::text( '<p>' . esc_html( $note['text'] ) . '</p>', 'body', 'muted' ),
+						Style::row(
+							array(
+								Style::stack(
+									array(
+										Style::heading( $note['stat'], 'heading', 'p' ),
+										Style::label( $note['label'] ),
+									),
+									array(
+										'width'    => Builder::size( 'auto', 'custom' ),
+										'flex_gap' => Builder::gap( 4 ),
+									)
+								),
+								Builder::widget(
+									'image',
+									array(
+										'image'      => Builder::image( $photo ),
+										'image_size'  => 'medium',
+										'_css_classes' => 'forma-tour__photo',
+										'custom_css'  => <<<'CSS'
+										selector.elementor-widget {
+											flex: none;
+											width: 92px;
+										}
+										selector img {
+											display: block;
+											width: 92px;
+											height: 92px;
+											object-fit: cover;
+											border-radius: 16px;
+										}
+										@media (max-width: 767px) {
+											selector.elementor-widget {
+												width: 68px;
+											}
+											selector img {
+												width: 68px;
+												height: 68px;
+												border-radius: 14px;
+											}
+										}
+										CSS,
+									)
+								),
+							),
+							array(
+								'flex_wrap'            => 'nowrap',
+								'flex_justify_content' => 'space-between',
+								'flex_align_items'     => 'center',
+								'flex_gap'             => Builder::gap( 16 ),
+								'padding'              => Builder::box( 16, 0, 0, 0 ),
+								'margin'               => Builder::box( 6, 0, 0, 0 ),
+								'border_border'        => 'solid',
+								'border_width'         => Builder::box( 1, 0, 0, 0 ),
+								'__globals__'          => array( 'border_color' => Style::color( 'line' ) ),
+							)
+						),
 					),
 					array(
 						'flex_gap'      => Builder::gap( 8 ),
-						'padding'       => Builder::box( 22, 24, 24, 24 ),
+						'padding'       => Builder::box( 20, 22, 22, 22 ),
 						'border_radius' => Builder::box( 'var(--forma-r-tile)', null, null, null, 'custom' ),
 						'css_classes'   => 'forma-tour__card',
+						'_attributes'   => 'data-tour-step|' . $step,
 						'custom_css'    => <<<'CSS'
 						selector {
-							max-width: 380px;
+							max-width: 400px;
 							background-color: rgba(246, 245, 241, 0.7);
 							background-color: color-mix(in srgb, var(--forma-page) 70%, transparent);
 							-webkit-backdrop-filter: blur(12px);
@@ -378,11 +514,11 @@ final class Home {
 				),
 			),
 			array(
-				'min_height'                => Builder::size( 100, 'vh' ),
-				'flex_justify_content'      => 'center',
+				'min_height'                  => Builder::size( 100, 'vh' ),
+				'flex_justify_content'        => 'center',
 				'flex_justify_content_tablet' => 'flex-end',
-				'flex_align_items'          => 'flex-start',
-				'padding_tablet'            => Builder::box( 0, 0, 24, 0 ),
+				'flex_align_items'            => 'flex-start',
+				'padding_tablet'              => Builder::box( 0, 0, 24, 0 ),
 			)
 		);
 	}

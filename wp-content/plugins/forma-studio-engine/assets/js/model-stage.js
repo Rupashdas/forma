@@ -10,6 +10,11 @@
  * and renders on demand. Behaviours come from the figure's `data-forma-model` JSON: assemble, drag, keyboard, scroll orbit,
  * exploded view, growth stages, swapping to another project's model and the Home tour (site, then foam, then built).
  *
+ * The tour (behaviour `tour`) is one model telling three steps as the page scrolls through its section, read from the section's
+ * cards (`data-tour-step` 1 to 3, the one nearest the middle of the screen is the step): 1 the site, a plinth with contour slabs
+ * and trees and the house as a faint dashed ghost; 2 the volumes drop in as plain foam, with dimension lines drawn on two sides
+ * of the building, in metres; 3 the foam gives way to the real materials, the callouts show and the model comes gently apart.
+ *
  * Textures and the HDRI are fetched lazily, when a model is about to be drawn. Phones draw it cheaper: colour maps only (no
  * normal or roughness maps), the room environment instead of the HDRI, no shadow map, plain glass, and no trees or people.
  *
@@ -54,6 +59,17 @@ const SKY = { hdri: 0.6, room: 0.7 };
 
 /* How long a model that turns by itself keeps turning once nothing has touched it (a pointer, a key, scrolling it into view wakes it). */
 const IDLE_SPIN = 7000;
+
+/* The tour: how long a volume takes to drop in, the 1 unit = 4 m of a dimension line, and where a line stands off the building. */
+const DROP = 0.9;
+const METRES = 4;
+const DIM_OFFSET = 0.42;
+const DIM_GAP = 0.07;
+const DIM_OVER = 0.1;
+/* The contour slabs of the site, under the plinth: how many, how much each steps out past the one above it, and how thick. */
+const CONTOURS = [ 0, 1, 2, 3 ];
+const CONTOUR_STEP = 0.22;
+const CONTOUR_THICK = 0.045;
 
 /* Detail. */
 const WALL = 0.07; // Thickness of a wall with windows in it.
@@ -875,6 +891,21 @@ const geometry = ( kind ) => {
 	return geo;
 };
 
+/** The edges of a box at its real size, dashed to a length that does not depend on the box, then divided down to a unit box. */
+const ghostGeometry = ( w, h, d ) => {
+	const key = `ghost:${ round( w ) }:${ round( h ) }:${ round( d ) }`;
+	let geo = cache.geometry.get( key );
+
+	if ( ! geo ) {
+		geo = new THREE.EdgesGeometry( new THREE.BoxGeometry( w, h, d ) );
+		new THREE.LineSegments( geo ).computeLineDistances();
+		unitize( geo, w, h, d );
+		cache.geometry.set( key, geo );
+	}
+
+	return geo;
+};
+
 /** Whether a box becomes a building with windows: taller than 0.6, not a pier or a thin wall, in a material a window belongs in. */
 const hasWindows = ( v ) =>
 	( v.kind === 'box' || v.kind === 'gable' ) &&
@@ -1060,6 +1091,9 @@ class View {
 		this.dragging = false;
 		this.dragX = 0;
 		this.spinUntil = 0;
+		this.tourStep = 0;
+		this.tk = null;
+		this.peopleK = 0;
 
 		this.progress = 0;
 		this.progressTarget = 0;
@@ -1086,7 +1120,7 @@ class View {
 		this.envTarget = null;
 		this.used = new Set();
 		this.mats = new Map();
-		this.tour = this.b.tour ? { real: { value: 1 } } : null;
+		this.tour = this.b.tour ? { real: { value: 0 } } : null;
 		this.trees = null;
 		this.crowd = null;
 		this.treeSpots = [];
@@ -1096,6 +1130,11 @@ class View {
 		this.buildScene();
 		this.build( data.volumes || [] );
 		this.bind();
+
+		if ( this.tour ) {
+			this.initTour();
+		}
+
 		this.setupScroll();
 	}
 
@@ -1284,6 +1323,29 @@ class View {
 		}
 	}
 
+	/** How far a point of the plinth is from the nearest volume, 0 within one: a function of ( x, z ). */
+	roomFn() {
+		const plinth = this.plinth();
+		const feet = this.volumes
+			.filter( ( v ) => v !== plinth && v.kind !== 'wire' && v.material !== 'wire' )
+			.map( ( v ) => ( { x: v.x, z: v.z, hw: v.w / 2, hd: ( v.kind === 'cylinder' ? v.w : v.d ) / 2, round: v.kind === 'cylinder', cos: Math.cos( v.rot * DEG ), sin: Math.sin( v.rot * DEG ) } ) );
+
+		return ( x, z ) =>
+			feet.reduce( ( least, f ) => {
+				const dx = x - f.x;
+				const dz = z - f.z;
+
+				if ( f.round ) {
+					return Math.min( least, Math.hypot( dx, dz ) - f.hw );
+				}
+
+				const lx = Math.abs( dx * f.cos - dz * f.sin ) - f.hw;
+				const lz = Math.abs( dx * f.sin + dz * f.cos ) - f.hd;
+
+				return Math.min( least, lx <= 0 && lz <= 0 ? 0 : Math.hypot( Math.max( lx, 0 ), Math.max( lz, 0 ) ) );
+			}, 9 );
+	}
+
 	/**
 	 * Decide where the model's trees and people stand on the plinth. Trees go to the edge, at the spots farthest from every
 	 * volume (never closer than TREE_CLEARANCE) and spread apart; people stand a short way from the buildings, toward the
@@ -1304,23 +1366,7 @@ class View {
 			return;
 		}
 
-		const feet = this.volumes
-			.filter( ( v ) => v !== plinth && v.kind !== 'wire' && v.material !== 'wire' )
-			.map( ( v ) => ( { x: v.x, z: v.z, hw: v.w / 2, hd: ( v.kind === 'cylinder' ? v.w : v.d ) / 2, round: v.kind === 'cylinder', cos: Math.cos( v.rot * DEG ), sin: Math.sin( v.rot * DEG ) } ) );
-		const distance = ( x, z ) =>
-			feet.reduce( ( least, f ) => {
-				const dx = x - f.x;
-				const dz = z - f.z;
-
-				if ( f.round ) {
-					return Math.min( least, Math.hypot( dx, dz ) - f.hw );
-				}
-
-				const lx = Math.abs( dx * f.cos - dz * f.sin ) - f.hw;
-				const lz = Math.abs( dx * f.sin + dz * f.cos ) - f.hd;
-
-				return Math.min( least, lx <= 0 && lz <= 0 ? 0 : Math.hypot( Math.max( lx, 0 ), Math.max( lz, 0 ) ) );
-			}, 9 );
+		const distance = this.roomFn();
 		const rand = rngOf( 90 + this.volumes.length * 7 + Math.round( plinth.w * 10 ) );
 		const apart = ( list, spot, least ) => list.every( ( other ) => Math.hypot( other.x - spot.x, other.z - spot.z ) > least );
 
@@ -1464,15 +1510,456 @@ class View {
 		}
 
 		if ( this.crowd ) {
-			this.crowd.visible = k > 0.002 && this.peopleSpots.length > 0;
+			const people = this.tour ? this.peopleK : k;
+
+			this.crowd.visible = people > 0.002 && this.peopleSpots.length > 0;
 
 			this.peopleSpots.forEach( ( person ) => {
 				[ person.body, person.head ].forEach( ( part ) => {
 					part.position.set( person.x, this.groundTop, person.z );
 					part.rotation.y = person.turn;
-					part.scale.setScalar( k || 1e-4 );
+					part.scale.setScalar( people || 1e-4 );
 				} );
 			} );
+		}
+	}
+
+	/* ---- the Home tour ---- */
+
+	/**
+	 * Set the tour up: find the section's cards, make the site (the ghost of the house, the contour slabs) and the dimension
+	 * lines, and take the step the page is at. Reduced motion, and the editor, show the finished model, still.
+	 */
+	initTour() {
+		this.tourRoot = this.el.closest( '.forma-tour' ) || this.el.closest( '.e-con.e-parent' );
+		this.tourCards = this.tourRoot ? Array.from( this.tourRoot.querySelectorAll( '[data-tour-step]' ) ) : [];
+		this.tk = { buildT: 0, real: 0, ghost: 1, dims: 0, contour: 0, fade: 1 };
+		this.buildTotal = this.slots.reduce( ( most, slot ) => Math.max( most, slot.delay ), 0 ) + DROP;
+		this.dimFront = -1;
+		this.dimText = [ '', '' ];
+		this.makeGhosts();
+		this.makeContours();
+		this.makeDims();
+
+		if ( reduced() || this.edit ) {
+			this.setTourStep( 3 );
+			this.settleTour();
+		} else {
+			this.setTourStep( this.readTourStep() );
+		}
+	}
+
+	/** The step the page is at: the card nearest the middle of the screen (of the part above the stage, on a tablet or a phone) (the stage's own progress when there are no cards). */
+	readTourStep() {
+		if ( ! this.tourCards.length ) {
+			const p = this.progressTarget;
+
+			return p < 0.25 ? 1 : p < 0.75 ? 2 : 3;
+		}
+
+		// Beside the model the cards cross the whole screen; below 1024px they scroll up in the part above the stage.
+		const stage = window.innerWidth < 1024 ? this.el.closest( '.forma-tour__stage' ) : null;
+		const middle = stage ? clamp( stage.getBoundingClientRect().top, 0, window.innerHeight ) / 2 : window.innerHeight / 2;
+		let step = 1;
+		let nearest = Infinity;
+
+		this.tourCards.forEach( ( card ) => {
+			const rect = card.getBoundingClientRect();
+			const away = Math.abs( rect.top + rect.height / 2 - middle );
+
+			if ( away < nearest ) {
+				nearest = away;
+				step = clamp( Number( card.dataset.tourStep ) || 1, 1, 3 );
+			}
+		} );
+
+		return step;
+	}
+
+	setTourStep( step ) {
+		if ( step === this.tourStep ) {
+			return;
+		}
+
+		this.tourStep = step;
+
+		if ( this.tourRoot ) {
+			this.tourRoot.dataset.tourActive = String( step );
+		}
+
+		this.el.dispatchEvent( new CustomEvent( 'forma-model:tour', { bubbles: true, detail: { step } } ) );
+		this.invalidate();
+	}
+
+	/** What each animated value of the tour is heading for at the current step. */
+	tourTargets() {
+		const step = this.tourStep;
+
+		return { build: step >= 2 ? this.buildTotal : 0, real: step >= 3 ? 1 : 0, ghost: step === 1 ? 1 : 0, dims: step === 2 ? 1 : 0, contour: 1 };
+	}
+
+	/** Put every animated value of the tour at its target at once (a still frame). */
+	settleTour() {
+		const target = this.tourTargets();
+		const tk = this.tk;
+
+		tk.buildT = target.build;
+		tk.real = target.real;
+		tk.ghost = target.ghost;
+		tk.dims = target.dims;
+		tk.contour = target.contour;
+		this.treeK = 1;
+		this.applyTour();
+	}
+
+	/** Move the tour's animated values toward their targets. Returns whether any is still moving. */
+	stepTour( dt, still ) {
+		const target = this.tourTargets();
+		const tk = this.tk;
+		let busy = false;
+
+		if ( still ) {
+			this.settleTour();
+
+			return false;
+		}
+
+		// The volumes drop in at the speed of an assembly, and lift away faster than they came.
+		if ( Math.abs( target.build - tk.buildT ) > 1e-3 ) {
+			tk.buildT = target.build > tk.buildT ? Math.min( target.build, tk.buildT + dt ) : Math.max( target.build, tk.buildT - dt * 2.4 );
+			busy = true;
+		} else {
+			tk.buildT = target.build;
+		}
+
+		[ [ 'real', 2.2 ], [ 'ghost', 3 ], [ 'dims', 1.7 ], [ 'contour', 1.3 ] ].forEach( ( [ key, rate ] ) => {
+			if ( Math.abs( target[ key ] - tk[ key ] ) > 2e-3 ) {
+				tk[ key ] += ( target[ key ] - tk[ key ] ) * ( 1 - Math.exp( -dt * rate ) );
+				busy = true;
+			} else {
+				tk[ key ] = target[ key ];
+			}
+		} );
+
+		// A dimension line that has had to move to another corner of the building fades back in.
+		if ( tk.fade < 1 ) {
+			tk.fade = Math.min( 1, tk.fade + dt * 3.5 );
+			busy = true;
+		}
+
+		this.applyTour();
+
+		return busy;
+	}
+
+	/** Write the tour's values into the model: which volumes have landed, how real the materials are, who has arrived. */
+	applyTour() {
+		const tk = this.tk;
+
+		this.slots.forEach( ( slot ) => {
+			if ( slot.ground ) {
+				slot.revealed = true;
+				slot.drop = 0;
+
+				return;
+			}
+
+			const t = ( tk.buildT - slot.delay ) / DROP;
+
+			slot.revealed = t > 0;
+			slot.drop = 4.5 * ( 1 - quartOut( clamp( t, 0, 1 ) ) );
+		} );
+
+		this.tour.real.value = tk.real;
+		this.peopleK = tk.real;
+
+		// The grain of the boards and the bumps of the plaster come in with the real materials, and the volume of glass clears.
+		this.mats.forEach( ( mat ) => {
+			if ( mat.userData.look ) {
+				mat.normalScale.setScalar( mat.userData.look.normal * tk.real );
+			}
+
+			if ( mat.isMeshPhysicalMaterial && mat.transparent ) {
+				mat.opacity = lerp( 1, 0.34, tk.real );
+			}
+		} );
+	}
+
+	/** The tour's explosion: gentle, over the last third of the section. */
+	tourExplode() {
+		return reduced() || this.edit ? 0 : 0.55 * cubicInOut( clamp( ( this.progress - 2 / 3 ) * 3, 0, 1 ) );
+	}
+
+	/** The ghost of the house: every volume's box as a dashed outline of its own, in Signal blue, kept where the volume belongs. */
+	makeGhosts() {
+		this.ghosts = new THREE.Group();
+		this.ghostMat = new THREE.LineDashedMaterial( { color: '#2B3BFF', dashSize: 0.075, gapSize: 0.055, transparent: true, opacity: 0.6, depthWrite: false } );
+		this.ghostLines = this.slots.map( ( slot ) => {
+			const { v } = slot;
+
+			if ( slot.ground || slot.wire || v.material === 'leaf' || v.material === 'water' || Math.max( v.w, v.kind === 'cylinder' ? v.w : v.d ) < 0.3 ) {
+				return null;
+			}
+
+			const line = new THREE.LineSegments( ghostGeometry( v.w, v.h, v.kind === 'cylinder' ? v.w : v.d ), this.ghostMat );
+
+			line.frustumCulled = false;
+			this.ghosts.add( line );
+
+			return line;
+		} );
+		this.model.add( this.ghosts );
+	}
+
+	/**
+	 * The contour slabs of the site: a few thin slabs under the plinth, each wider than the one above it, so that the ground the
+	 * model stands on is cut into steps like the layers of a contour model. They are travertine, so they show as white foam until
+	 * the model is built.
+	 */
+	makeContours() {
+		const plinth = this.plinth();
+
+		if ( ! plinth ) {
+			return;
+		}
+
+		this.contours = new THREE.Group();
+		this.contourSlabs = CONTOURS.map( ( _, i ) => {
+			const w = plinth.w + 2 * CONTOUR_STEP * ( i + 1 );
+			const d = plinth.d + 2 * CONTOUR_STEP * ( i + 1 );
+			const slab = new THREE.Mesh( sized( 'box', { w, h: CONTOUR_THICK, d, material: 'stone' }, this.tier ), material( 'stone', this.tier, this ) );
+
+			slab.scale.set( w, CONTOUR_THICK, d );
+			slab.position.x = plinth.x;
+			slab.position.z = plinth.z;
+			slab.receiveShadow = true;
+			this.contours.add( slab );
+
+			return slab;
+		} );
+		this.model.add( this.contours );
+	}
+
+	/** The SVG of the dimension lines, one group for each of the two sides of the building they stand on. */
+	makeDims() {
+		const svg = document.createElementNS( SVG, 'svg' );
+
+		svg.setAttribute( 'class', 'forma-model__dims' );
+		svg.setAttribute( 'aria-hidden', 'true' );
+		svg.style.display = 'none';
+
+		this.dimLines = [ 0, 1 ].map( () => {
+			const g = document.createElementNS( SVG, 'g' );
+			const make = ( tag, className ) => {
+				const node = document.createElementNS( SVG, tag );
+
+				node.setAttribute( 'class', className );
+				g.appendChild( node );
+
+				return node;
+			};
+			const line = { ext1: make( 'line', 'is-ext' ), ext2: make( 'line', 'is-ext' ), main: make( 'line', 'is-main' ), tick1: make( 'line', 'is-tick' ), tick2: make( 'line', 'is-tick' ), label: make( 'text', 'is-label' ) };
+
+			line.main.setAttribute( 'pathLength', '1' );
+			svg.appendChild( g );
+
+			return line;
+		} );
+
+		this.el.insertBefore( svg, this.parts );
+		this.dimsSvg = svg;
+		this.dimsOn = false;
+	}
+
+	/** The building's footprint on the plinth (the boxes of its volumes, turned as they are), which the dimension lines measure. */
+	dimBox() {
+		if ( this.footprint === undefined ) {
+			const plinth = this.plinth();
+			const box = { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity };
+
+			this.volumes.forEach( ( v ) => {
+				if ( v === plinth || v.kind === 'wire' || [ 'wire', 'leaf', 'water' ].includes( v.material ) ) {
+					return;
+				}
+
+				const hw = v.w / 2;
+				const hd = ( v.kind === 'cylinder' ? v.w : v.d ) / 2;
+				const cos = Math.cos( v.rot * DEG );
+				const sin = Math.sin( v.rot * DEG );
+
+				[ [ -1, -1 ], [ 1, -1 ], [ 1, 1 ], [ -1, 1 ] ].forEach( ( [ sx, sz ] ) => {
+					const lx = sx * hw;
+					const lz = sz * hd;
+					const x = v.x + lx * cos + lz * sin;
+					const z = v.z - lx * sin + lz * cos;
+
+					box.x0 = Math.min( box.x0, x );
+					box.x1 = Math.max( box.x1, x );
+					box.z0 = Math.min( box.z0, z );
+					box.z1 = Math.max( box.z1, z );
+				} );
+			} );
+
+			this.footprint = Number.isFinite( box.x0 ) ? box : null;
+		}
+
+		return this.footprint;
+	}
+
+	/** Everything about the tour that follows the camera, once a frame: the ghost, the contour slabs and the dimension lines. */
+	updateTour() {
+		const tk = this.tk;
+
+		this.ghosts.visible = tk.ghost > 0.01;
+
+		if ( this.ghosts.visible ) {
+			this.ghostMat.opacity = 0.6 * tk.ghost;
+			this.slots.forEach( ( slot, i ) => {
+				const line = this.ghostLines[ i ];
+
+				if ( line ) {
+					const b = slot.base;
+
+					line.position.set( b.x, b.y, b.z );
+					line.rotation.y = b.ry;
+					line.scale.set( b.sx, b.sy, b.sz );
+				}
+			} );
+		}
+
+		if ( this.contours ) {
+			this.contourSlabs.forEach( ( slab, i ) => {
+				const k = clamp( tk.contour * ( CONTOURS.length + 1 ) - i, 0, 1 );
+
+				slab.visible = k > 0.001;
+				slab.scale.y = CONTOUR_THICK * Math.max( k, 1e-3 );
+				slab.position.y = -i * CONTOUR_THICK - ( CONTOUR_THICK * k ) / 2;
+			} );
+		}
+
+		if ( this.lastPeopleK !== this.peopleK ) {
+			this.lastPeopleK = this.peopleK;
+			this.drawScatter();
+		}
+
+		this.updateDims();
+	}
+
+	/** Draw the dimension lines on the two sides of the building that face the camera, reading their lengths in metres. */
+	updateDims() {
+		const tk = this.tk;
+		const show = tk.dims * tk.fade;
+
+		if ( show < 0.002 ) {
+			if ( this.dimsOn ) {
+				this.dimsSvg.style.display = 'none';
+				this.dimsOn = false;
+			}
+
+			return;
+		}
+
+		const box = this.dimBox();
+
+		if ( ! box ) {
+			return;
+		}
+
+		if ( ! this.dimsOn ) {
+			this.dimsSvg.style.display = '';
+			this.dimsOn = true;
+		}
+
+		this.model.updateMatrixWorld( true );
+
+		const y = ( this.groundTop || 0.18 ) + 0.006;
+		const cx = ( box.x0 + box.x1 ) / 2;
+		const cz = ( box.z0 + box.z1 ) / 2;
+		const corners = [ [ box.x0, box.z0 ], [ box.x1, box.z0 ], [ box.x1, box.z1 ], [ box.x0, box.z1 ] ];
+		const at = ( x, z ) => {
+			this.tmp.set( x, y, z );
+			this.model.localToWorld( this.tmp );
+			this.tmp.project( this.camera );
+
+			return { x: ( this.tmp.x * 0.5 + 0.5 ) * this.w, y: ( -this.tmp.y * 0.5 + 0.5 ) * this.h };
+		};
+		const screen = corners.map( ( [ x, z ] ) => at( x, z ) );
+		let front = 0;
+
+		screen.forEach( ( p, i ) => {
+			if ( p.y > screen[ front ].y ) {
+				front = i;
+			}
+		} );
+
+		// The corner nearest the bottom of the screen; one that is only just lower does not take over.
+		if ( this.dimFront < 0 ) {
+			this.dimFront = front;
+		} else if ( front !== this.dimFront && screen[ front ].y > screen[ this.dimFront ].y + 16 ) {
+			this.dimFront = front;
+			tk.fade = 0;
+		}
+
+		const corner = corners[ this.dimFront ];
+
+		[ ( this.dimFront + 3 ) % 4, ( this.dimFront + 1 ) % 4 ].forEach( ( other, n ) => {
+			this.drawDim( n, corner, corners[ other ], cx, cz, at, show );
+		} );
+	}
+
+	/** One dimension line along the edge a to b of the footprint, held off the building, with its extension lines, ticks and label. */
+	drawDim( n, a, b, cx, cz, at, show ) {
+		const line = this.dimLines[ n ];
+		const alongX = Math.abs( a[ 1 ] - b[ 1 ] ) < 1e-6;
+		const out = alongX ? [ 0, a[ 1 ] >= cz ? 1 : -1 ] : [ a[ 0 ] >= cx ? 1 : -1, 0 ];
+		const away = ( p, d ) => at( p[ 0 ] + out[ 0 ] * d, p[ 1 ] + out[ 1 ] * d );
+		const e1 = [ away( a, DIM_GAP ), away( a, DIM_OFFSET + DIM_OVER ) ];
+		const e2 = [ away( b, DIM_GAP ), away( b, DIM_OFFSET + DIM_OVER ) ];
+		const d1 = away( a, DIM_OFFSET );
+		const d2 = away( b, DIM_OFFSET );
+		const ext = clamp( show / 0.25, 0, 1 );
+		const main = clamp( ( show - 0.15 ) / 0.65, 0, 1 );
+		const mark = clamp( ( show - 0.75 ) / 0.25, 0, 1 );
+		const set = ( node, p, q ) => {
+			node.setAttribute( 'x1', p.x.toFixed( 1 ) );
+			node.setAttribute( 'y1', p.y.toFixed( 1 ) );
+			node.setAttribute( 'x2', q.x.toFixed( 1 ) );
+			node.setAttribute( 'y2', q.y.toFixed( 1 ) );
+		};
+		const len = Math.hypot( d2.x - d1.x, d2.y - d1.y ) || 1;
+		const ux = ( d2.x - d1.x ) / len;
+		const uy = ( d2.y - d1.y ) / len;
+		// A tick is a short slash at 45 degrees to the line.
+		const tx = ( ux - uy ) * 0.7071 * 6;
+		const ty = ( ux + uy ) * 0.7071 * 6;
+		const side = Math.hypot( e1[ 1 ].x - e1[ 0 ].x, e1[ 1 ].y - e1[ 0 ].y ) || 1;
+		const nx = ( e1[ 1 ].x - e1[ 0 ].x ) / side;
+		const ny = ( e1[ 1 ].y - e1[ 0 ].y ) / side;
+		const mx = ( d1.x + d2.x ) / 2 + nx * 11;
+		const my = ( d1.y + d2.y ) / 2 + ny * 11;
+		let angle = ( Math.atan2( d2.y - d1.y, d2.x - d1.x ) * 180 ) / Math.PI;
+
+		if ( angle > 90 || angle < -90 ) {
+			angle += 180;
+		}
+
+		set( line.ext1, e1[ 0 ], e1[ 1 ] );
+		set( line.ext2, e2[ 0 ], e2[ 1 ] );
+		set( line.main, d1, d2 );
+		set( line.tick1, { x: d1.x - tx, y: d1.y - ty }, { x: d1.x + tx, y: d1.y + ty } );
+		set( line.tick2, { x: d2.x - tx, y: d2.y - ty }, { x: d2.x + tx, y: d2.y + ty } );
+		line.ext1.style.opacity = line.ext2.style.opacity = String( ext );
+		line.main.style.strokeDashoffset = String( 1 - main );
+		line.main.style.opacity = String( main > 0 ? 1 : 0 );
+		line.tick1.style.opacity = line.tick2.style.opacity = String( mark );
+		line.label.style.opacity = String( mark );
+		line.label.setAttribute( 'transform', `translate(${ mx.toFixed( 1 ) } ${ my.toFixed( 1 ) }) rotate(${ angle.toFixed( 1 ) })` );
+
+		const text = `${ ( Math.hypot( b[ 0 ] - a[ 0 ], b[ 1 ] - a[ 1 ] ) * METRES ).toFixed( 1 ) } m`;
+
+		if ( text !== this.dimText[ n ] ) {
+			this.dimText[ n ] = text;
+			line.label.textContent = text;
 		}
 	}
 
@@ -1684,6 +2171,10 @@ class View {
 		if ( snap ) {
 			this.progress = this.progressTarget;
 			this.snapStages();
+		}
+
+		if ( this.tour && ! reduced() && ! this.edit ) {
+			this.setTourStep( this.readTourStep() );
 		}
 
 		const stage = this.b.stages ? Math.min( 6, Math.floor( this.progressTarget * 6 + 1e-6 ) + 1 ) : 0;
@@ -2021,6 +2512,10 @@ class View {
 			this.progress = this.progressTarget;
 		}
 
+		if ( this.tour ) {
+			busy = this.stepTour( dt, still || this.edit ) || busy;
+		}
+
 		// Explosion: the toggle button and the scroll, whichever is further.
 		let toggle = this.explodeTarget;
 
@@ -2038,7 +2533,7 @@ class View {
 			busy = true;
 		}
 
-		this.explodeValue = Math.max( toggle, this.b.scrollExplode ? this.progress : 0 );
+		this.explodeValue = Math.max( toggle, this.tour ? this.tourExplode() : this.b.scrollExplode ? this.progress : 0 );
 
 		if ( this.camExplode !== this.explodeValue ) {
 			this.placeCamera();
@@ -2081,6 +2576,11 @@ class View {
 
 		this.applySlots( now, breathing );
 		this.model.rotation.y = this.rot + ( this.b.scrollOrbit ? this.progress * 1.5 * Math.PI : 0 );
+
+		if ( this.tour ) {
+			this.updateTour();
+		}
+
 		this.updateLabels();
 
 		if ( this.dirty || busy || breathing ) {
@@ -2114,7 +2614,7 @@ class View {
 	 */
 	updateLabels() {
 		const exploded = clamp( ( this.explodeValue - 0.25 ) / 0.35, 0, 1 );
-		const rest = this.b.callouts && wideQuery.matches ? 1 : 0;
+		const rest = this.b.callouts && wideQuery.matches ? ( this.tour ? clamp( ( this.tk.real - 0.5 ) * 2, 0, 1 ) : 1 ) : 0;
 		const amount = Math.max( exploded, rest ) * this.labelAlpha * this.morphFade;
 
 		if ( amount <= 0 && ! this.labelsShown ) {
@@ -2231,6 +2731,8 @@ class View {
 		this.resizer?.disconnect();
 		this.trigger?.kill();
 		this.parts?.remove();
+		this.dimsSvg?.remove();
+		this.ghostMat?.dispose();
 		this.canvas?.remove();
 		this.contact?.material.dispose();
 		this.envTarget?.dispose();

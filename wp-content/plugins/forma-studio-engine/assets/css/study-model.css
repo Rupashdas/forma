@@ -183,6 +183,50 @@ html:not(.fm-js) body:not(.elementor-editor-active) .forma-model__fallback {
 	opacity: 0;
 }
 
+/* The dimension lines of the Home tour: drawn over the model, from the projected corners of the building, every frame. */
+.forma-model__dims {
+	height: 100%;
+	inset: 0;
+	overflow: visible;
+	pointer-events: none;
+	position: absolute;
+	width: 100%;
+}
+
+.forma-model__dims line {
+	fill: none;
+	stroke: var(--forma-ink, #111);
+	stroke-linecap: round;
+	stroke-width: 1px;
+}
+
+.forma-model__dims .is-ext {
+	stroke-opacity: 0.45;
+}
+
+.forma-model__dims .is-main {
+	stroke-dasharray: 1 1;
+	stroke-width: 1.25px;
+}
+
+.forma-model__dims .is-tick {
+	stroke-width: 1.5px;
+}
+
+.forma-model__dims .is-label {
+	dominant-baseline: central;
+	fill: var(--forma-ink, #111);
+	font-family: var(--forma-font-sans, "Archivo", sans-serif);
+	font-size: 12px;
+	font-weight: 500;
+	letter-spacing: 0.01em;
+	paint-order: stroke;
+	stroke: var(--forma-raised, #e9e8e3);
+	stroke-linejoin: round;
+	stroke-width: 4px;
+	text-anchor: middle;
+}
+
 /* A placeholder shown only in the Elementor editor when no model is chosen. */
 .forma-model--empty {
 	align-items: center;
